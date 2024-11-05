@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/pages/ro_db/ro_db.html", "../../../src/pages/ro_db/ro_db.js"],
+  "sourcesContent": ["\n          var import_meta_document = new DocumentFragment()\n        \n            const htmlFrag = \"<body>\" + \"<div>Hello from RO_DB.html!</div>\\r\\n\" + \"</body>\"\n            const fragment = new DOMParser().parseFromString(htmlFrag, 'text/html')\n            import_meta_document.append(...fragment.body.childNodes)\n          \n          \n          export default import_meta_document\n        ", "import roDbTemplate from \"./ro_db.html\"; // with { type: 'html' }\r\n\r\nconsole.log(\"Loaded ro_db.js from cdn\");\r\n\r\nfunction load(element) {\r\n  console.log(\"Loading app\", element);\r\n  element.append(roDbTemplate);\r\n}\r\n\r\nvar ro_db = { load };\r\nwindow.ro_db = ro_db;\r\n"],
+  "mappings": ";AACU,IAAI,uBAAuB,IAAI,iBAAiB;AAE9C,IAAM,WAAW;AACjB,IAAM,WAAW,IAAI,UAAU,EAAE,gBAAgB,UAAU,WAAW;AACtE,qBAAqB,OAAO,GAAG,SAAS,KAAK,UAAU;AAGzD,IAAO,gBAAQ;;;ACNzB,QAAQ,IAAI,0BAA0B;AAEtC,SAAS,KAAK,SAAS;AACrB,UAAQ,IAAI,eAAe,OAAO;AAClC,UAAQ,OAAO,aAAY;AAC7B;AAEA,IAAI,QAAQ,EAAE,KAAK;AACnB,OAAO,QAAQ;",
+  "names": []
+}

@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "esbuild": "0.24.0",
+    "esbuild-plugin-html-modules": "^0.8.0"
+  },
+  "scripts": {
+    "dev": "node esbuild.dev.mjs"
+  }
+}
