@@ -5,7 +5,6 @@ import { setUrlParam } from "../../common/index.js";
 import { appContext } from "../../infrastructure/application_db_context.js";
 import { uploadResponseDocFile } from "../../services/index.js";
 import { getAllItems } from "../../services/legacy_helpers.js";
-import { ko } from "knockout";
 
 import {
   addTask,
