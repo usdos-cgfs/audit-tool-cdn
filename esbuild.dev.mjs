@@ -5,7 +5,7 @@ let ctx = await esbuild.context({
   entryPoints: [
     "./src/styles.css",
     "./src/pages/ro_db/ro_db.js",
-    "./src/pages/ao_db/ao_db.js",
+    "./src/pages/ao_db/ao_db.umd.js",
   ],
   bundle: true,
   sourcemap: true,
