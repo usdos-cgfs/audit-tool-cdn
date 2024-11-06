@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/styles.css"],
-  "sourcesContent": ["/* Properties */\r\n.audit {\r\n  --bg-very-light-color: #edf1f2;\r\n  --bg-light-color: #eefbfb;\r\n  --bg-dark-color: #1d2b36;\r\n  --bg-dark-secondary-color: #2a3c48;\r\n\r\n  --text-primary: #1e2a36;\r\n\r\n  --success-color: #4fbf77;\r\n  --success-hover-color: #1f8f46;\r\n\r\n  --warn-color: #f0bb51;\r\n  --warn-hover-color: #d6930c;\r\n\r\n  --danger-color: rgb(182, 49, 49);\r\n  --danger-hover-color: rgb(179, 26, 26);\r\n  --danger-disabled-color: rgb(203, 113, 113);\r\n\r\n  --primary-color: #3bbfc3;\r\n  --primary-muted-color: #b9dfe2;\r\n\r\n  --secondary-color: #3c474d;\r\n}\r\n"],
-  "mappings": ";AACA,CAAC;AACC,yBAAuB;AACvB,oBAAkB;AAClB,mBAAiB;AACjB,6BAA2B;AAE3B,kBAAgB;AAEhB,mBAAiB;AACjB,yBAAuB;AAEvB,gBAAc;AACd,sBAAoB;AAEpB,kBAAgB,IAAI,GAAG,EAAE,EAAE,EAAE;AAC7B,wBAAsB,IAAI,GAAG,EAAE,EAAE,EAAE;AACnC,2BAAyB,IAAI,GAAG,EAAE,GAAG,EAAE;AAEvC,mBAAiB;AACjB,yBAAuB;AAEvB,qBAAmB;AACrB;",
-  "names": []
-}

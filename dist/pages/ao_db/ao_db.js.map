@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../src/pages/ao_db/ao_db.js"],
-  "sourcesContent": ["console.log(\"hello from ao_db\");\r\n\r\nfunction load(element) {\r\n  console.log(\"ao db executing: \", element);\r\n}\r\n\r\nreturn {\r\n  load,\r\n};\r\n"],
-  "mappings": ";AAAA,QAAQ,IAAI,kBAAkB;AAE9B,SAAS,KAAK,SAAS;AACrB,UAAQ,IAAI,qBAAqB,OAAO;AAC1C;AAEA,OAAO;AAAA,EACL;AACF;",
-  "names": []
-}
