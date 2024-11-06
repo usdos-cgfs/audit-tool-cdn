@@ -1,6 +1,5 @@
-import "../../common/utilities.js";
-
-import { aoDbTemplate } from "./AO_DB_Template.js";
+import { NewUtilities, getUrlParam } from "../../common/index.js";
+import aoDbTemplate from "./ao_db.html";
 import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 import { setUrlParam } from "../../common/index.js";
 import { appContext } from "../../infrastructure/application_db_context.js";
@@ -17,13 +16,16 @@ import {
 
 import "../../sal/infrastructure/knockout_extensions.js";
 
-var Audit = window.Audit || {};
+var Audit = window.Audit || {
+  Common: {},
+};
+
 Audit.AOReport = Audit.AOReport || {};
 
 const responseParam = "ResNum";
 
-Audit.AOReport.Init = function () {
-  var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");
+function NewReportPage() {
+  var paramShowSiteActionsToAnyone = getUrlParam("ShowSiteActions");
   if (paramShowSiteActionsToAnyone != true) {
     //hide it even for owners unless this param is passed into the URL; pass in param if you want to change the page web parts/settings
     $("#RibbonContainer-TabRowLeft").hide();
@@ -59,7 +61,7 @@ Audit.AOReport.Init = function () {
   }
 
   SetTimer();
-};
+}
 
 Audit.AOReport.NewReportPage = function () {
   var m_bigMap = new Object();
@@ -282,7 +284,7 @@ Audit.AOReport.NewReportPage = function () {
         self.ddOptionsResponseTabResponseTitle.valueHasMutated();
 
         setTimeout(function () {
-          var paramTabIndex = GetUrlKeyValue("Tab");
+          var paramTabIndex = getUrlParam("Tab");
           if (paramTabIndex != null && paramTabIndex != "") {
             // $("#tabs").tabs("option", "active", paramTabIndex);
             self.tabs.selectById(paramTabIndex);
@@ -304,7 +306,7 @@ Audit.AOReport.NewReportPage = function () {
             }
           }
 
-          var paramResponseNum = GetUrlKeyValue("ResNum");
+          var paramResponseNum = getUrlParam("ResNum");
           if (paramResponseNum != null && paramResponseNum != "") {
             if (paramTabIndex == 0) {
               if (
@@ -841,7 +843,7 @@ Audit.AOReport.NewReportPage = function () {
   function LoadTabStatusReport(arr, fbody) {
     if (arr == null) return;
 
-    //var bLoadTest = GetUrlKeyValue("LoadTest");
+    //var bLoadTest = getUrlParam("LoadTest");
 
     var responseArr = new Array();
 
@@ -1426,20 +1428,10 @@ Audit.AOReport.NewReportPage = function () {
   return publicMembers;
 };
 
-if (document.readyState === "ready" || document.readyState === "complete") {
-  InitReport();
-} else {
-  document.onreadystatechange = () => {
-    if (document.readyState === "complete" || document.readyState === "ready") {
-      ExecuteOrDelayUntilScriptLoaded(function () {
-        SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport);
-      }, "sp.js");
-    }
-  };
-}
-
 export function load(element, context) {
+  window.context = context;
   element.append(aoDbTemplate);
-  Audit.AOReport.Report = new Audit.AOReport.NewReportPage();
+  Audit.Common.Utilities = new NewUtilities();
+  Audit.AOReport.Report = new NewReportPage();
   Audit.AOReport.Init();
 }
