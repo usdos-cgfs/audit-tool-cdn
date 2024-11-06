@@ -1,17 +1,11 @@
-﻿window.Audit = window.Audit || {};
-Audit.Common = Audit.Common || {};
+﻿import { getUrlParam } from "./router.js";
 
-var loadStart;
-function InitReport() {
-  loadStart = new Date();
-  Audit.Common.Utilities = new Audit.Common.NewUtilities();
-  Audit.Common.Init();
-}
+export function NewUtilities() {
+  const commonUtilities = this;
 
-Audit.Common.Init = function () {};
-
-Audit.Common.NewUtilities = function () {
-  var m_siteUrl = _spPageContextInfo.webServerRelativeUrl; //IE11 in sp 2013 does not recognize L_Menu_BaseUrl
+  const loadStart = new Date();
+  var m_siteUrl = window.context.pageContext.serverRelativeUrl; //IE11 in sp 2013 does not recognize L_Menu_BaseUrl
+  // var m_siteUrl = _spPageContextInfo.webServerRelativeUrl; //IE11 in sp 2013 does not recognize L_Menu_BaseUrl
 
   var m_listTitleRequests = "AuditRequests";
   var m_listNameRequests = "AuditRequests";
@@ -104,14 +98,14 @@ Audit.Common.NewUtilities = function () {
   }
 
   function m_fnOnLoadDisplayTabAndResponse() {
-    var paramTabIndex = GetUrlKeyValue("Tab");
+    var paramTabIndex = getUrlParam("Tab");
     if (paramTabIndex != null && paramTabIndex != "") {
       $("#tabs").tabs("option", "active", paramTabIndex);
     }
 
     var bFiltered = false;
 
-    var paramResponseNum = GetUrlKeyValue("ResNum");
+    var paramResponseNum = getUrlParam("ResNum");
     if (paramResponseNum != null && paramResponseNum != "") {
       if (paramTabIndex == 0) {
         if (
@@ -1199,7 +1193,4 @@ Audit.Common.NewUtilities = function () {
   };
 
   return publicMembers;
-};
-
-// ExecuteOrDelayUntilScriptLoaded(InitReport, "sp.js");
-InitReport();
+}

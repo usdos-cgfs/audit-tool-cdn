@@ -1,23 +1,27 @@
 // src/pages/ro_db/ro_db.html
 var import_meta_document = new DocumentFragment();
-var htmlFrag = '<body><div class="audit">\r\n  <div style="padding-bottom: 10px">\r\n    <a \n      title="Refresh this page"\r\n      href="javascript:void(0)"\r\n      onclick="Audit.Common.Utilities.Refresh()"\r\n      ><span class="ui-icon ui-icon-refresh"></span>Refresh</a>\r\n    <span id="lblFilteredOn" style="padding-left: 10px"></span>\r\n  </div>\r\n\r\n  <div id="divExplorerView"></div>\r\n</div>\r\n</body>';
+var htmlFrag = '<body><div class="audit">\r\n  <div id="divLoading">Loading...</div>\r\n  <div style="padding-bottom: 10px">\r\n    <a \n      title="Refresh this page"\r\n      href="javascript:void(0)"\r\n      onclick="Audit.Common.Utilities.Refresh()"\r\n      ><span class="ui-icon ui-icon-refresh"></span>Refresh</a>\r\n    <span id="lblFilteredOn" style="padding-left: 10px"></span>\r\n  </div>\r\n\r\n  <div id="divExplorerView"></div>\r\n</div>\r\n</body>';
 var fragment = new DOMParser().parseFromString(htmlFrag, "text/html");
 import_meta_document.append(...fragment.body.childNodes);
 var ro_db_default = import_meta_document;
 
-// src/common/utilities.js
-window.Audit = window.Audit || {};
-Audit.Common = Audit.Common || {};
-var loadStart;
-function InitReport() {
-  loadStart = /* @__PURE__ */ new Date();
-  Audit.Common.Utilities = new Audit.Common.NewUtilities();
-  Audit.Common.Init();
+// src/common/router.js
+window.history.replaceState({}, "", document.location.href);
+function getUrlParam(param) {
+  const results = new RegExp("[?&]" + param + "=([^&#]*)").exec(
+    window.location.href
+  );
+  if (results == null) {
+    return null;
+  } else {
+    return decodeURI(results[1]) || 0;
+  }
 }
-Audit.Common.Init = function() {
-};
-Audit.Common.NewUtilities = function() {
-  var m_siteUrl = _spPageContextInfo.webServerRelativeUrl;
+
+// src/common/utilities.js
+function NewUtilities() {
+  const loadStart = /* @__PURE__ */ new Date();
+  var m_siteUrl = window.context.pageContext.serverRelativeUrl;
   var m_listTitleRequests = "AuditRequests";
   var m_listNameRequests = "AuditRequests";
   var m_listTitleRequestsInternal = "AuditRequestsInternal";
@@ -85,12 +89,12 @@ Audit.Common.NewUtilities = function() {
     `;
   }
   function m_fnOnLoadDisplayTabAndResponse() {
-    var paramTabIndex = GetUrlKeyValue("Tab");
+    var paramTabIndex = getUrlParam("Tab");
     if (paramTabIndex != null && paramTabIndex != "") {
       $("#tabs").tabs("option", "active", paramTabIndex);
     }
     var bFiltered = false;
-    var paramResponseNum = GetUrlKeyValue("ResNum");
+    var paramResponseNum = getUrlParam("ResNum");
     if (paramResponseNum != null && paramResponseNum != "") {
       if (paramTabIndex == 0) {
         if ($("#ddlResponseName option[value='" + paramResponseNum + "']").length > 0) {
@@ -369,18 +373,17 @@ Audit.Common.NewUtilities = function() {
             actionOfficeGroupName
           );
           if (actionOfficeGroup != null) {
-            let onUpdateAOPermsSucceeded2 = function() {
+            let onUpdateAOPermsSucceeded = function() {
               m_cntAddedToEmailFolder++;
               if (m_cntAddedToEmailFolder == m_cntAddToEmailFolder) {
                 if (this.OnComplete) this.OnComplete(true);
               }
-            }, onUpdateAOPermsFailed2 = function(sender, args) {
+            }, onUpdateAOPermsFailed = function(sender, args) {
               m_cntAddedToEmailFolder++;
               if (m_cntAddedToEmailFolder == m_cntAddToEmailFolder) {
                 if (this.OnComplete) this.OnComplete(true);
               }
             };
-            var onUpdateAOPermsSucceeded = onUpdateAOPermsSucceeded2, onUpdateAOPermsFailed = onUpdateAOPermsFailed2;
             m_cntAddToEmailFolder++;
             var currCtx2 = new SP.ClientContext.get_current();
             var web2 = currCtx2.get_web();
@@ -391,8 +394,8 @@ Audit.Common.NewUtilities = function() {
             this.oNewEmailFolder.get_roleAssignments().add(actionOfficeGroup, roleDefBindingCollRestrictedContribute2);
             var data2 = { OnComplete: this.OnComplete };
             currCtx2.executeQueryAsync(
-              Function.createDelegate(data2, onUpdateAOPermsSucceeded2),
-              Function.createDelegate(data2, onUpdateAOPermsFailed2)
+              Function.createDelegate(data2, onUpdateAOPermsSucceeded),
+              Function.createDelegate(data2, onUpdateAOPermsFailed)
             );
           }
         }
@@ -906,33 +909,33 @@ Audit.Common.NewUtilities = function() {
     SortResponseTitles: m_fnSortResponseTitleNoCase
   };
   return publicMembers;
-};
-InitReport();
+}
 
 // src/pages/ro_db/ro_db.js
 console.log("Loaded ro_db.js from cdn");
-function load(element) {
+function load(element, context) {
+  window.context = context;
   console.log("Loading app", element);
   element.append(ro_db_default);
-  InitReport2();
+  InitReport();
 }
 var ro_db = { load };
 window.ro_db = ro_db;
-window.Audit = window.Audit || {};
+window.Audit = window.Audit || {
+  Common: {}
+};
 Audit.EAReport = Audit.EAReport || {};
-var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");
+var paramShowSiteActionsToAnyone = getUrlParam("ShowSiteActions");
 if (paramShowSiteActionsToAnyone != true) {
 }
-function InitReport2() {
-  Audit.EAReport.Report = new Audit.EAReport.NewReportPage();
-  Audit.EAReport.Init();
+function InitReport() {
+  Audit.Common.Utilities = new NewUtilities();
+  Audit.EAReport.Report = new NewReportPage();
 }
-Audit.EAReport.Init = function() {
-};
-Audit.EAReport.NewReportPage = function() {
+function NewReportPage() {
   var path = location.protocol + "//" + location.host + Audit.Common.Utilities.GetSiteUrl() + "/" + Audit.Common.Utilities.GetLibTitleResponseDocsEA();
-  var filterField = GetUrlKeyValue("FilterField1");
-  var filterValue = GetUrlKeyValue("FilterValue1");
+  var filterField = getUrlParam("FilterField1");
+  var filterValue = getUrlParam("FilterValue1");
   if (filterField == "Modified" && filterValue != null && filterValue != "") {
     filterValue = filterValue.replace(/%2D/g, "/");
     filterValue = filterValue.replace(/-/g, "/");
@@ -944,9 +947,10 @@ Audit.EAReport.NewReportPage = function() {
   } else {
     document.getElementById("lblFilteredOn").innerHTML = "";
   }
+  Audit.Common.Utilities.OnLoadDisplayTimeStamp();
   var publicMembers = {
     //Load: m_fnLoadData
   };
   return publicMembers;
-};
+}
 //# sourceMappingURL=ro_db.js.map

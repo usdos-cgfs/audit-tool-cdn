@@ -1,9 +1,9 @@
 import roDbTemplate from "./ro_db.html"; // with { type: 'html' }
-import "../../common/utilities.js";
-
+import { NewUtilities, getUrlParam } from "../../common/index.js";
 console.log("Loaded ro_db.js from cdn");
 
-function load(element) {
+function load(element, context) {
+  window.context = context;
   console.log("Loading app", element);
   element.append(roDbTemplate);
   InitReport();
@@ -12,10 +12,12 @@ function load(element) {
 var ro_db = { load };
 window.ro_db = ro_db;
 
-window.Audit = window.Audit || {};
+window.Audit = window.Audit || {
+  Common: {},
+};
 Audit.EAReport = Audit.EAReport || {};
 
-var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");
+var paramShowSiteActionsToAnyone = getUrlParam("ShowSiteActions");
 if (paramShowSiteActionsToAnyone != true) {
   //hide it even for owners unless this param is passed into the URL; pass in param if you want to change the page web parts/settings
   //Hide Site Actions (fail safe even though master page does it)
@@ -34,13 +36,11 @@ if (paramShowSiteActionsToAnyone != true) {
 // }
 
 function InitReport() {
-  Audit.EAReport.Report = new Audit.EAReport.NewReportPage();
-  Audit.EAReport.Init();
+  Audit.Common.Utilities = new NewUtilities();
+  Audit.EAReport.Report = new NewReportPage();
 }
 
-Audit.EAReport.Init = function () {};
-
-Audit.EAReport.NewReportPage = function () {
+function NewReportPage() {
   var path =
     location.protocol +
     "//" +
@@ -55,8 +55,8 @@ Audit.EAReport.NewReportPage = function () {
   //     "', '_blank');\">View In Explorer</a>"
   // );
 
-  var filterField = GetUrlKeyValue("FilterField1");
-  var filterValue = GetUrlKeyValue("FilterValue1");
+  var filterField = getUrlParam("FilterField1");
+  var filterValue = getUrlParam("FilterValue1");
 
   if (filterField == "Modified" && filterValue != null && filterValue != "") {
     filterValue = filterValue.replace(/%2D/g, "/");
@@ -85,9 +85,11 @@ Audit.EAReport.NewReportPage = function () {
   } else {
     document.getElementById("lblFilteredOn").innerHTML = "";
   }
+
+  Audit.Common.Utilities.OnLoadDisplayTimeStamp();
+
   var publicMembers = {
     //Load: m_fnLoadData
   };
-
   return publicMembers;
-};
+}
