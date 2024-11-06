@@ -5,5 +5,8 @@
   },
   "scripts": {
     "dev": "node esbuild.dev.mjs"
+  },
+  "dependencies": {
+    "knockout": "^3.5.1"
   }
 }
