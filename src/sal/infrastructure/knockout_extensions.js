@@ -321,7 +321,7 @@ const fromPathTemplateLoader = {
   loadTemplate: function (name, templateConfig, callback) {
     if (templateConfig.fromPath) {
       // TODO: Minor - fix error catching and fallback flow
-      fetch(assetsPath + templateConfig.fromPath)
+      fetch(assetsPath() + templateConfig.fromPath)
         .then((response) => {
           if (!response.ok) {
             throw new Error(
@@ -336,7 +336,7 @@ const fromPathTemplateLoader = {
             "Primary template not found, attempting fallback",
             templateConfig
           );
-          fetch(assetsPath + templateConfig.fallback)
+          fetch(assetsPath() + templateConfig.fallback)
             .then((response) => {
               if (!response.ok) {
                 throw new Error(
@@ -366,7 +366,7 @@ const fromPathViewModelLoader = {
   loadViewModel: function (name, viewModelConfig, callback) {
     if (viewModelConfig.viaLoader) {
       // console.log("loading module", name);
-      const module = import(assetsPath + viewModelConfig.viaLoader).then(
+      const module = import(assetsPath() + viewModelConfig.viaLoader).then(
         (module) => {
           // console.log("imported module", name);
           const viewModelConstructor = module.default;

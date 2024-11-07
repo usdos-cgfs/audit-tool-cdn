@@ -43,7 +43,7 @@ class CommentChainModule {
     var comment = Comment.Create({
       id: Math.ceil(Math.random() * 1000000).toString(16),
       text: this.newCommentText(),
-      author: _spPageContextInfo.userLoginName,
+      author: window.context.pageContext.legacyPageContext.userLoginName,
       timestamp: new Date().toLocaleString(),
     });
     this.blobField.add(comment);
@@ -106,7 +106,7 @@ export class CommentChainModuleLegacy {
     var comment = {
       id: Math.ceil(Math.random() * 1000000).toString(16),
       text: this.newCommentText(),
-      author: _spPageContextInfo.userLoginName,
+      author: window.context.pageContext.legacyPageContext.userLoginName,
       timestamp: new Date(),
     };
     this.comments.push(comment);

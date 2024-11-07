@@ -14,7 +14,7 @@ export class ActiveViewersComponent {
   fieldName;
 
   pushCurrentUser() {
-    this.pushUser(_spPageContextInfo.userLoginName);
+    this.pushUser(window.context.pageContext.legacyPageContext.userLoginName);
   }
 
   pushUser(loginName) {
@@ -41,7 +41,9 @@ export class ActiveViewersComponent {
   }
 
   removeCurrentuser() {
-    this.removeUserByLogin(_spPageContextInfo.userLoginName);
+    this.removeUserByLogin(
+      window.context.pageContext.legacyPageContext.userLoginName
+    );
   }
 
   removeUserByLogin(loginName) {
@@ -91,7 +93,7 @@ export function ActiveViewersModuleLegacy(requestId, props) {
   var viewers = ko.observableArray(arrInitialViewers);
 
   function pushCurrentUser() {
-    pushUser(_spPageContextInfo.userLoginName);
+    pushUser(window.context.pageContext.legacyPageContext.userLoginName);
   }
 
   function pushUser(loginName) {
@@ -112,7 +114,9 @@ export function ActiveViewersModuleLegacy(requestId, props) {
   }
 
   function removeCurrentuser() {
-    removeUserByLogin(_spPageContextInfo.userLoginName);
+    removeUserByLogin(
+      window.context.pageContext.legacyPageContext.userLoginName
+    );
   }
 
   function removeUserByLogin(loginName) {

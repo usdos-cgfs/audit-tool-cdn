@@ -1008,7 +1008,7 @@ Audit.AOReport.NewReportPage = function () {
         oResponseDoc.fileName,
         "",
         SP.Utilities.IconSize.Size16
-      ); // m_siteUrl + "/" + _spPageContextInfo.layoutsUrl + "/images/" + docIcon;
+      ); // m_siteUrl + "/" + window.context.pageContext.legacyPageContext.layoutsUrl + "/images/" + docIcon;
     }
 
     function OnSuccess(sender, args) {

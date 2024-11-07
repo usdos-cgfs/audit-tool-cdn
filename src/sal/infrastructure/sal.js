@@ -25,15 +25,15 @@ window.console = window.console || { log: function () {} };
 window.sal = window.sal ?? {};
 var sal = window.sal;
 
-const serverRelativeUrl =
-  _spPageContextInfo.webServerRelativeUrl == "/"
-    ? ""
-    : _spPageContextInfo.webServerRelativeUrl;
+// const serverRelativeUrl =
+//   window.context.pageContext.legacyPageContext.webServerRelativeUrl == "/"
+//     ? ""
+//     : window.context.pageContext.legacyPageContext.webServerRelativeUrl;
 
 sal.globalConfig = sal.globalConfig || {
   siteGroups: [],
-  siteUrl: serverRelativeUrl,
-  listServices: serverRelativeUrl + "/_vti_bin/ListData.svc/",
+  siteUrl: "",
+  listServices: "",
   defaultGroups: {},
 };
 sal.site = sal.site || {};
@@ -90,10 +90,10 @@ export async function getGroupUsers(groupName) {
 }
 
 // Used in router
-export const webRoot =
-  _spPageContextInfo.webAbsoluteUrl == "/"
-    ? ""
-    : _spPageContextInfo.webAbsoluteUrl;
+// export const webRoot =
+//   window.context.pageContext.legacyPageContext.webAbsoluteUrl == "/"
+//     ? ""
+//     : window.context.pageContext.legacyPageContext.webAbsoluteUrl;
 
 export async function InitSal() {
   if (sal.utilities) return;
@@ -101,7 +101,14 @@ export async function InitSal() {
   var currCtx = SP.ClientContext.get_current();
   var web = currCtx.get_web();
   //sal.site = sal.siteConnection;
+  const serverRelativeUrl =
+    window.context.pageContext.legacyPageContext.webServerRelativeUrl == "/"
+      ? ""
+      : window.context.pageContext.legacyPageContext.webServerRelativeUrl;
 
+  sal.globalConfig.siteUrl = serverRelativeUrl;
+
+  sal.globalConfig.listServices = serverRelativeUrl + "/_vti_bin/ListData.svc/";
   // Get default groups
   sal.globalConfig.defaultGroups = {
     owners: web.get_associatedOwnerGroup(),
@@ -207,7 +214,9 @@ sal.NewAppConfig = function () {
 };
 
 // Used in Authorization
-export async function getUserPropsAsync(userId = _spPageContextInfo.userId) {
+export async function getUserPropsAsync(
+  userId = window.context.pageContext.legacyPageContext.userId
+) {
   // We need to make two api calls, one to user info list, and one to web
   // const userInfoUrl = `/Web/lists/getbytitle('User%20Information%20List')/Items(${userId})`;
   const userPropsUrl = `/sp.userprofiles.peoplemanager/getmyproperties`;
@@ -507,7 +516,7 @@ async function getCurrentUserPropertiesAsync() {
   };
   try {
     var response = await fetch(
-      _spPageContextInfo.webAbsoluteUrl +
+      window.context.pageContext.legacyPageContext.webAbsoluteUrl +
         "/_api/SP.UserProfiles.PeopleManager/GetMyProperties",
       {
         method: "GET",
@@ -2371,7 +2380,7 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
 
   async function uploadFileRest(file, relFolderPath, fileName) {
     return await fetch(
-      _spPageContextInfo.webServerRelativeUrl +
+      window.context.pageContext.legacyPageContext.webServerRelativeUrl +
         `/_api/web/GetFolderByServerRelativeUrl('${relFolderPath}')/Files/add(url='${fileName}',overwrite=true)`,
       {
         method: "POST",
@@ -2536,6 +2545,7 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
   return publicMembers;
 }
 
+let requestDigest;
 async function fetchSharePointData(
   uri,
   method = "GET",
@@ -2544,12 +2554,15 @@ async function fetchSharePointData(
 ) {
   const siteEndpoint = uri.startsWith("http")
     ? uri
-    : sal.globalConfig.siteUrl + "/_api" + uri;
+    : window.context.pageContext.legacyPageContext.webServerRelativeUrl +
+      "/_api" +
+      uri;
+
   const response = await fetch(siteEndpoint, {
     method,
     headers: {
       Accept: "application/json; odata=verbose",
-      "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+      "X-RequestDigest": requestDigest,
       ...headers,
     },
     ...opts,
@@ -2590,7 +2603,9 @@ async function refreshDigestValue() {
 
   if (!result) return;
 
-  document.getElementById("__REQUESTDIGEST").value = result.FormDigestValue;
+  requestDigest = result;
+
+  // document.getElementById("__REQUESTDIGEST").value = result.FormDigestValue;
 
   // Refresh before timeout
   window.setTimeout(refreshDigestValue, result.FormDigestTimeoutSeconds * 900);
