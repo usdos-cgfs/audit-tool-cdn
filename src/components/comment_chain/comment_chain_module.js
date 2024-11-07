@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { appContext } from "../../infrastructure/application_db_context.js";
 import {
   registerComponent,

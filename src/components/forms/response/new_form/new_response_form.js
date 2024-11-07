@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { addResponse } from "../../../../services/index.js";
 import { AuditResponse } from "../../../../entities/index.js";
 

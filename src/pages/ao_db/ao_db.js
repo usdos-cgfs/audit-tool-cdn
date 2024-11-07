@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { NewUtilities, getUrlParam } from "../../common/index.js";
 import aoDbTemplate from "./ao_db.html";
 import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";

@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { DateModule, dateFieldTypes } from "../components/fields/index.js";
 import { BaseField } from "./index.js";
 

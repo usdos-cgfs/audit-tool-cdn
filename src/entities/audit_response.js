@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { ConstrainedEntity } from "../sal/primitives/index.js";
 import {
   LookupField,

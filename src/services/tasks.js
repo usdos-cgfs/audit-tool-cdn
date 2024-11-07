@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { ProgressTask, Task } from "../value_objects/task.js";
 export const runningTasks = ko.observableArray();
 

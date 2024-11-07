@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { People } from "../entities/index.js";
 import { ensureUserByKeyAsync } from "./index.js";
 import { assetsPath } from "../../env.js";

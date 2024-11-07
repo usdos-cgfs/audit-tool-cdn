@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { BaseForm, html } from "../index.js";
 
 const componentName = "default-constrained-entity-form";

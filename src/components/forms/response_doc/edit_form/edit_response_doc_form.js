@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { BaseForm } from "../../../../sal/components/forms/index.js";
 import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
 import { updateResponseDoc } from "../../../../services/index.js";

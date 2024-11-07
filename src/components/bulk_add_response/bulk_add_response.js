@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { appContext } from "../../infrastructure/application_db_context.js";
 import { directRegisterComponent } from "../../sal/infrastructure/index.js";
 import { bulkAddResponseTemplate } from "./BulkAddResponseTemplate.js";

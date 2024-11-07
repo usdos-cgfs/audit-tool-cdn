@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { ActiveViewer } from "../../value_objects/active_viewer.js";
 import { appContext } from "../../infrastructure/application_db_context.js";
 

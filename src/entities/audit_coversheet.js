@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { AuditRequest, AuditOrganization } from "./index.js";
 import { auditOrganizationStore } from "../infrastructure/store.js";
 

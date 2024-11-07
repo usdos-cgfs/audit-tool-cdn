@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { updateResponse, currentUser } from "../../../../services/index.js";
 import {
   AuditResponse,

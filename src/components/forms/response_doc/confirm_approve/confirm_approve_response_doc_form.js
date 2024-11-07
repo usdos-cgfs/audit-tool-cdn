@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
 import { m_fnApproveResponseDocsForQA } from "../../../../pages/ia_db/ia_db.js";
 import { approveResponseDocsForRO } from "../../../../services/index.js";

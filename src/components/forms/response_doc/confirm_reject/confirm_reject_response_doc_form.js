@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
 import { m_fnRejectResponseDoc } from "../../../../pages/ia_db/ia_db.js";
 import { confirmRejectResponseDocFormTemplate } from "./ConfirmRejectResponseDocFormTemplate.js";
