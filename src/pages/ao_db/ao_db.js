@@ -1,9 +1,12 @@
 import * as ko from "knockout";
 import { NewUtilities, getUrlParam } from "../../common/index.js";
-import aoDbTemplate from "./ao_db.html";
+import aoDbTemplate from "./ao_db.html" assert { type: "html" };
 import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 import { setUrlParam } from "../../common/index.js";
-import { appContext } from "../../infrastructure/application_db_context.js";
+import {
+  appContext,
+  initAppcontext,
+} from "../../infrastructure/application_db_context.js";
 import { uploadResponseDocFile } from "../../services/index.js";
 import { getAllItems } from "../../services/legacy_helpers.js";
 
@@ -16,16 +19,22 @@ import {
 } from "../../services/tasks.js";
 
 import "../../sal/infrastructure/knockout_extensions.js";
+import stylesheet from "../../styles.css" assert { type: "css" };
+
+const styles = document.createElement("style");
+styles.innerHTML = stylesheet;
+document.head.append(styles);
 
 var Audit = window.Audit || {
   Common: {},
+  AOReport: {},
 };
 
-Audit.AOReport = Audit.AOReport || {};
+// Audit.AOReport = Audit.AOReport || {};
 
 const responseParam = "ResNum";
 
-function NewReportPage() {
+Audit.AOReport.Init = function () {
   var paramShowSiteActionsToAnyone = getUrlParam("ShowSiteActions");
   if (paramShowSiteActionsToAnyone != true) {
     //hide it even for owners unless this param is passed into the URL; pass in param if you want to change the page web parts/settings
@@ -62,7 +71,7 @@ function NewReportPage() {
   }
 
   SetTimer();
-}
+};
 
 Audit.AOReport.NewReportPage = function () {
   var m_bigMap = new Object();
@@ -1431,8 +1440,9 @@ Audit.AOReport.NewReportPage = function () {
 
 export function load(element, context) {
   window.context = context;
-  element.append(aoDbTemplate);
+  element.innerHTML = aoDbTemplate;
+  initAppcontext();
   Audit.Common.Utilities = new NewUtilities();
-  Audit.AOReport.Report = new NewReportPage();
+  Audit.AOReport.Report = new Audit.AOReport.NewReportPage();
   Audit.AOReport.Init();
 }

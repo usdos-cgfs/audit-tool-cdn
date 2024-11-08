@@ -7,7 +7,8 @@
     "esbuild-plugin-umd-wrapper": "^3.0.0"
   },
   "scripts": {
-    "dev": "node esbuild.dev.mjs"
+    "dev": "node esbuild.dev.mjs",
+    "rollup": "npx rollup -c rollup.config.mjs --watch"
   },
   "dependencies": {
     "knockout": "^3.5.1",

@@ -46,4 +46,9 @@ export class ApplicationDbContext extends DbContext {
   AuditROEmailsLog = new EntitySet(AuditROEmailLog);
 }
 
-export const appContext = new ApplicationDbContext();
+let _appContext;
+export let appContext;
+
+export function initAppcontext() {
+  appContext = new ApplicationDbContext();
+}
