@@ -1,10 +1,14 @@
-﻿import { iaDbTemplate } from "./IA_DB_Template.js";
-import "../../common/utilities.js";
+﻿import * as ko from "knockout";
+import iaDbTemplate from "./ia_db.html";
+// import "../../common/utilities.js";
 import "../../../lib/webcomponents/searchselect/searchselect.js";
 import "../../../lib/webcomponents/data-table/data-table.js";
 
 import { InitSal, executeQuery } from "../../sal/infrastructure/index.js";
-import { appContext } from "../../infrastructure/application_db_context.js";
+import {
+  appContext,
+  initAppcontext,
+} from "../../infrastructure/application_db_context.js";
 import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 import { setUrlParam } from "../../common/router.js";
 import { CommentChainModuleLegacy } from "../../components/comment_chain/comment_chain_module.js";
@@ -50,19 +54,23 @@ import { BulkAddRequestForm } from "../../components/bulk_add_request/bulk_add_r
 
 import { getAllItems } from "../../services/legacy_helpers.js";
 import { BulkAddResponseForm } from "../../components/bulk_add_response/bulk_add_response.js";
+import { NewUtilities } from "../../common/utilities.js";
 
-document.getElementById("app").innerHTML = iaDbTemplate;
-
-window.Audit = window.Audit || {};
-Audit.IAReport = Audit.IAReport || {};
+var Audit = window.Audit || {
+  Common: {},
+  IAReport: {},
+};
 
 const requestParam = "ReqNum";
 const responseParam = "ResNum";
 
-export async function InitReport() {
+export async function load(element, context) {
   /*********NOTE: the Contribute permission level needs to have manage permissions turned on ************/
-
+  window.context = context;
+  element.innerHTML = iaDbTemplate;
+  initAppcontext();
   await InitSal();
+  Audit.Common.Utilities = new NewUtilities();
 
   const configurationsPromise = appContext.AuditConfigurations.ToList().then(
     (configurations) => {
@@ -92,15 +100,15 @@ export async function InitReport() {
 Audit.IAReport.Init = function () {
   function SetTimer() {
     var intervalRefreshID = setInterval(function () {
-      var divVal = $("#divCounter").text();
+      var divVal = document.getElementById("divCounter").innerText;
       var count = divVal * 1 - 1;
-      $("#divCounter").text(count);
+      document.getElementById("divCounter").innerText = count;
       if (count <= 0) {
         if (!Audit.IAReport.Report.IsTransactionExecuting())
           Audit.IAReport.Report.Refresh();
         else {
           clearInterval(intervalRefreshID);
-          $("#divCounter").text("1200");
+          document.getElementById("divCounter").innerText = "1200";
           SetTimer();
         }
       }
@@ -719,7 +727,7 @@ async function LoadInfo() {
       currCtx.load(emailListFolderItemsEA, "Include(ID, Title, DisplayName)");
 
       function OnSuccessLoadPages(sender, args) {
-        $("#divIA").show();
+        document.getElementById("divIA").style.display = "block";
         //if they can iterate the pages and the permissions on the pages, we'll consider them a site owner
 
         m_fnLoadInitialData(
@@ -735,7 +743,8 @@ async function LoadInfo() {
         // m_fnCheckForEAEmailFolder(emailListFolderItemsEA);
       }
       function OnFailureLoadPages(sender, args) {
-        $("#divIA").show();
+        document.getElementById("divIA").style.display = "block";
+
         m_fnLoadInitialData(
           m_aoItems,
           m_groupColl,
@@ -747,7 +756,8 @@ async function LoadInfo() {
       }
       currCtx.executeQueryAsync(OnSuccessLoadPages, OnFailureLoadPages);
     } else {
-      $("#divIA").show();
+      document.getElementById("divIA").style.display = "block";
+
       m_bIsSiteOwner = false;
       m_fnLoadInitialData(
         m_aoItems,
@@ -764,7 +774,7 @@ async function LoadInfo() {
     }, 100);
   }
   function OnFailure(sender, args) {
-    $("#divLoading").hide();
+    document.getElementById("divLoading").style.display = "none";
     const statusId = SP.UI.Status.addStatus(
       "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
     );
@@ -7578,14 +7588,14 @@ function m_fnGoToRequest(requestNumber, responseTitle) {
   }
 }
 
-if (document.readyState === "ready" || document.readyState === "complete") {
-  InitReport();
-} else {
-  document.onreadystatechange = () => {
-    if (document.readyState === "complete" || document.readyState === "ready") {
-      ExecuteOrDelayUntilScriptLoaded(function () {
-        SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport);
-      }, "sp.js");
-    }
-  };
-}
+// if (document.readyState === "ready" || document.readyState === "complete") {
+//   InitReport();
+// } else {
+//   document.onreadystatechange = () => {
+//     if (document.readyState === "complete" || document.readyState === "ready") {
+//       ExecuteOrDelayUntilScriptLoaded(function () {
+//         SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport);
+//       }, "sp.js");
+//     }
+//   };
+// }
