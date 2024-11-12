@@ -5,13 +5,13 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 
 export default {
-  input: "./src/pages/ao_db/ao_db.js",
+  input: "./src/pages/ia_db/ia_db.js",
 
   output: {
-    file: "./dist/pages/ao_db/ao_db.umd.js",
+    file: "./dist/pages/ia_db/ia_db.umd.js",
     format: "umd", // CommonJS format, compatible with "platform: 'node'" in esbuild
     sourcemap: true,
-    name: "ao_db",
+    name: "ia_db",
   },
   plugins: [
     html({
