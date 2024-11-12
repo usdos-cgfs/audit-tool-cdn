@@ -1,5 +1,6 @@
 ﻿import * as ko from "knockout";
 import iaDbTemplate from "./ia_db.html";
+import stylesheet from "../../styles.css";
 // import "../../common/utilities.js";
 import "../../../lib/webcomponents/searchselect/searchselect.js";
 import "../../../lib/webcomponents/data-table/data-table.js";
@@ -67,7 +68,13 @@ const responseParam = "ResNum";
 export async function load(element, context) {
   /*********NOTE: the Contribute permission level needs to have manage permissions turned on ************/
   window.context = context;
+
   element.innerHTML = iaDbTemplate;
+
+  const styles = document.createElement("style");
+  styles.innerHTML = stylesheet;
+  element.append(styles);
+
   initAppcontext();
   await InitSal();
   Audit.Common.Utilities = new NewUtilities();
