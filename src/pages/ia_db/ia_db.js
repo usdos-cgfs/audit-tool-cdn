@@ -100,7 +100,7 @@ export async function load(element, context) {
 
   ensureDBPermissions();
 
-  Audit.IAReport.Report = new Audit.IAReport.NewReportPage();
+  Audit.IAReport.Report = new Audit.IAReport.NewReportPage(element);
   Audit.IAReport.Init();
 }
 
@@ -125,9 +125,10 @@ Audit.IAReport.Init = function () {
   SetTimer();
 };
 
-Audit.IAReport.NewReportPage = function () {
+Audit.IAReport.NewReportPage = function (element) {
   _myViewModel = new ViewModel();
-  ko.applyBindings(_myViewModel);
+  ko.cleanNode(element);
+  ko.applyBindings(_myViewModel, element);
 
   LoadInfo();
 
