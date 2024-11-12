@@ -25,11 +25,12 @@
 
 /* Main Layout */
 .audit {
+  overflow-x: auto;
 }
 
 .audit-body {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
 }
 
 #divLoading {
@@ -122,7 +123,7 @@
 .audit-body .quick-links {
   display: flex;
   flex-direction: row-reverse;
-  justify-content: start;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 0.5rem;
   max-width: fit-content;
@@ -294,15 +295,15 @@
   /* color: var(--secondary-color); */
 }
 
-.form-field-component .form-control {
+.audit .form-field-component .form-control {
   width: 100%;
 }
 
-.form-field-component .form-select {
+.audit .form-field-component .form-select {
   width: 100%;
 }
 
-.form-field-component .sp-peoplepicker-topLevel {
+.audit .form-field-component .sp-peoplepicker-topLevel {
   width: 100%;
   display: block;
   background-color: white;
@@ -313,31 +314,31 @@
   font-size: 1rem;
 }
 
-.richtext-field .ql-toolbar {
+.audit .richtext-field .ql-toolbar {
   background-color: var(--bg-very-light-color);
 }
-.richtext-field .ql-toolbar button {
+.audit .richtext-field .ql-toolbar button {
   min-width: 0;
 }
 
-.tasks.blocking {
+.audit .tasks.blocking {
   position: fixed;
   top: 85px;
   height: 100vh;
 }
 
-.tasks.running {
+.audit .tasks.running {
   position: fixed;
   bottom: 0.2rem;
   right: 1.75rem;
 }
 
-.tasks ul {
+.audit .tasks ul {
   list-style: none;
   font-size: 1rem;
 }
 
-.dimmer {
+.audit .dimmer {
   display: none;
   flex-direction: column;
   justify-content: center;
@@ -350,11 +351,11 @@
   background-color: #1d2b36e3;
 }
 
-.dimmer.active {
+.audit .dimmer.active {
   display: flex;
 }
 
-.loader {
+.audit .loader {
   width: 48px;
   height: 48px;
   border: 5px solid var(--primary-muted-color);
@@ -374,14 +375,14 @@
   }
 }
 
-.card {
+.audit .card {
   border: 2px solid var(--primary-color);
   border-radius: 6px;
   display: flex;
   flex-direction: column;
 }
 
-.card .card-header {
+.audit .card .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -391,21 +392,21 @@
   padding: 1.5rem 1.5rem 0.5rem 1.5rem;
 }
 
-.card .card-title {
+.audit .card .card-title {
   color: inherit;
   margin: 0;
 }
 
-.card .card-body {
+.audit .card .card-body {
   padding: 0.5rem 1.5rem;
   overflow: auto;
 }
 
-.card .card-body > div {
+.audit .card .card-body > div {
   padding: 0;
 }
 
-.card .card-actions {
+.audit .card .card-actions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
@@ -413,20 +414,20 @@
   padding: 0.5rem 1.5rem 1.5rem 1.5rem;
 }
 
-.card .card-actions button {
+.audit .card .card-actions button {
   /* padding: 0; */
 }
 
-.alert {
+.audit .alert {
   border-radius: 6px;
 }
 
-.alert-warning {
+.audit .alert-warning {
   background-color: var(--warn-color);
   color: var(--warn-hover-color);
 }
 
-.modal-dialog {
+.audit .modal-dialog {
   display: none;
   position: absolute;
   z-index: 15;
@@ -439,11 +440,11 @@
   resize: both;
 }
 
-.modal-dialog.active {
+.audit .modal-dialog.active {
   display: flex;
 }
 
-fieldset {
+.audit fieldset {
   margin-bottom: 10px;
   /*border-color:lightsteelblue;*/
   border-width: 2px;
@@ -451,7 +452,7 @@ fieldset {
   padding-right: 5px;
   padding-bottom: 10px;
 }
-legend {
+.audit legend {
   color: var(--primary-color);
   font-weight: 700;
   padding-bottom: 5px;
@@ -460,7 +461,7 @@ legend {
   padding: 0 4px;
 }
 
-.colorRedLegend {
+.audit .colorRedLegend {
   /* color: red; */
   border: 1px solid red !important;
 }
@@ -469,24 +470,24 @@ legend {
   margin-top: 0;
 }
 
-.tablesorter.report thead {
+.audit .tablesorter.report thead {
   position: sticky;
   top: 0;
 }
 
-.tablesorter tbody {
+.audit .tablesorter tbody {
   /*text-align:center !important;*/
 }
 
-.tablesorter tbody td {
+.audit .tablesorter tbody td {
   text-align: left;
   padding-left: 5px;
   padding-right: 5px;
   background-color: transparent;
 }
 
-.tablesorter tfoot th,
-.tablesorter thead th {
+.audit .tablesorter tfoot th,
+.audit .tablesorter thead th {
   text-align: left;
 }
 
@@ -497,52 +498,52 @@ legend {
   vertical-align: middle;
 }
 
-.tablesorter thead th:nth-of-type(even) {
+.audit .tablesorter thead th:nth-of-type(even) {
   background-color: #2a3c48;
 }
 
-.tablesorter thead .rowFilters th {
+.audit .tablesorter thead .rowFilters th {
   color: white;
   background-color: var(--primary-muted-color);
   align-content: end;
 }
-.tablesorter thead .rowFilters th.filter {
+.audit .tablesorter thead .rowFilters th.filter {
   background-color: var(--primary-color);
 }
 
-table.tablesorter thead th.sorter-true {
+.audit table.tablesorter thead th.sorter-true {
   position: relative;
   cursor: pointer;
   padding-right: 1.5rem;
 }
 
-.tablesorter th.sorter-true i[class*="fa-sort"] {
+.audit .tablesorter th.sorter-true i[class*="fa-sort"] {
   position: absolute;
   right: 0;
   top: 50%;
   transform: translate(-100%, -50%);
 }
 
-.sorter-true.asc,
-.sorter-true.desc {
+.audit .sorter-true.asc,
+.audit .sorter-true.desc {
   border-bottom: var(--primary-color) 2px solid;
 }
 
-table.tablesorter tbody td:hover {
+.audit table.tablesorter tbody td:hover {
   /* works background-color: blue !important; */
 }
 
-table .rowFilters .filter-date-range .filter-inputs.active {
+.audit table .rowFilters .filter-date-range .filter-inputs.active {
   display: flex;
 }
 
-table .rowFilters .filter-date-range .filter-inputs {
+.audit table .rowFilters .filter-date-range .filter-inputs {
   display: none;
   flex-direction: column;
   align-items: stretch;
 }
 
-table .rowFilters .filter-date-range {
+.audit table .rowFilters .filter-date-range {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -550,34 +551,34 @@ table .rowFilters .filter-date-range {
   color: var(--text-primary);
 }
 
-table .rowFilters .filter-date-range label {
+.audit table .rowFilters .filter-date-range label {
   display: flex;
   justify-content: end;
   gap: 0.25rem;
   margin-top: 0.25rem;
 }
 
-table .rowFilters .filter-date-range button {
+.audit table .rowFilters .filter-date-range button {
   align-self: end;
 }
 
-#tblRequests tbody tr:hover {
+.audit #tblRequests tbody tr:hover {
   background-color: lemonchiffon !important;
 }
 
-.request-detail-view {
+.audit .request-detail-view {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap-reverse;
   align-items: start;
 }
 
-#divRequestInfoContainer {
+.audit #divRequestInfoContainer {
   position: sticky;
   top: 0;
 }
 
-.request-info-form {
+.audit .request-info-form {
   max-width: 600px;
   border: 2px solid var(--primary-color);
   border-radius: 6px;
