@@ -734,7 +734,7 @@ async function LoadInfo() {
       currCtx.load(emailListFolderItemsEA, "Include(ID, Title, DisplayName)");
 
       function OnSuccessLoadPages(sender, args) {
-        document.getElementById("divIA").style.display = "block";
+        document.getElementById("divIA").style.display = "flex";
         //if they can iterate the pages and the permissions on the pages, we'll consider them a site owner
 
         m_fnLoadInitialData(
@@ -750,7 +750,7 @@ async function LoadInfo() {
         // m_fnCheckForEAEmailFolder(emailListFolderItemsEA);
       }
       function OnFailureLoadPages(sender, args) {
-        document.getElementById("divIA").style.display = "block";
+        document.getElementById("divIA").style.display = "flex";
 
         m_fnLoadInitialData(
           m_aoItems,
@@ -763,7 +763,7 @@ async function LoadInfo() {
       }
       currCtx.executeQueryAsync(OnSuccessLoadPages, OnFailureLoadPages);
     } else {
-      document.getElementById("divIA").style.display = "block";
+      document.getElementById("divIA").style.display = "flex";
 
       m_bIsSiteOwner = false;
       m_fnLoadInitialData(
