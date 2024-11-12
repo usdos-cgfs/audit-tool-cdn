@@ -1,6 +1,5 @@
 ﻿import * as ko from "knockout";
 import iaDbTemplate from "./ia_db.html";
-import stylesheet from "../../styles.css";
 // import "../../common/utilities.js";
 import "../../../lib/webcomponents/searchselect/searchselect.js";
 import "../../../lib/webcomponents/data-table/data-table.js";
@@ -56,6 +55,7 @@ import { BulkAddRequestForm } from "../../components/bulk_add_request/bulk_add_r
 import { getAllItems } from "../../services/legacy_helpers.js";
 import { BulkAddResponseForm } from "../../components/bulk_add_response/bulk_add_response.js";
 import { NewUtilities } from "../../common/utilities.js";
+import { registerStyles } from "../../infrastructure/register_styles.js";
 
 var Audit = window.Audit || {
   Common: {},
@@ -71,9 +71,7 @@ export async function load(element, context) {
 
   element.innerHTML = iaDbTemplate;
 
-  const styles = document.createElement("style");
-  styles.innerHTML = stylesheet;
-  element.append(styles);
+  registerStyles(element);
 
   initAppcontext();
   await InitSal();

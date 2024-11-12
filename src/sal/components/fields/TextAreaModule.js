@@ -1,4 +1,5 @@
 import * as ko from "knockout";
+import Quill from "quill";
 import {
   html,
   BaseFieldModule,
