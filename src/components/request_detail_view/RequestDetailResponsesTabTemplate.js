@@ -156,7 +156,7 @@ export const requestDetailResponsesTabTemplate = html`
               data-bind="css: (specialPerms ? 'fa-solid fa-check' : '')"
             ></span>
           </td>
-          <td class="response-permissions">
+          <td class="response-permissions" style="display: none;">
             <span data-bind="html: groupPerms"></span>
           </td>
           <td class="response-viewers">

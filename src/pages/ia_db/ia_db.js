@@ -939,7 +939,7 @@ export async function m_fnRequeryRequest(requestId = null) {
   if (m_bIsSiteOwner) {
     document
       .querySelectorAll(".response-permissions")
-      .forEach((n) => (n.display = "hidden")); //resets this in case it was toggled to show
+      .forEach((n) => (n.style.display = "none")); //resets this in case it was toggled to show
     currCtx.load(
       m_aRequestItem,
       "Include(ID, Title, ReqType, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"

@@ -668,7 +668,7 @@ table.tablesorter thead tr .header {
 .response-permissions {
   white-space: nowrap;
   /*this is toggled on IA dashboard*/
-  display: none;
+  /* display: none; */
 }
 
 .requestInfo-response-doc {
