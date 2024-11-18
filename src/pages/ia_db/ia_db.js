@@ -2905,6 +2905,7 @@ async function m_fnBulkAddResponse(id) {
     title: `Bulk Add Responses (Request Number:${request.Title.toString()})`,
     form: bulkAddResponseForm,
     dialogReturnValueCallback: OnCallbackFormBulkAddResponse,
+    width: 1100,
   };
   ModalDialog.showModalDialog(options);
 }
