@@ -997,12 +997,6 @@ export async function m_fnRequeryRequest(requestId = null) {
   if (m_bIsSiteOwner) {
     //07/06/2017 - if the permissions on the request are inheriting for any reason, then reset the permissions and refresh the page
     if (!oRequest.item.get_hasUniqueRoleAssignments()) {
-      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Information",
-        "Please wait... Updating Request permissions",
-        200,
-        400
-      );
       await m_fnBreakRequestPermissions(oRequest.item, false);
       m_fnRefresh();
       return;
@@ -1032,12 +1026,6 @@ export async function m_fnRequeryRequest(requestId = null) {
       }
 
       if (bUpdateRequestPermissions) {
-        const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-          "Information",
-          "Please wait... Updating Request permissions",
-          200,
-          400
-        );
         await m_fnBreakRequestPermissions(oRequest.item, false);
         m_fnRefresh();
         return;
@@ -3245,13 +3233,6 @@ export async function m_fnRejectResponseDoc(
   oResponseDoc,
   rejectReason
 ) {
-  // const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-  //   "Rejecting Response Document",
-  //   "Please wait... Rejecting Response Document",
-  //   200,
-  //   400
-  // );
-
   var clientContext = SP.ClientContext.get_current();
   var oList = clientContext
     .get_web()
@@ -3620,12 +3601,6 @@ async function m_fnCloseRequest() {
 
       oRequest.item.update();
 
-      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Information",
-        "Please wait... updating permissions on the Request",
-        100,
-        600
-      );
       //Removed 06/05/2017 m_fnBreakRequestPermissions( oRequest.item, true );
       m_fnBreakRequestPermissions(oRequest.item, false);
 
@@ -3922,12 +3897,10 @@ function m_fnSendEmail(requestID) {
     return;
   }
 
-  const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-    "Sending Emails",
-    "Please wait... sending email notifications to Action Offices",
-    100,
-    400
-  );
+  const notificationTask = addTask({
+    msg: "Sending email notifications to Action Offices",
+    blocing: true,
+  });
 
   document.body.style.cursor = "wait";
 
@@ -3991,7 +3964,7 @@ function m_fnSendEmail(requestID) {
               function () {
                 addNotification("Email Sent to Action Offices. ", false);
                 setTimeout(function () {
-                  m_waitDialog.close();
+                  finishTask(notificationTask);
                   m_fnRefreshData();
                 }, 1000);
               },
@@ -4002,6 +3975,7 @@ function m_fnSendEmail(requestID) {
                     "\n" +
                     args.get_stackTrace()
                 );
+                finishTask(notificationTask);
                 m_fnRefresh();
               }
             );
@@ -4016,6 +3990,7 @@ function m_fnSendEmail(requestID) {
               "\n" +
               args.get_stackTrace()
           );
+          finishTask(notificationTask);
           m_fnRefresh();
         }
       );
@@ -5945,12 +5920,10 @@ function m_fnGrantSpecialPermissions(requestNumber) {
         ") Responses?"
     )
   ) {
-    const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-      "Information",
-      "Please wait... granting Special Permissions to Request and Responses <div id='divGrantCntr'></div>",
-      200,
-      600
-    );
+    const specialPermsTask = addTask({
+      msg: "Granting Special Permissions to Request and Responses",
+      blocking: true,
+    });
 
     var group1SpecialPerm = Audit.Common.Utilities.GetSPSiteGroup(
       Audit.Common.Utilities.GetGroupNameSpecialPerm1()
@@ -6069,7 +6042,7 @@ function m_fnGrantSpecialPermissions(requestNumber) {
                           false
                         );
                         setTimeout(function () {
-                          m_waitDialog.close();
+                          finishTask(specialPermsTask);
                           m_fnRefreshData();
                         }, 200);
                       },
@@ -6174,12 +6147,10 @@ function m_fnRemoveSpecialPermissions(id) {
         ") Responses?"
     )
   ) {
-    const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-      "Information",
-      "Please wait... removing Special Permissions on Request and Responses <div id='divGrantCntr'></div>",
-      200,
-      600
-    );
+    const removeSpecialPermsTask = addTask({
+      msg: "Removing Special Permissions on Request and Responses",
+      blocking: true,
+    });
 
     var currCtx = SP.ClientContext.get_current();
     var web = currCtx.get_web();
@@ -6285,6 +6256,7 @@ function m_fnRemoveSpecialPermissions(id) {
                           false
                         );
                         setTimeout(function () {
+                          finishTask(removeSpecialPermsTask);
                           m_fnRefresh();
                         }, 200);
                       },
@@ -6299,6 +6271,7 @@ function m_fnRemoveSpecialPermissions(id) {
                           false
                         );
                         setTimeout(function () {
+                          finishTask(removeSpecialPermsTask);
                           m_fnRefresh();
                         }, 200);
                       }
@@ -6385,13 +6358,6 @@ function OnCallbackFormReload(result, value) {
 function OnCallbackFormNewRequest(result, value) {
   if (result !== SP.UI.DialogResult.OK) return;
   const newRequestTask = addTask(taskDefs.newRequest);
-
-  // const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-  //   "Information",
-  //   "Please wait... Updating Request Permissions",
-  //   200,
-  //   400
-  // );
 
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
@@ -6741,14 +6707,6 @@ async function OnCallbackFormEditRequest(result, value) {
     }
 
     if (m_requestNum == oListItem.get_item("Title")) {
-      //if request number hasn't changed
-      // const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-      //   "Information",
-      //   "Please wait... Updating Request and Response permissions <div id='divMsgEditRequest'></div>",
-      //   200,
-      //   400
-      // );
-
       var bDoneBreakingReqPermisions = false;
       await m_fnBreakRequestPermissions(oListItem, false, null);
 
@@ -6789,12 +6747,10 @@ async function OnCallbackFormEditRequest(result, value) {
       // m_waitDialog.close();
     } //if request number changed, update responses; otherwise it will refresh and not hit this
     else {
-      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Renaming Responses",
-        "Please wait... Renaming Responses",
-        200,
-        400
-      );
+      const renameResponseTask = addTask({
+        msg: "Renaming Responses",
+        blocking: true,
+      });
 
       var bDoneBreakingReqPermisions = false;
       await m_fnBreakRequestPermissions(oListItem, false, null);
@@ -6818,6 +6774,7 @@ async function OnCallbackFormEditRequest(result, value) {
       m_fnRenameEAFolder(eaListFolderItems, m_requestNum, newRequestNumber);
 
       setTimeout(function () {
+        finishTask(renameResponseTask);
         m_fnRefresh(newRequestNumber);
       }, 20000);
     }
@@ -6856,13 +6813,6 @@ function OnCallbackFormCoverSheet(result, value) {
         }
 
         if (oListItem) {
-          const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-            "Information",
-            "Please wait... Updating permissions on Coversheet",
-            200,
-            600
-          );
-
           await m_fnBreakCoversheetPermissions(oListItem, false);
           if (requestSensitivity && requestSensitivity != "None") {
             var doneBreakingCS = false;
