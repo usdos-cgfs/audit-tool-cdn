@@ -1058,7 +1058,7 @@ TABLE.tablesorter THEAD TR .header {
   color: white;
 }
 /* Display */
-.flex {
+.audit .flex {
   display: flex;
 }
 

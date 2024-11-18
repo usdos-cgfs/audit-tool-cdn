@@ -5,6 +5,7 @@ export function registerStyles(element) {
   [appStyles, quillStyles].forEach((stylesheet) => {
     const styles = document.createElement("style");
     styles.innerHTML = stylesheet;
-    element.append(styles);
+    // element.append(styles);
+    document.head.append(styles);
   });
 }
