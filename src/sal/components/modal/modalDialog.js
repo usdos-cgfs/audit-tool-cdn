@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { directRegisterComponent } from "../../infrastructure/index.js";
-import { modalDialogTemplate } from "./ModalDialogTemplate.js";
+import modalDialogTemplate from "./ModalDialogTemplate.html";
 
 const componentName = "modal-dialog-component";
 
@@ -67,7 +67,7 @@ class ModalDialogModule {
   koDescendantsComplete = function (node) {
     this.dlgElement = node.querySelector("dialog");
     dragElement(this.dlgElement);
-    resizeDialog(this.dlgElement);
+    resizeDialog(this.dlgElement, this.dialogOpts);
     this.showModal();
   };
 }
@@ -77,11 +77,14 @@ directRegisterComponent(componentName, {
   viewModel: ModalDialogModule,
 });
 
-function resizeDialog(elmnt) {
-  elmnt.style.width = "550px";
-  elmnt.style.height = "";
+function resizeDialog(elmnt, options) {
+  const width = options.width ?? 550;
+  const height = options.height ?? "";
+
+  elmnt.style.width = width + "px";
+  if (height) elmnt.style.height = height + "px";
   elmnt.style.top = "125px";
-  elmnt.style.left = (window.GetViewportWidth() - 550) / 2 + "px";
+  elmnt.style.left = (window.GetViewportWidth() - width) / 2 + "px";
 }
 
 // TODO: this should be in a utility class or something
