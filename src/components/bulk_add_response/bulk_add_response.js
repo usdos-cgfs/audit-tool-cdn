@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { appContext } from "../../infrastructure/application_db_context.js";
 import { directRegisterComponent } from "../../sal/infrastructure/index.js";
-import { bulkAddResponseTemplate } from "./BulkAddResponseTemplate.js";
+import bulkAddResponseTemplate from "./BulkAddResponseTemplate.html";
 import { toggle } from "../../sal/components/modal/modalDialog.js";
 import { addResponse } from "../../services/audit_response_service.js";
 
@@ -14,6 +14,7 @@ export class BulkAddResponseForm {
   }
 
   request;
+  showBulkAddResponses = ko.observable(true);
   bulkResponseItems = ko.observableArray();
   working = ko.observable(false);
   hasRun = ko.observable(false);
@@ -39,17 +40,12 @@ export class BulkAddResponseForm {
     this.fetchBulkResponses();
   }
 
-  async clickUploadResponses() {
-    toggle(false);
-    await appContext.AuditBulkResponses.ShowForm(
-      "BulkAddResponse.aspx",
-      "Bulk Add Responses",
-      {}
-    );
-
-    toggle(true);
-
+  async clickReviewNewResponses() {
     this.fetchBulkResponses();
+    this.showBulkAddResponses(false);
+  }
+  async clickUploadResponses() {
+    this.showBulkAddResponses(true);
   }
 
   async fetchBulkResponses() {
@@ -104,7 +100,7 @@ export class BulkAddResponseForm {
   }
 
   clickFinish() {
-    this.onComplete(SP.UI.DialogResult.OK);
+    this.onComplete(true);
   }
 
   componentName = componentName;

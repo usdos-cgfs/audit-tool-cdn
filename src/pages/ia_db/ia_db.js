@@ -6775,7 +6775,7 @@ function OnCallbackFormCoverSheet(result, value) {
 
 function OnCallbackFormBulkAddResponse(result, value) {
   //this is a field on this page that gets updated by the bulkupdate page if a bulk update operation has run
-  if (result !== SP.UI.DialogResult.OK) {
+  if (!result) {
     return;
   }
   m_fnRefreshData();
