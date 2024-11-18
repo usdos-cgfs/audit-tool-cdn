@@ -45,6 +45,11 @@ import {
   taskDefs,
 } from "../../services/tasks.js";
 import {
+  addNotification,
+  removeNotification,
+} from "../../services/notifications.js";
+
+import {
   ensureAllAppPerms,
   ensureDBPermissions,
 } from "../../services/permission_manager.js";
@@ -309,7 +314,9 @@ function ViewModel() {
   };
 
   self.ClickGoToRequest = function (oRequest) {
-    if (oRequest && oRequest.number) m_fnGoToRequest(oRequest.number);
+    var reqNumber = oRequest?.number ?? oRequest?.reqNumber;
+    if (!reqNumber) return;
+    m_fnGoToRequest(reqNumber);
   };
 
   self.ClickViewRequest = function () {
@@ -930,7 +937,9 @@ export async function m_fnRequeryRequest(requestId = null) {
   );
   var m_aRequestItem = requestList.getItems(requestQuery);
   if (m_bIsSiteOwner) {
-    $(".response-permissions").hide(); //resets this in case it was toggled to show
+    document
+      .querySelectorAll(".response-permissions")
+      .forEach((n) => (n.display = "hidden")); //resets this in case it was toggled to show
     currCtx.load(
       m_aRequestItem,
       "Include(ID, Title, ReqType, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
@@ -2104,7 +2113,7 @@ async function LoadTabRequestInfoResponses(oRequest) {
   // _myViewModel.arrCurrentRequestResponses.valueHasMutated();
 
   document.body.style.cursor = "wait";
-  var m_notifyIDLoadingResponses = SP.UI.Notify.addNotification(
+  var m_notifyIDLoadingResponses = addNotification(
     "Loading Responses...",
     true
   );
@@ -2206,7 +2215,7 @@ async function LoadTabRequestInfoResponses(oRequest) {
   });
 
   if (responseCount == 0)
-    notifyId = SP.UI.Notify.addNotification(
+    notifyId = addNotification(
       oRequest.number + " has 0 responses. Please create a Response",
       false
     );
@@ -2281,7 +2290,7 @@ async function LoadTabRequestInfoResponses(oRequest) {
     arrResponses.push(oResponse);
   }
 
-  SP.UI.Notify.removeNotification(m_notifyIDLoadingResponses);
+  removeNotification(m_notifyIDLoadingResponses);
   m_notifyIDLoadingResponses = null;
 
   // ko.utils.arrayPushAll(_myViewModel.arrCurrentRequestResponses, arrResponses);
@@ -2815,10 +2824,7 @@ function m_fnIsRequestPastDue(oRequest, dueDate = null) {
 
 function m_fnCreateRequest() {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -2834,10 +2840,7 @@ function m_fnCreateRequest() {
 
 function m_fnBulkAddRequest() {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -2879,10 +2882,7 @@ async function m_fnViewRequest(id) {
 
 async function m_fnEditRequest(id, requestNum) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -2934,10 +2934,7 @@ async function m_fnEditCoverSheet(id, requestNum) {
 
 async function m_fnBulkAddResponse(id) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -2966,10 +2963,7 @@ async function m_fnBulkAddResponse(id) {
 
 function m_fnBulkEditResponse(id) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3013,10 +3007,7 @@ function m_fnGetNextSampleNumber(requestNumber) {
 
 async function m_fnAddResponse(id, reqNum) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3052,7 +3043,7 @@ async function m_fnViewResponse(
   const response = await appContext.AuditResponses.FindById(id);
 
   if (!response) {
-    SP.UI.Notify.addNotification("Response not found! " + id, false);
+    addNotification("Response not found! " + id, false);
     alert();
     return;
   }
@@ -3076,10 +3067,7 @@ async function m_fnEditResponse(
   responseStatus
 ) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3093,7 +3081,7 @@ async function m_fnEditResponse(
   const response = await appContext.AuditResponses.FindById(id);
 
   if (!response) {
-    SP.UI.Notify.addNotification("Response not found! " + id, false);
+    addNotification("Response not found! " + id, false);
     alert();
     return;
   }
@@ -3110,7 +3098,7 @@ async function m_fnEditResponse(
 }
 
 function m_fnReviewingResponse(activeViewers) {
-  SP.UI.Notify.addNotification("Reviewing Response...", false);
+  addNotification("Reviewing Response...", false);
 
   activeViewers.pushCurrentUser();
 }
@@ -3134,10 +3122,7 @@ async function m_fnViewResponseDoc(id, requestID, responseID) {
 
 async function m_fnEditResponseDoc(id, requestID, responseID) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3377,20 +3362,14 @@ export async function m_fnRejectResponseDoc(
   });
 
   // TODO: Notify Action Office? If all docs rejected, Reject Response?
-  const notifyId = SP.UI.Notify.addNotification(
-    "Rejected Response Document",
-    false
-  );
+  const notifyId = addNotification("Rejected Response Document", false);
 
   //added
   // m_waitDialog.close();
 }
 function m_fnCheckInResponseDoc(folder, fileName) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3459,10 +3438,7 @@ function m_fnViewEmailHistoryFolder(reqNum) {
 
 function m_fnDeleteResponseDoc(itemID) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3495,10 +3471,7 @@ function m_fnDeleteResponseDoc(itemID) {
 
 function m_fnResendRejectedResponseDocToQA(itemID) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3537,10 +3510,7 @@ function m_fnResendRejectedResponseDocToQA(itemID) {
 //reset perms on response
 async function m_fnReOpenResponse(requestNumber, responseTitle) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3612,10 +3582,7 @@ async function m_fnReOpenResponse(requestNumber, responseTitle) {
 
 async function m_fnCloseRequest() {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3754,10 +3721,7 @@ function m_fnFormatEmailBodyToAO(oRequest, responseTitles, poc) {
 // Synchronize email action offices with AO's
 function m_fnSyncEmailActionOffices(requestID) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3779,7 +3743,7 @@ function m_fnSyncEmailActionOffices(requestID) {
     }
 
     if (oRequest.status != "Open" && oRequest.status != "ReOpened") {
-      SP.UI.Notify.addNotification("This request is not Open.", false);
+      addNotification("This request is not Open.", false);
       return;
     }
 
@@ -3796,7 +3760,7 @@ function m_fnSyncEmailActionOffices(requestID) {
 
     currCtx.executeQueryAsync(
       function () {
-        SP.UI.Notify.addNotification("Email Action Offices Set. ", false);
+        addNotification("Email Action Offices Set. ", false);
         setTimeout(function () {
           m_fnRefreshData();
         }, 1000);
@@ -3813,10 +3777,7 @@ function m_fnSyncEmailActionOffices(requestID) {
 
 function m_fnSendEmail(requestID) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -3840,13 +3801,13 @@ function m_fnSendEmail(requestID) {
   }
 
   if (oRequest.status != "Open" && oRequest.status != "ReOpened") {
-    SP.UI.Notify.addNotification("This request is not Open.", false);
+    addNotification("This request is not Open.", false);
     return;
   }
 
   var responseCount = oRequest.responses.length;
   if (responseCount == 0) {
-    SP.UI.Notify.addNotification(
+    addNotification(
       "There are no responses associated with this request.",
       false
     );
@@ -3858,7 +3819,7 @@ function m_fnSendEmail(requestID) {
     ?.map((actionOffice) => actionOffice.get_lookupValue());
 
   if (arrEmailActionOffice.length == 0) {
-    SP.UI.Notify.addNotification(
+    addNotification(
       "Unable to send an email. 0 Action Offices listed in the Email Action Office field",
       false
     );
@@ -3873,7 +3834,7 @@ function m_fnSendEmail(requestID) {
       oResponse.resStatus != "1-Open" &&
       oResponse.resStatus != "3-Returned to Action Office"
     ) {
-      SP.UI.Notify.addNotification(
+      addNotification(
         "Skipping Response (" +
           oResponse.title +
           "). It's not Open or Returned to Action Office",
@@ -3894,7 +3855,7 @@ function m_fnSendEmail(requestID) {
       actionOfficeGroupName == null ||
       actionOfficeGroup == null
     ) {
-      SP.UI.Notify.addNotification(
+      addNotification(
         "Unable to send an email. Action Office (" +
           oResponse.actionOffice +
           ") does not have a group associated with it",
@@ -3954,7 +3915,7 @@ function m_fnSendEmail(requestID) {
   }
 
   if (arrEmails.length == 0) {
-    SP.UI.Notify.addNotification(
+    addNotification(
       "Unable to send an email. 0 Action Offices in the Email Action Office field match the Responses",
       false
     );
@@ -4028,10 +3989,7 @@ function m_fnSendEmail(requestID) {
 
             currCtx.executeQueryAsync(
               function () {
-                SP.UI.Notify.addNotification(
-                  "Email Sent to Action Offices. ",
-                  false
-                );
+                addNotification("Email Sent to Action Offices. ", false);
                 setTimeout(function () {
                   m_waitDialog.close();
                   m_fnRefreshData();
@@ -4629,7 +4587,7 @@ async function m_fnBreakRequestPermissions(
     }
 
     function onUpdateReqPermsFailed(sender, args) {
-      SP.UI.Notify.addNotification(
+      addNotification(
         "Failed to update permissions on Request: " +
           this.title +
           args.get_message() +
@@ -4969,7 +4927,7 @@ async function m_fnBreakCoversheetPermissions(oListItem, grantQARead) {
     }
 
     function onUpdatedCSFailed(sender, args) {
-      SP.UI.Notify.addNotification(
+      addNotification(
         "Failed to update permissions on Coversheet" +
           args.get_message() +
           "\n" +
@@ -5378,7 +5336,7 @@ async function m_fnBreakResponseAndFolderPermissions(
 
   await new Promise((resolve, reject) => {
     currCtx.executeQueryAsync(resolve, (sender, args) => {
-      SP.UI.Notify.addNotification(
+      addNotification(
         "Failed to update permissions on Response: " +
           oResponse.item.get_item("Title") +
           args.get_message() +
@@ -5955,10 +5913,7 @@ async function m_fnGrantSpecialPermsOnResponseAndFolder(
 
 function m_fnGrantSpecialPermissions(requestNumber) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -6109,7 +6064,7 @@ function m_fnGrantSpecialPermissions(requestNumber) {
                       function () {
                         document.body.style.cursor = "default";
 
-                        notifyId = SP.UI.Notify.addNotification(
+                        notifyId = addNotification(
                           "Completed granting Special Permissions",
                           false
                         );
@@ -6121,7 +6076,7 @@ function m_fnGrantSpecialPermissions(requestNumber) {
                       function (sender, args) {
                         document.body.style.cursor = "default";
 
-                        notifyId = SP.UI.Notify.addNotification(
+                        notifyId = addNotification(
                           "Request failed1: " +
                             args.get_message() +
                             "\n" +
@@ -6146,7 +6101,7 @@ function m_fnGrantSpecialPermissions(requestNumber) {
                         if (bDoneGrantingSpecialPermsOnResponsesAndFolders) {
                           document.body.style.cursor = "default";
 
-                          notifyId = SP.UI.Notify.addNotification(
+                          notifyId = addNotification(
                             "Completed granting Special Permissions",
                             false
                           );
@@ -6157,7 +6112,7 @@ function m_fnGrantSpecialPermissions(requestNumber) {
                         } else {
                           document.body.style.cursor = "default";
 
-                          notifyId = SP.UI.Notify.addNotification(
+                          notifyId = addNotification(
                             "Unable to update all responses and folders",
                             false
                           );
@@ -6187,10 +6142,7 @@ function m_fnGrantSpecialPermissions(requestNumber) {
 
 function m_fnRemoveSpecialPermissions(id) {
   if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
+    addNotification("You do not have access to perform this action...", false);
     return;
   }
 
@@ -6328,7 +6280,7 @@ function m_fnRemoveSpecialPermissions(id) {
                       function () {
                         document.body.style.cursor = "default";
 
-                        notifyId = SP.UI.Notify.addNotification(
+                        notifyId = addNotification(
                           "Completed removing Special Permissions",
                           false
                         );
@@ -6339,7 +6291,7 @@ function m_fnRemoveSpecialPermissions(id) {
                       function (sender, args) {
                         document.body.style.cursor = "default";
 
-                        notifyId = SP.UI.Notify.addNotification(
+                        notifyId = addNotification(
                           "Request failed1: " +
                             args.get_message() +
                             "\n" +
@@ -6364,7 +6316,7 @@ function m_fnRemoveSpecialPermissions(id) {
                         if (bDoneGrantingSpecialPermsOnResponsesAndFolders) {
                           document.body.style.cursor = "default";
 
-                          notifyId = SP.UI.Notify.addNotification(
+                          notifyId = addNotification(
                             "Completed removing Special Permissions",
                             false
                           );
@@ -6374,7 +6326,7 @@ function m_fnRemoveSpecialPermissions(id) {
                         } else {
                           document.body.style.cursor = "default";
 
-                          notifyId = SP.UI.Notify.addNotification(
+                          notifyId = addNotification(
                             "Unable to update all responses and folders",
                             false
                           );
@@ -6694,7 +6646,7 @@ async function OnCallbackFormEditRequest(result, value) {
   m_bIsTransactionExecuting = true;
   const oRequest = _myViewModel.currentRequest();
 
-  const notifyId = SP.UI.Notify.addNotification("Please wait...", false);
+  const notifyId = addNotification("Please wait...", false);
   document.body.style.cursor = "wait";
 
   //alert( "must grant the new updated action offices permissions to this request");
@@ -7105,7 +7057,7 @@ function OnCallbackFormEditResponse(result, value) {
 
   if (result === SP.UI.DialogResult.OK) {
     document.body.style.cursor = "wait";
-    notifyId = SP.UI.Notify.addNotification("Please wait... ", false);
+    notifyId = addNotification("Please wait... ", false);
 
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
@@ -7575,7 +7527,7 @@ function OnCallbackFormEditResponse(result, value) {
 }
 
 function m_fnGoToRequest(requestNumber, responseTitle) {
-  const notifyId = SP.UI.Notify.addNotification(
+  const notifyId = addNotification(
     "Displaying Request (" + requestNumber + ")",
     false
   );
@@ -7586,7 +7538,7 @@ function m_fnGoToRequest(requestNumber, responseTitle) {
 
   _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
 
-  if ($("#ddlReqNum").val() != requestNumber) {
+  if (document.getElementById("ddlReqNum").value != requestNumber) {
     _myViewModel.filterRequestInfoTabRequestName(requestNumber);
   } else if (m_sGoToResponseTitle != null) {
     //need to navigate to tab 2 for this to work
