@@ -28,6 +28,12 @@ export const taskDefs = {
     msg: "Updating Request Item Permissions",
     blocking: true,
   },
+  permissionsRequestAOSpecialPerms: (actionOfficeName) => {
+    return {
+      msg: `Ensuring ${actionOfficeName} Permissions on Request`,
+      blocking: true,
+    };
+  },
   permissionsResponse: (responseTitle) => {
     return {
       msg: "Updating Response Item Permissions: " + responseTitle,

@@ -1010,7 +1010,7 @@ export async function m_fnRequeryRequest(requestId = null) {
         );
         if (
           sActionOfficeGroupName != null &&
-          $.trim(sActionOfficeGroupName) != ""
+          sActionOfficeGroupName.trim() != ""
         ) {
           var bAOHasAccess =
             Audit.Common.Utilities.CheckSPItemHasGroupPermission(
@@ -1578,7 +1578,6 @@ function LoadResponses(responseItemsColl) {
 
         var comments = oListItem.get_item("Comments");
         try {
-          comments = $(comments).html();
           if (comments == null || comments == "")
             responseObject["comments"] = "";
           else {
@@ -2294,23 +2293,6 @@ function m_fnHighlightResponse() {
     const requestDetailView = _myViewModel.requestDetailViewComponent;
     requestDetailView.highlightResponse(m_sGoToResponseTitle);
     return;
-    $("[id='response-item-title-" + m_sGoToResponseTitle + "']")
-      .parent()
-      .css({ "background-color": "palegreen", "font-weight": "inherit" });
-    $("[id='response-item-title-" + m_sGoToResponseTitle + "']")
-      .get(0)
-      .scrollIntoView();
-
-    function resetColor(index) {
-      $("[id='response-item-title-" + m_sGoToResponseTitle + "']")
-        .parent()
-        .css({ "background-color": "inherit", "font-weight": "inherit" });
-
-      m_sGoToResponseTitle = null;
-    }
-    setTimeout(function () {
-      resetColor(m_sGoToResponseTitle);
-    }, 2000);
   }
 }
 
@@ -2840,16 +2822,6 @@ function m_fnBulkAddRequest() {
   };
 
   ModalDialog.showModalDialog(options);
-  // m_bIsTransactionExecuting = true;
-
-  // var options = SP.UI.$create_DialogOptions();
-  // options.title = "Bulk Add Requests";
-  // options.dialogReturnValueCallback = m_fnRefresh;
-  // options.height = 800;
-  // options.url =
-  //   Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditBulkAddRequest.aspx";
-
-  // SP.UI.ModalDialog.showModalDialog(options);
 }
 
 async function m_fnViewRequest(id) {
@@ -2935,18 +2907,6 @@ async function m_fnBulkAddResponse(id) {
     dialogReturnValueCallback: OnCallbackFormBulkAddResponse,
   };
   ModalDialog.showModalDialog(options);
-
-  // var options = SP.UI.$create_DialogOptions();
-  // options.title = "Bulk Add Responses (" + id + ")";
-  // options.dialogReturnValueCallback = OnCallbackFormBulkAddResponse;
-  // options.height = 800;
-  // options.url =
-  //   Audit.Common.Utilities.GetSiteUrl() +
-  //   "/SitePages/AuditBulkAddResponse.aspx?ReqNum=" +
-  //   id +
-  //   GetSourceUrlForForms();
-
-  // SP.UI.ModalDialog.showModalDialog(options);
 }
 
 function m_fnBulkEditResponse(id) {
@@ -3567,7 +3527,7 @@ async function m_fnCloseRequest() {
     return;
   }
 
-  var requestNumberToClose = $("#ddlReqNum").val();
+  var requestNumberToClose = document.getElementById("ddlReqNum").value;
 
   if (
     confirm(
@@ -5713,6 +5673,9 @@ function m_fnGrantAOSpecialPermsOnRequest(oRequest, OnComplete) {
 
     if (actionOfficeGroup != null) {
       m_countAOSPToAdd++;
+      const grantAOSpecialPermsTask = addTask(
+        taskDefs.permissionsRequestAOSpecialPerms(actionOfficeName)
+      );
 
       var currCtx2 = new SP.ClientContext.get_current();
       var web = currCtx2.get_web();
@@ -5729,28 +5692,16 @@ function m_fnGrantAOSpecialPermsOnRequest(oRequest, OnComplete) {
 
       function onGrantAOSpecialPermsSucceeded() {
         m_countAOSPAdded++;
+        finishTask(grantAOSpecialPermsTask);
 
-        $("#divGrantCntr").text(
-          "Ensured " +
-            m_countAOSPAdded +
-            " of " +
-            m_countAOSPToAdd +
-            " Action Offices have permissions to Request"
-        );
         if (m_countAOSPAdded == m_countAOSPToAdd) {
           if (this.OnComplete) this.OnComplete(true);
         }
       }
       function onGrantAOSpecialPermsFailed(sender, args) {
         m_countAOSPAdded++;
+        finishTask(grantAOSpecialPermsTask);
 
-        $("#divGrantCntr").text(
-          "Ensured " +
-            m_countAOSPAdded +
-            " of " +
-            m_countAOSPToAdd +
-            " Action Offices have permissions to Request"
-        );
         if (m_countAOSPAdded == m_countAOSPToAdd) {
           if (this.OnComplete) this.OnComplete(true);
         }
@@ -5798,25 +5749,7 @@ function m_fnGrantSpecialPermsOnCS(
         addSpecialPerms,
         false,
         function (bDoneBreakingCSPermsOnSpecialPerms) {
-          if (bDoneBreakingCSPermsOnSpecialPerms) {
-            m_countCSAdded++;
-            $("#divGrantCntr").text(
-              "Updated " +
-                m_countCSAdded +
-                " of " +
-                m_countCSToAdd +
-                " Coversheet permissions"
-            );
-          } else {
-            m_countCSAdded++; //log here, but continue executing
-            $("#divGrantCntr").text(
-              "Updated " +
-                m_countCSAdded +
-                " of " +
-                m_countCSToAdd +
-                " Coversheet permissions"
-            );
-          }
+          m_countCSAdded++;
 
           if (m_countCSAdded == m_countCSToAdd) {
             if (OnComplete) OnComplete(true);
@@ -5870,14 +5803,6 @@ async function m_fnGrantSpecialPermsOnResponseAndFolder(
       );
 
       m_countSPResFolderAdded++; //log here, but continue executing
-
-      $("#divGrantCntr").text(
-        "Updated " +
-          m_countSPResFolderAdded +
-          " of " +
-          m_countSPResFolderToAdd +
-          " Response permissions"
-      );
 
       if (m_countSPResFolderAdded == m_countSPResFolderToAdd) {
         if (OnComplete) OnComplete(true);
@@ -6334,7 +6259,7 @@ function GetSourceUrlForForms() {
 
   // curPath += "?Tab=" + tabIndex;
 
-  var requestNum = $("#ddlReqNum").val();
+  var requestNum = document.getElementById("ddlReqNum").value;
   if (requestNum != "") curPath += "%26ReqNum=" + requestNum;
 
   var source = "&Source=" + curPath;
@@ -6711,7 +6636,6 @@ async function OnCallbackFormEditRequest(result, value) {
       await m_fnBreakRequestPermissions(oListItem, false, null);
 
       //should always be true even if an error occurred
-      // $("#divMsgEditRequest").text("Updated Request permissions");
 
       var doneUpdatingResponses = false;
       await m_fnUpdateAllResponsePermissions(
@@ -6721,7 +6645,6 @@ async function OnCallbackFormEditRequest(result, value) {
       );
 
       if (bChangeSensitivity) {
-        // $("#divMsgEditRequest").text("Updating Response document names");
         var oldSensitivity = m_bigMap["request-" + m_requestNum].sensitivity;
         const doneUpdatingSensitivity = await m_fnUpdateSensitivityOnRequest(
           m_requestNum,
@@ -6859,7 +6782,7 @@ function OnCallbackFormBulkAddResponse(result, value) {
 
 function OnCallbackFormBulkEditResponse(result, value) {
   //this is a field on this page that gets updated by the bulkupdate page if a bulk update operation has run
-  if ($("#divRanBulkUpdate").text() == 1) m_fnRefreshData();
+  m_fnRefreshData();
 }
 
 function OnCallbackFormNewResponse(result, value) {
@@ -7495,15 +7418,3 @@ function m_fnGoToRequest(requestNumber, responseTitle) {
     m_fnHighlightResponse();
   }
 }
-
-// if (document.readyState === "ready" || document.readyState === "complete") {
-//   InitReport();
-// } else {
-//   document.onreadystatechange = () => {
-//     if (document.readyState === "complete" || document.readyState === "ready") {
-//       ExecuteOrDelayUntilScriptLoaded(function () {
-//         SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport);
-//       }, "sp.js");
-//     }
-//   };
-// }
