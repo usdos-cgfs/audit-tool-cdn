@@ -299,9 +299,16 @@ ko.bindingHandlers.toggleClick = {
             });
         }
       } else if (containerType && containerType == "any") {
-        if ($("." + classToToggle).is(":visible"))
-          $("." + classToToggle).hide();
-        else $("." + classToToggle).show();
+        const elements = document.querySelectorAll("." + classToToggle);
+
+        elements.forEach(function (element) {
+          var style = window.getComputedStyle(element);
+          if (element.style.display === "none") {
+            element.style.display = ""; // Resets to default display value, such as 'block' or 'inline'
+          } else {
+            element.style.display = "none";
+          }
+        });
       } else $(element).find(classContainer).toggleClass(classToToggle);
     });
   },
