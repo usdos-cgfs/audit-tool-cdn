@@ -1185,7 +1185,7 @@ Audit.AOReport.NewReportPage = function () {
   }
 
   function OnCallbackForm(result, value) {
-    if (result === SP.UI.DialogResult.OK) {
+    if (result === true) {
       Audit.Common.Utilities.Refresh();
     } else m_bIsTransactionExecuting = false;
   }

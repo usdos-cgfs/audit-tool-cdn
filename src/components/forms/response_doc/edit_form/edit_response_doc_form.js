@@ -41,7 +41,7 @@ export class EditResponseDocForm extends BaseForm {
 
     try {
       await updateResponseDoc(request, response, responseDoc);
-      this.onComplete(SP.UI.DialogResult.OK);
+      this.onComplete(true);
     } catch (e) {
       alert(e);
     }

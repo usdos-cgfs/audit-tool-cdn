@@ -30,7 +30,7 @@ export class NewResponseForm extends BaseForm {
       alert(result.error);
       return;
     }
-    this.onComplete(SP.UI.DialogResult.OK);
+    this.onComplete(true);
   }
 
   clearForm() {}

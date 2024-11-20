@@ -75,7 +75,7 @@ export default class NewRequestFormModule extends BaseForm {
 
     try {
       await addNewRequest(request);
-      this.onComplete(SP.UI.DialogResult.OK);
+      this.onComplete(true);
     } catch (e) {
       alert(e);
     }

@@ -28,7 +28,7 @@ export class EditRequestForm extends BaseForm {
 
     try {
       await updateRequest(request);
-      this.onComplete(SP.UI.DialogResult.OK);
+      this.onComplete(true);
     } catch (e) {
       alert(e);
     }

@@ -6268,21 +6268,21 @@ function GetSourceUrlForForms() {
 }
 
 function OnCallbackForm(result, value) {
-  if (result === SP.UI.DialogResult.OK) {
+  if (result === true) {
     //alert( value );
     m_fnRefreshData();
   } else m_bIsTransactionExecuting = false;
 }
 
 function OnCallbackFormReload(result, value) {
-  if (result === SP.UI.DialogResult.OK) {
+  if (result === true) {
     //alert( value );
     m_fnRefresh();
   } else m_bIsTransactionExecuting = false;
 }
 
 function OnCallbackFormNewRequest(result, value) {
-  if (result !== SP.UI.DialogResult.OK) return;
+  if (result !== true) return;
   const newRequestTask = addTask(taskDefs.newRequest);
 
   var currCtx = new SP.ClientContext.get_current();
@@ -6531,7 +6531,7 @@ function m_fnRenameEAFolder(
 }
 
 async function OnCallbackFormEditRequest(result, value) {
-  if (result !== SP.UI.DialogResult.OK) {
+  if (result !== true) {
     m_bIsTransactionExecuting = false;
     return;
   }
@@ -6708,7 +6708,7 @@ async function OnCallbackFormEditRequest(result, value) {
 }
 
 function OnCallbackFormCoverSheet(result, value) {
-  if (result === SP.UI.DialogResult.OK) {
+  if (result === true) {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
@@ -6787,7 +6787,7 @@ function OnCallbackFormBulkEditResponse(result, value) {
 }
 
 function OnCallbackFormNewResponse(result, value) {
-  if (result === SP.UI.DialogResult.OK) {
+  if (result === true) {
     //get last item inserted
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
@@ -6929,7 +6929,7 @@ function OnCallbackFormEditResponse(result, value) {
   m_countCSToUpdateOnEditResponse = 0;
   m_countCSUpdatedOnEditResponse = 0;
 
-  if (result === SP.UI.DialogResult.OK) {
+  if (result === true) {
     document.body.style.cursor = "wait";
     notifyId = addNotification("Please wait... ", false);
 

@@ -44,7 +44,7 @@ export class EditResponseForm extends BaseForm {
 
     try {
       await updateResponse(response.ReqNum.Value(), response);
-      this.onComplete(SP.UI.DialogResult.OK);
+      this.onComplete(true);
     } catch (e) {
       alert(e);
     }

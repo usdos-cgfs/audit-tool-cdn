@@ -24,7 +24,7 @@ export class EditCoverSheetForm extends BaseForm {
 
     try {
       await updateRequestCoverSheet(coverSheet);
-      this.onComplete(SP.UI.DialogResult.OK);
+      this.onComplete(true);
     } catch (e) {
       alert(e);
     }
