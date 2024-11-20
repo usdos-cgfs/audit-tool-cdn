@@ -67,6 +67,8 @@ var Audit = window.Audit || {
   IAReport: {},
 };
 
+window.Audit = Audit;
+
 const requestParam = "ReqNum";
 const responseParam = "ResNum";
 
