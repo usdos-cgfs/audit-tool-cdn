@@ -2379,27 +2379,16 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
   }
 
   async function uploadFileRest(file, relFolderPath, fileName) {
-    return await fetch(
-      window.context.pageContext.legacyPageContext.webServerRelativeUrl +
-        `/_api/web/GetFolderByServerRelativeUrl('${relFolderPath}')/Files/add(url='${fileName}',overwrite=true)`,
+    return await fetchSharePointData(
+      `/web/GetFolderByServerRelativeUrl('${relFolderPath}')/Files/add(url='${fileName}',overwrite=true)`,
+      "POST",
       {
-        method: "POST",
-        credentials: "same-origin",
+        "Content-Type": "application/json;odata=nometadata",
+      },
+      {
         body: file,
-        headers: {
-          Accept: "application/json; odata=verbose",
-          "Content-Type": "application/json;odata=nometadata",
-          "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
-        },
       }
-    ).then((response) => {
-      if (!response.ok) {
-        console.error("Error Uploading File", response);
-        return;
-      }
-
-      return response.json();
-    });
+    );
   }
 
   async function uploadFileToFolderAndUpdateMetadata(
@@ -2437,25 +2426,18 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
   }
 
   async function updateUploadedFileMetadata(fileResult, payload) {
-    var result = await fetch(fileResult.ListItemAllFields.__deferred.uri, {
-      method: "POST",
-      credentials: "same-origin",
-      body: JSON.stringify(payload),
-      headers: {
-        Accept: "application/json; odata=nometadata",
-        "Content-Type": "application/json;odata=nometadata",
-        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+    var result = await fetchSharePointData(
+      fileResult.ListItemAllFields.__deferred.uri,
+      "POST",
+      {
         "X-HTTP-Method": "MERGE",
         "If-Match": "*",
       },
-    }).then((response) => {
-      if (!response.ok) {
-        console.error("Error Updating File", response);
-        return;
+      {
+        credentials: "same-origin",
+        body: JSON.stringify(payload),
       }
-
-      return response;
-    });
+    );
 
     return result;
   }
@@ -2562,9 +2544,11 @@ async function fetchSharePointData(
     method,
     headers: {
       Accept: "application/json; odata=verbose",
+      "Content-Type": "application/json;odata=nometadata",
       "X-RequestDigest": requestDigest,
       ...headers,
     },
+    credentials: "same-origin",
     ...opts,
   });
 
@@ -2583,12 +2567,16 @@ async function fetchSharePointData(
 }
 
 async function getRequestDigest() {
-  const response = await fetch(sal.globalConfig.siteUrl + "/_api/contextinfo", {
-    method: "POST",
-    headers: {
-      Accept: "application/json; odata=verbose",
-    },
-  });
+  const response = await fetch(
+    //window.context.pageContext.legacyPageContext.webServerRelativeUrl +
+    "../_api/contextinfo",
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json; odata=verbose",
+      },
+    }
+  );
 
   if (!response.ok) {
     console.error("Cannot refresh token", response);
@@ -2603,7 +2591,7 @@ async function refreshDigestValue() {
 
   if (!result) return;
 
-  requestDigest = result;
+  requestDigest = result.FormDigestValue;
 
   // document.getElementById("__REQUESTDIGEST").value = result.FormDigestValue;
 
