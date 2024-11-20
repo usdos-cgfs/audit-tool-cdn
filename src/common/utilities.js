@@ -448,9 +448,7 @@ export function NewUtilities() {
       .get_roleAssignments()
       .add(visitorGroup, roleDefBindingCollRestrictedRead);
 
-    var spGroupQA = commonUtilities.GetSPSiteGroup(
-      commonUtilities.GetGroupNameQA()
-    );
+    var spGroupQA = commonUtilities.publicMembers.GetSPSiteGroup(m_groupNameQA);
     if (spGroupQA != null)
       oNewEmailFolder
         .get_roleAssignments()
@@ -476,8 +474,8 @@ export function NewUtilities() {
           var actionOfficeName = arrActionOffice[x].get_lookupValue();
 
           var actionOfficeGroupName =
-            commonUtilities.GetAOSPGroupName(actionOfficeName);
-          var actionOfficeGroup = commonUtilities.GetSPSiteGroup(
+            commonUtilities.publicMembers.GetAOSPGroupName(actionOfficeName);
+          var actionOfficeGroup = commonUtilities.publicMembers.GetSPSiteGroup(
             actionOfficeGroupName
           );
 
@@ -551,7 +549,7 @@ export function NewUtilities() {
       var subA = aTitle.substring(0, aIndex + 1);
       var lastA = aTitle.replace(subA, "");
       var intA = parseInt(lastA, 10);
-      var newIntA = commonUtilities.PadDigits(intA, 5);
+      var newIntA = m_fnPadDigits(intA, 5);
       newA = subA + newIntA;
     } else newA = aTitle;
 
@@ -560,7 +558,7 @@ export function NewUtilities() {
       var subB = bTitle.substring(0, bIndex + 1);
       var lastB = bTitle.replace(subB, "");
       var intB = parseInt(lastB, 10);
-      var newIntB = commonUtilities.PadDigits(intB, 5);
+      var newIntB = m_fnPadDigits(intB, 5);
       newB = subB + newIntB;
     } else newB = bTitle;
 
@@ -580,7 +578,7 @@ export function NewUtilities() {
       var subA = aTitle.substring(0, aIndex + 1);
       var lastA = aTitle.replace(subA, "");
       var intA = parseInt(lastA, 10);
-      var newIntA = commonUtilities.PadDigits(intA, 5);
+      var newIntA = m_fnPadDigits(intA, 5);
       newA = subA + newIntA;
     } else newA = aTitle;
 
@@ -589,7 +587,7 @@ export function NewUtilities() {
       var subB = bTitle.substring(0, bIndex + 1);
       var lastB = bTitle.replace(subB, "");
       var intB = parseInt(lastB, 10);
-      var newIntB = commonUtilities.PadDigits(intB, 5);
+      var newIntB = m_fnPadDigits(intB, 5);
       newB = subB + newIntB;
     } else newB = bTitle;
 
@@ -691,9 +689,9 @@ export function NewUtilities() {
     if (fileSize == null || fileSize == "") return "";
 
     if (fileSize > 1048576) {
-      fileSize = commonUtilities.PreciseRound(fileSize / 1048576, 2) + " MB";
+      fileSize = m_fnPreciseRound(fileSize / 1048576, 2) + " MB";
     } else if (fileSize > 1024) {
-      fileSize = commonUtilities.PreciseRound(fileSize / 1024, 2) + " KB";
+      fileSize = m_fnPreciseRound(fileSize / 1024, 2) + " KB";
     } else {
       fileSize += " B";
     }
@@ -831,19 +829,20 @@ export function NewUtilities() {
     //options.dialogReturnValueCallback = OnCallbackForm;
     if (docType != null)
       options.url =
-        commonUtilities.GetSiteUrl() +
+        commonUtilities.publicMembers.GetSiteUrl() +
         "/SitePages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1=" +
         docType;
     else
       options.url =
-        commonUtilities.GetSiteUrl() + "/SitePages/AuditUserManuals.aspx";
+        commonUtilities.publicMembers.GetSiteUrl() +
+        "/SitePages/AuditUserManuals.aspx";
 
     SP.UI.ModalDialog.showModalDialog(options);
   }
 
   function m_fnPrintPage(pageTitle, divTbl) {
     var curDate = new Date();
-    var siteUrl = commonUtilities.GetSiteUrl();
+    var siteUrl = commonUtilities.publicMembers.GetSiteUrl();
     var cssLink1 =
       siteUrl +
       "/siteassets/css/tablesorter/style.css?v=" +
