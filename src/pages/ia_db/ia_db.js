@@ -3035,7 +3035,7 @@ function m_fnViewResponseDocFolder(title) {
 
   var options = {};
   options.title = "View Response Folder";
-  options.height = "600";
+  options.autoSize = true;
   options.dialogReturnValueCallback = OnCallbackForm;
 
   //if they delete a document in this window, we want them to return to the current page
