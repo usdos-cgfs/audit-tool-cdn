@@ -18,16 +18,31 @@ class ModalDialogModule {
     this.title = dialogOpts.title;
     this.dialogReturnValueCallback = dialogOpts.dialogReturnValueCallback;
 
+    // this.url = dialogOpts.url;
     this.form = dialogOpts.form;
 
-    if (this.form?.onComplete) {
-      alert("Pass the form onComplete to the modal dialog!");
-      return;
+    if (this.form) {
+      if (this.form?.onComplete) {
+        alert("Pass the form onComplete to the modal dialog!");
+        return;
+      }
+      this.form.onComplete = this.close.bind(this);
     }
-    this.form.onComplete = this.close.bind(this);
+
+    if (dialogOpts.url) {
+      const parsedUrl = new URL(
+        dialogOpts.url.startsWith("http")
+          ? dialogOpts.url
+          : window.location.origin + dialogOpts.url
+      );
+      parsedUrl.searchParams.set("env", "WebView");
+      this.url = parsedUrl.href;
+    }
 
     toggle = this.toggle;
   }
+
+  url = null;
 
   toggle = (show = null) => {
     if (show == null) show = !this.dlgElement.hasAttribute("open");
@@ -42,6 +57,10 @@ class ModalDialogModule {
 
   clickClose = () => {
     this.close(false);
+  };
+
+  clickSubmit = () => {
+    this.close(true);
   };
 
   hide = () => {

@@ -453,6 +453,15 @@
   display: flex;
 }
 
+.audit .modal-dialog .card-body {
+  flex-grow: 1;
+}
+
+.audit .modal-dialog iframe {
+  width: 100%;
+  height: calc(100% - 1rem);
+}
+
 .audit fieldset {
   margin-bottom: 10px;
   /*border-color:lightsteelblue;*/
