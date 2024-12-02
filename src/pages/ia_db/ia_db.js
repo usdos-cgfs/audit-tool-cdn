@@ -2513,6 +2513,7 @@ function m_fnBulkAddRequest() {
   const options = {
     title: "Bulk Add Request",
     form: bulkAddRequestForm,
+    autoSize: true,
     dialogReturnValueCallback: OnCallbackFormReload,
   };
 
@@ -3012,7 +3013,7 @@ function m_fnCheckInResponseDoc(folder, fileName) {
 
   m_bIsTransactionExecuting = true;
 
-  var options = SP.UI.$create_DialogOptions();
+  var options = {};
   options.title = "Check in Response Document";
   options.height = "600";
   options.dialogReturnValueCallback = OnCallbackForm;
@@ -3026,43 +3027,39 @@ function m_fnCheckInResponseDoc(folder, fileName) {
     "/" +
     fileName;
 
-  SP.UI.ModalDialog.showModalDialog(options);
+  ModalDialog.showModalDialog(options);
 }
 
 function m_fnViewResponseDocFolder(title) {
   m_bIsTransactionExecuting = true;
 
-  var options = SP.UI.$create_DialogOptions();
+  var options = {};
   options.title = "View Response Folder";
   options.height = "600";
   options.dialogReturnValueCallback = OnCallbackForm;
 
   //if they delete a document in this window, we want them to return to the current page
   options.url =
-    Audit.Common.Utilities.GetSiteUrl() +
-    "/SitePages/AuditResponseDocs.aspx?RootFolder=" +
-    Audit.Common.Utilities.GetSiteUrl() +
-    "/" +
-    Audit.Common.Utilities.GetLibNameResponseDocs() +
-    "/" +
-    title;
+    Audit.Common.Utilities.GetSiteUrl() + "/AuditResponseDocs" + "/" + title;
   //options.url = Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditResponseDocs.aspx?RootFolder=" + Audit.Common.Utilities.GetSiteUrl() + "/" + Audit.Common.Utilities.GetLibNameResponseDocs() + "/" + title + GetSourceUrlForForms();
   //options.url = m_siteUrl + "/"+ m_libNameResponseDocs + "/" + title;
   //options.url = m_siteUrl + "/"+ m_libNameResponseDocs + "?RootFolder=" + m_siteUrl + "/"+ m_libNameResponseDocs + "/" + title;
-  SP.UI.ModalDialog.showModalDialog(options);
+  ModalDialog.showModalDialog(options);
 }
 
 function m_fnViewEmailHistoryFolder(reqNum) {
   m_bIsTransactionExecuting = true;
 
-  var options = SP.UI.$create_DialogOptions();
+  var options = {};
   options.title = "View Email History";
   options.autoSize = true;
   options.dialogReturnValueCallback = OnCallbackForm;
 
   options.url =
     Audit.Common.Utilities.GetSiteUrl() +
-    "/SitePages/AuditEmailHistory.aspx?RootFolder=" +
+    "/Lists/" +
+    Audit.Common.Utilities.GetListNameEmailHistory() +
+    "?RootFolder=" +
     Audit.Common.Utilities.GetSiteUrl() +
     "/Lists/" +
     Audit.Common.Utilities.GetListNameEmailHistory() +
@@ -3070,7 +3067,7 @@ function m_fnViewEmailHistoryFolder(reqNum) {
     reqNum +
     GetSourceUrlForForms();
 
-  SP.UI.ModalDialog.showModalDialog(options);
+  ModalDialog.showModalDialog(options);
 }
 
 function m_fnDeleteResponseDoc(itemID) {
