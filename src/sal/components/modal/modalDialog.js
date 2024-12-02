@@ -97,8 +97,15 @@ directRegisterComponent(componentName, {
 });
 
 function resizeDialog(elmnt, options) {
-  const width = options.width ?? 550;
-  const height = options.height ?? "";
+  if (options.autoSize) {
+  }
+  const autoWidth = options.autoSize
+    ? Math.max(window.visualViewport.width - 200, 550)
+    : 550;
+
+  const autoHeight = Math.max(window.visualViewport.height - 200, 750);
+  const width = options.width ?? autoWidth;
+  const height = options.height ?? autoHeight;
 
   elmnt.style.width = width + "px";
   if (height) elmnt.style.height = height + "px";
