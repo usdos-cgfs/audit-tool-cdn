@@ -103,7 +103,9 @@ function resizeDialog(elmnt, options) {
     ? Math.max(window.visualViewport.width - 200, 550)
     : 550;
 
-  const autoHeight = Math.max(window.visualViewport.height - 200, 750);
+  const autoHeight = options.autoSize
+    ? Math.max(window.visualViewport.height - 200, 750)
+    : null;
   const width = options.width ?? autoWidth;
   const height = options.height ?? autoHeight;
 
