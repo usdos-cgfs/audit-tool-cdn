@@ -4,7 +4,7 @@ export function NewUtilities() {
   const commonUtilities = this;
 
   const loadStart = new Date();
-  var m_siteUrl = window.context.pageContext.serverRelativeUrl; //IE11 in sp 2013 does not recognize L_Menu_BaseUrl
+  var m_siteUrl = window.context.pageContext.web.serverRelativeUrl; //IE11 in sp 2013 does not recognize L_Menu_BaseUrl
   // var m_siteUrl = window.context.pageContext.legacyPageContext.webServerRelativeUrl; //IE11 in sp 2013 does not recognize L_Menu_BaseUrl
 
   var m_listTitleRequests = "AuditRequests";
