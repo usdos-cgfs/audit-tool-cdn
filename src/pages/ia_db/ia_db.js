@@ -61,6 +61,16 @@ import { getAllItems } from "../../services/legacy_helpers.js";
 import { BulkAddResponseForm } from "../../components/bulk_add_response/bulk_add_response.js";
 import { NewUtilities } from "../../common/utilities.js";
 import { registerStyles } from "../../infrastructure/register_styles.js";
+import { loadInfo, loadingRemainder } from "../../tasks/db_tasks.js";
+import {
+  loadingResponseDocs,
+  loadingResponses,
+} from "../../tasks/request_view_tasks.js";
+import {
+  deleteResponseDocTaskDef,
+  sendResponseDocToQATaskDef,
+} from "../../tasks/response_doc_tasks.js";
+import { updateRequestSensitivityTaskDef } from "../../tasks/request_tasks.js";
 
 var Audit = window.Audit || {
   Common: {},
@@ -603,6 +613,7 @@ function ViewModel() {
 }
 
 async function LoadInfo() {
+  const loadInfoTask = addTask(loadInfo);
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
@@ -753,9 +764,10 @@ async function LoadInfo() {
           m_responseItems,
           m_responseDocsItems
         );
-        // m_fnResetAODBPerms(m_PageItems);
+
         ensureROEmailFolder();
         // m_fnCheckForEAEmailFolder(emailListFolderItemsEA);
+        finishTask(loadInfoTask);
       }
       function OnFailureLoadPages(sender, args) {
         document.getElementById("divIA").style.display = "flex";
@@ -768,6 +780,7 @@ async function LoadInfo() {
           m_responseItems,
           m_responseDocsItems
         );
+        finishTask(loadInfoTask);
       }
       currCtx.executeQueryAsync(OnSuccessLoadPages, OnFailureLoadPages);
     } else {
@@ -782,19 +795,19 @@ async function LoadInfo() {
         m_responseItems,
         m_responseDocsItems
       );
+      finishTask(loadInfoTask);
     }
 
     setTimeout(function () {
       m_fnLoadRemainder();
+      finishTask(loadInfoTask);
     }, 100);
   }
   function OnFailure(sender, args) {
     document.getElementById("divLoading").style.display = "none";
-    const statusId = SP.UI.Status.addStatus(
+    loadInfoTask.addStatus(
       "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
     );
-    SP.UI.Status.setStatusPriColor(statusId, "red");
-    m_bIsSiteOwner = false;
   }
 }
 
@@ -842,87 +855,8 @@ function m_fnLoadData(
 export async function m_fnRefreshData(requestId = null) {
   if (!requestId) requestId = _myViewModel.currentRequest()?.ID;
   await m_fnRequeryRequest(requestId);
-
-  return;
-  // TODO: reload data without blocking entire page.
-  var currCtx = new SP.ClientContext.get_current();
-  var web = currCtx.get_web();
-
-  var requestList = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
-  var requestQuery = new SP.CamlQuery();
-  requestQuery.set_viewXml(
-    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
-  );
-  const m_requestItems = requestList.getItems(requestQuery);
-  //need to check permissions because of displaying special perms and granting special perms
-  //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
-  currCtx.load(
-    m_requestItems,
-    "Include(ID, Title, ReqType, ReqSubject, ReqStatus, RequestingOffice, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
-  );
-
-  var requestInternalList = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
-  var requestInternalQuery = new SP.CamlQuery();
-  requestInternalQuery.set_viewXml(
-    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
-  );
-  const m_requestInternalItems =
-    requestInternalList.getItems(requestInternalQuery);
-  currCtx.load(
-    m_requestInternalItems,
-    "Include(ID, Title, ReqNum, InternalStatus, ActiveViewers)"
-  );
-
-  var responseList = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-  var responseQuery = new SP.CamlQuery();
-  responseQuery.set_viewXml(
-    '<View><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
-  );
-  const m_responseItems = responseList.getItems(responseQuery);
-  //need to check permissions because of granting/removing special perms
-  //currCtx.load( m_responseItems, 'Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))' );
-  currCtx.load(
-    m_responseItems,
-    "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
-  );
-
-  //make sure to only pull documents (fsobjtype = 0)
-  var responseDocsLib = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-  var responseDocsQuery = new SP.CamlQuery();
-  responseDocsQuery.set_viewXml(
-    '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/><FieldRef Name="ResID"/></OrderBy><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'
-  );
-  const m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
-  currCtx.load(
-    m_ResponseDocsItems,
-    "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
-  );
-
-  await executeQuery(currCtx).catch(({ sender, args }) => {
-    const statusId = SP.UI.Status.addStatus(
-      "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
-    );
-    SP.UI.Status.setStatusPriColor(statusId, "red");
-  });
-
-  m_fnLoadData(
-    m_requestItems,
-    m_requestInternalItems,
-    m_responseItems,
-    m_ResponseDocsItems
-  );
-  // TODO: Update status reports and other data.
-  // LoadTabStatusReport1();
-  // LoadTabStatusReport2();
 }
+
 export async function m_fnRequeryRequest(requestId = null) {
   const refreshTask = addTask(taskDefs.refresh);
   var currCtx = new SP.ClientContext.get_current();
@@ -1093,6 +1027,8 @@ function m_fnLoadRemainder() {
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
+  const remainderTask = addTask(loadingRemainder);
+
   m_coversheetDocsLibrary = currCtx
     .get_web()
     .get_lists()
@@ -1115,12 +1051,12 @@ function m_fnLoadRemainder() {
     m_libResponseDocsLibraryGUID = m_responseDocsLibrary.get_id();
     m_libCoverSheetLibraryGUID = m_coversheetDocsLibrary.get_id();
     m_libRequestDocsLibraryGUID = m_requestDocsLibrary.get_id();
+    finishTask(remainderTask);
   }
   function OnFailure(sender, args) {
-    const statusId = SP.UI.Status.addStatus(
+    remainderTask.addStatus(
       "Failed loading: " + args.get_message() + "\n" + args.get_stackTrace()
     );
-    SP.UI.Status.setStatusPriColor(statusId, "red");
   }
   currCtx.executeQueryAsync(OnSuccess, OnFailure);
 }
@@ -2106,6 +2042,7 @@ async function LoadTabRequestInfoResponses(oRequest) {
     "Loading Responses...",
     true
   );
+  const loadingResponsesTask = addTask(loadingResponses);
 
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
@@ -2162,10 +2099,9 @@ async function LoadTabRequestInfoResponses(oRequest) {
       reject({ sender, args })
     )
   ).catch(({ sender, args }) => {
-    const statusId = SP.UI.Status.addStatus(
+    loadingResponsesTask.addStatus(
       "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
     );
-    SP.UI.Status.setStatusPriColor(statusId, "red");
     return;
   });
 
@@ -2282,6 +2218,7 @@ async function LoadTabRequestInfoResponses(oRequest) {
   removeNotification(m_notifyIDLoadingResponses);
   m_notifyIDLoadingResponses = null;
 
+  finishTask(loadingResponsesTask);
   // ko.utils.arrayPushAll(_myViewModel.arrCurrentRequestResponses, arrResponses);
 
   document.body.style.cursor = "default";
@@ -2303,6 +2240,8 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
 
   // _myViewModel.cntResponseDocs(0);
   // _myViewModel.cntResponseDocs.valueHasMutated();
+
+  const loadingResponseDocsTask = addTask(loadingResponseDocs);
 
   let currCtx = new SP.ClientContext.get_current();
   let web = currCtx.get_web();
@@ -2369,15 +2308,15 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
   }
 
   await executeQuery(currCtx).catch(({ sender, args }) => {
-    const statusId = SP.UI.Status.addStatus(
+    loadingResponseDocsTask.addStatus(
       "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
     );
-    SP.UI.Status.setStatusPriColor(statusId, "red");
   });
 
   oRequest.responses.sort(Audit.Common.Utilities.SortResponseObjects);
 
   RequestFinishedLoading();
+  finishTask(loadingResponseDocsTask);
 }
 
 function DisplayRequestsThatShouldClose() {
@@ -3389,6 +3328,7 @@ function m_fnDeleteResponseDoc(itemID) {
   if (
     confirm("Are you sure you would like to Delete this Response Document?")
   ) {
+    const deletingResponseDocTask = addTask(deleteResponseDocTaskDef(itemID));
     m_bIsTransactionExecuting = true;
 
     var currCtx = new SP.ClientContext();
@@ -3401,13 +3341,13 @@ function m_fnDeleteResponseDoc(itemID) {
     oListItem.recycle();
 
     function OnSuccess(sender, args) {
+      finishTask(deletingResponseDocTask);
       m_fnRefresh();
     }
     function OnFailure(sender, args) {
-      const statusId = SP.UI.Status.addStatus(
+      deletingResponseDocTask.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
-      SP.UI.Status.setStatusPriColor(statusId, "red");
     }
     currCtx.executeQueryAsync(OnSuccess, OnFailure);
   }
@@ -3425,6 +3365,7 @@ function m_fnResendRejectedResponseDocToQA(itemID) {
     )
   ) {
     m_bIsTransactionExecuting = true;
+    const sendResponseDocToQATask = addTask(sendResponseDocToQATaskDef(itemID));
 
     var currCtx = new SP.ClientContext();
     var responseDocsLib = currCtx
@@ -3439,12 +3380,12 @@ function m_fnResendRejectedResponseDocToQA(itemID) {
 
     function OnSuccess(sender, args) {
       m_fnRefreshData();
+      finishTask(sendResponseDocToQATask);
     }
     function OnFailure(sender, args) {
-      const statusId = SP.UI.Status.addStatus(
+      sendResponseDocToQATask.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
-      SP.UI.Status.setStatusPriColor(statusId, "red");
     }
     currCtx.executeQueryAsync(OnSuccess, OnFailure);
   }
@@ -4042,6 +3983,10 @@ async function m_fnUpdateSensitivityOnRequest(
 ) {
   let m_cntResponseDocsSensToUpdate = 0;
 
+  const updateRequestSensitivityTask = addTask(
+    updateRequestSensitivityTaskDef(requestNumber)
+  );
+
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
@@ -4105,10 +4050,9 @@ async function m_fnUpdateSensitivityOnRequest(
   await new Promise((resolve, reject) =>
     currCtx.executeQueryAsync(resolve, reject)
   ).catch((sender, args) => {
-    const statusId = SP.UI.Status.addStatus(
+    updateRequestSensitivityTask.addStatus(
       "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
     );
-    SP.UI.Status.setStatusPriColor(statusId, "red");
   });
 
   var listItemEnumerator = responseDocsItems.getEnumerator();
@@ -4292,6 +4236,7 @@ async function m_fnUpdateSensitivityOnRequest(
     );
   }
   await Promise.all(updateDocPromises);
+  finishTask(updateRequestSensitivityTask);
   return true;
 }
 

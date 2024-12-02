@@ -30,6 +30,11 @@ export class Task {
   IsBlocking = ko.pureComputed(
     () => this.blocking && this.Status() != taskStates.completed
   );
+
+  addStatus = (status) => {
+    this.Status(status);
+    window.clearTimeout(this.timeout);
+  };
 }
 
 export class ProgressTask {

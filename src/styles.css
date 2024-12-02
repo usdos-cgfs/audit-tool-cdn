@@ -331,11 +331,20 @@
   position: fixed;
   bottom: 0.2rem;
   right: 1.75rem;
+  z-index: 10;
+  background-color: color-mix(
+    in srgb,
+    var(--bg-very-light-color) 70%,
+    transparent
+  );
+  border-radius: 0.6rem;
 }
 
 .audit .tasks ul {
   list-style: none;
   font-size: 1rem;
+  margin: 0;
+  padding: 1.5rem;
 }
 
 .audit .dimmer {
