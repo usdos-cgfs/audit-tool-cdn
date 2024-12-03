@@ -374,6 +374,11 @@
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
 }
+.audit .small.loader {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 3px;
+}
 
 @keyframes rotation {
   0% {

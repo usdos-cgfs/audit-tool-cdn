@@ -1,16 +1,33 @@
 <div>
-  <p>Hello from Edit PeopleField!</p>
-  <ul data-bind="foreach: selectedUsers">
-    <li data-bind="click: $parent.removeUser">
-      <span data-bind="text: displayName"></span> [<span
-        data-bind="text: userPrincipalName"
-      ></span
-      >]
-    </li>
-  </ul>
+  <div class="selected-people" data-bind="foreach: selectedUsers">
+    <div class="selected-person">
+      <div class="status" data-bind="attr: {title: id}">
+        <!-- ko if: resolutionStatus() == 'searching' -->
+        <span class="small loader"></span>
+        <!-- /ko -->
+        <!-- ko if: resolutionStatus() == 'success' -->
+        <span class="small loader"></span>
+        <!-- /ko -->
+        <!-- ko if: resolutionStatus() == 'fail' -->
+        <span class="small loader"></span>
+        <!-- /ko -->
+      </div>
+      <div
+        class="display-name"
+        data-bind="text: displayName, attr: {title: userPrincipalName}"
+      ></div>
+      <div
+        class="remove"
+        title="Remove User"
+        data-bind="click: $parent.removeUser"
+      >
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+  </div>
   <input type="text" data-bind="textInput: searchTerm" />
-  <ul data-bind="foreach: userOpts">
-    <li data-bind="click: $parent.selectUser">
+  <ul class="search-opts" data-bind="foreach: userOpts">
+    <li class="search-opt" data-bind="click: $parent.selectUser">
       <span data-bind="text: displayName"></span> [<span
         data-bind="text: userPrincipalName"
       ></span
@@ -18,3 +35,46 @@
     </li>
   </ul>
 </div>
+
+<style>
+  .selected-people {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .selected-person {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--primary-color);
+    border-radius: 1rem;
+    gap: 0.4rem;
+    height: 2rem;
+    margin: 0.4rem 0;
+  }
+
+  .selected-person .status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+  }
+
+  .selected-person .display-name {
+    align-content: center;
+    font-weight: 600;
+  }
+
+  .selected-person .remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    width: 2rem;
+    color: var(--bg-dark-secondary-color);
+  }
+
+  .selected-person .remove:hover {
+    background-color: var(--bg-very-light-color);
+    cursor: pointer;
+  }
+</style>

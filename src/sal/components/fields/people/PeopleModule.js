@@ -7,6 +7,7 @@ import {
 
 import viewTemplate from "./PeopleView.html";
 import editTemplate from "./PeopleEdit.html";
+import { ensureUserByKeyAsync } from "../../../infrastructure/sal.js";
 
 export class PeopleModule extends BaseFieldModule {
   constructor(params) {
@@ -90,7 +91,18 @@ export class PeopleModule extends BaseFieldModule {
       id: ko.observable(),
       ...user,
     };
-    this.selectedUsers.push(user);
+
+    this.selectedUsers.push(selectedUser);
+
+    const result = await ensureUserByKeyAsync(user.userPrincipalName);
+
+    if (!result) {
+      selectedUser.resolutionStatus("fail");
+      return;
+    }
+
+    selectedUser.resolutionStatus("success");
+    selectedUser.id(result.ID);
   };
 
   removeUser = (user) => this.selectedUsers.remove(user);
