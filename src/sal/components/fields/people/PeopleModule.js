@@ -38,12 +38,27 @@ export class PeopleModule extends BaseFieldModule {
 
   searchTerm = ko.observable();
   searchResults = ko.observableArray();
+  selectedUsers = ko.observableArray();
+
+  userOpts = ko.pureComputed(() => {
+    const selectedPrincipals = this.selectedUsers().map(
+      (user) => user.userPrincipalName
+    );
+    return this.searchResults().filter(
+      (result) => !selectedPrincipals.includes(result.userPrincipalName)
+    );
+  });
 
   onSearch = async (searchTerm) => {
+    if (!searchTerm) {
+      this.searchResults.removeAll();
+      return;
+    }
     console.log("Searching People for: ", searchTerm);
     // Only search for terms that are 3 letters or longer
     if (searchTerm.length < 3) return;
 
+    const encodedSearchTerm = encodeURIComponent(searchTerm);
     const result = await window.context.aadHttpClientFactory
       .getClient("https://graph.microsoft.com")
       .then((client) => {
@@ -51,13 +66,9 @@ export class PeopleModule extends BaseFieldModule {
         return client.get(
           `https://graph.microsoft.com/v1.0/users?` +
             `$select=displayName,mail,userPrincipalName&` +
-            `$filter=(givenName%20eq%20'${encodeURIComponent(
-              searchTerm
-            )}')%20or%20(surname%20eq%20'${encodeURIComponent(
-              searchTerm
-            )}')%20or%20(displayName%20eq%20'${encodeURIComponent(
-              searchTerm
-            )}')`,
+            `$filter=startsWith(givenName, '${encodedSearchTerm}') or ` +
+            `startsWith(surname, '${encodedSearchTerm}') or ` +
+            `startsWith(displayName, '${encodedSearchTerm}')`,
           client.constructor.configurations.v1
         );
       })
@@ -72,6 +83,17 @@ export class PeopleModule extends BaseFieldModule {
       this.searchResults(result.value);
     }
   };
+
+  selectUser = async (user) => {
+    const selectedUser = {
+      resolutionStatus: ko.observable("searching"),
+      id: ko.observable(),
+      ...user,
+    };
+    this.selectedUsers.push(user);
+  };
+
+  removeUser = (user) => this.selectedUsers.remove(user);
 
   static viewTemplate = viewTemplate;
   static editTemplate = editTemplate;

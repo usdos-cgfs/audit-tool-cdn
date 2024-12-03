@@ -1,12 +1,20 @@
 <div>
   <p>Hello from Edit PeopleField!</p>
-  <ul data-bind="foreach: searchResults">
-    <li>
-      <span data-bind="text: displayName"></span>[<span
+  <ul data-bind="foreach: selectedUsers">
+    <li data-bind="click: $parent.removeUser">
+      <span data-bind="text: displayName"></span> [<span
         data-bind="text: userPrincipalName"
       ></span
       >]
     </li>
   </ul>
   <input type="text" data-bind="textInput: searchTerm" />
+  <ul data-bind="foreach: userOpts">
+    <li data-bind="click: $parent.selectUser">
+      <span data-bind="text: displayName"></span> [<span
+        data-bind="text: userPrincipalName"
+      ></span
+      >]
+    </li>
+  </ul>
 </div>
