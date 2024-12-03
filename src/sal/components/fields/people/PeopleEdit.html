@@ -1,0 +1,12 @@
+<div>
+  <p>Hello from Edit PeopleField!</p>
+  <ul data-bind="foreach: searchResults">
+    <li>
+      <span data-bind="text: displayName"></span>[<span
+        data-bind="text: userPrincipalName"
+      ></span
+      >]
+    </li>
+  </ul>
+  <input type="text" data-bind="textInput: searchTerm" />
+</div>
