@@ -67,7 +67,7 @@
         >
           <fieldset>
             <legend>
-              <span class="ui-icon ui-icon-alert"></span
+              <span class="fa-solid fa-triangle-exclamation"></span
               ><span
                 data-bind="text: arrRequestsThatNeedClosing().length"
               ></span>
@@ -437,7 +437,7 @@
             title="Refresh this page"
             href="javascript:void(0)"
             data-bind="click: refresh"
-            ><span class="ui-icon ui-icon-refresh"></span>Refresh</a
+            ><span class="fa-solid fa-arrows-rotate"></span>Refresh</a
           >
         </div>
         <div>
@@ -445,7 +445,7 @@
             title="View User Manuals"
             href="javascript:void(0)"
             onclick="Audit.Common.Utilities.ViewUserManuals()"
-            ><span class="ui-icon ui-icon-help"></span>User Manuals</a
+            ><span class="fa-solid fa-question"></span>User Manuals</a
           >
         </div>
         <div>
@@ -453,7 +453,7 @@
             title="View Response Documents Uploaded by Action Offices Today but not yet Submitted"
             href="javascript:void(0)"
             onclick="Audit.IAReport.Report.ViewResponseDocsToday()"
-            ><span class="ui-icon ui-icon-search"></span>View Today's
+            ><span class="fa-solid fa-magnifying-glass"></span>View Today's
             Un-submitted Response Documents</a
           >
         </div>
@@ -462,8 +462,8 @@
             title="View Response Documents Returned to GFS"
             href="javascript:void(0)"
             onclick="Audit.IAReport.Report.ViewReturnedDocs()"
-            ><span class="ui-icon ui-icon-search"></span>View Response Documents
-            Returned to GFS</a
+            ><span class="fa-solid fa-magnifying-glass"></span>View Response
+            Documents Returned to GFS</a
           >
         </div>
         <div>
@@ -471,7 +471,7 @@
             title="View Request, Response and Site Permissions"
             href="javascript:void(0)"
             onclick="Audit.IAReport.Report.ViewPermissions()"
-            ><span class="ui-icon ui-icon-locked"></span>View Permissions</a
+            ><span class="fa-solid fa-lock"></span>View Permissions</a
           >
         </div>
         <div>
@@ -479,7 +479,7 @@
             title="View Late Requests"
             href="javascript:void(0)"
             onclick="Audit.IAReport.Report.ViewLateRequests()"
-            ><span class="ui-icon ui-icon-clock"></span>View Late Requests</a
+            ><span class="fa-solid fa-clock"></span>View Late Requests</a
           >
         </div>
         <div>
@@ -487,7 +487,7 @@
             id="linkSubmitBulkReq"
             href="javascript:void(0)"
             data-bind="click: ClickBulkAddRequest"
-            ><span class="ui-icon ui-icon-plus"></span>Bulk Add Request</a
+            ><span class="fa-solid fa-plus"></span>Bulk Add Request</a
           >
         </div>
         <div>
@@ -495,7 +495,7 @@
             id="linkSubmitNewReq"
             href="javascript:void(0)"
             data-bind="click: ClickNewRequest"
-            ><span class="ui-icon ui-icon-plus"></span>Create a New Request</a
+            ><span class="fa-solid fa-plus"></span>Create a New Request</a
           >
         </div>
         <div style="display: none">
@@ -503,8 +503,7 @@
             id="linkResetPerms"
             href="javascript:void(0)"
             data-bind="click: ClickResetPerms"
-            ><span class="ui-icon ui-icon-locked"></span>Reset App
-            Permissions</a
+            ><span class="fa-solid fa-lock"></span>Reset App Permissions</a
           >
         </div>
       </div>
@@ -677,15 +676,15 @@
           ></td>
           <td class="sr1-request-sample">
             <span
-              class="ui-icon"
-              data-bind="class: sample ? 'ui-icon-check' : 'ui-icon-close',
+              class="fa-solid"
+              data-bind="class: sample ? 'fa-check' : 'fa-xmark',
                 text: sample ?? 'false'"
             ></span>
           </td>
           <td class="sr1-request-sentEmail">
             <span
-              class="ui-icon"
-              data-bind="class: sentEmail ? 'ui-icon-check' : 'ui-icon-close',
+              class="fa-solid"
+              data-bind="class: sentEmail ? 'fa-check' : 'fa-xmark',
                 text: sentEmail ?? 'false'"
             ></span>
           </td>
@@ -695,7 +694,7 @@
               title="Click to view"
             >
               <span class="actionOfficeContainer">
-                <span class="ui-icon ui-icon-search"></span
+                <span class="fa-solid fa-magnifying-glass"></span
                 ><a
                   href="javascript:void(0)"
                   data-bind="click: $parent.clickExpandActionOffices"
