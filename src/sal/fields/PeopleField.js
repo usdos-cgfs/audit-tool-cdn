@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { sortByTitle } from "../infrastructure/index.js";
-import { PeopleModule } from "../components/fields/PeopleModule.js";
-import { People } from "../entities/People.js";
+import { PeopleModule } from "../components/fields/index.js";
+import { People } from "../entities/index.js";
 import { getUsersByGroupName } from "../infrastructure/index.js";
 import { ensureUserByKeyAsync } from "../infrastructure/sal.js";
 import { BaseField } from "./index.js";

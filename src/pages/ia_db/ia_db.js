@@ -72,6 +72,7 @@ import {
 } from "../../tasks/response_doc_tasks.js";
 import { updateRequestSensitivityTaskDef } from "../../tasks/request_tasks.js";
 
+import { PeopleField } from "../../sal/fields/PeopleField.js";
 var Audit = window.Audit || {
   Common: {},
   IAReport: {},
@@ -210,6 +211,10 @@ var _myViewModel = null;
 
 function ViewModel() {
   var self = this;
+
+  self.testPeople = new PeopleField({
+    displayName: "TEST PEOPLE",
+  });
 
   self.refresh = () => window.location.reload();
 
