@@ -9,6 +9,8 @@ import viewTemplate from "./PeopleView.html";
 import editTemplate from "./PeopleEdit.html";
 import { ensureUserByKeyAsync } from "../../../infrastructure/sal.js";
 
+import { People } from "../../../entities/index.js";
+
 export class PeopleModule extends BaseFieldModule {
   constructor(params) {
     super(params);
@@ -39,14 +41,33 @@ export class PeopleModule extends BaseFieldModule {
 
   searchTerm = ko.observable();
   searchResults = ko.observableArray();
-  selectedUsers = ko.observableArray();
+
+  stagedUsers = ko.observableArray();
+
+  selectedUsers = ko.pureComputed(() => {
+    const staged = ko.unwrap(this.stagedUsers);
+
+    const value = ko.unwrap(this.Value);
+
+    const valueArr = [];
+    if (value) {
+      if (ko.isObservableArray(this.Value)) {
+        valueArr.push(...value);
+      } else {
+        valueArr.push(value);
+      }
+    }
+
+    return [...staged, ...valueArr];
+  });
 
   userOpts = ko.pureComputed(() => {
     const selectedPrincipals = this.selectedUsers().map(
-      (user) => user.userPrincipalName
+      (user) => user.LoginName
     );
     return this.searchResults().filter(
-      (result) => !selectedPrincipals.includes(result.userPrincipalName)
+      (result) =>
+        !selectedPrincipals.includes(result.LoginName.toLocaleLowerCase())
     );
   });
 
@@ -81,36 +102,64 @@ export class PeopleModule extends BaseFieldModule {
     if (ko.unwrap(searchTerm) != searchTerm) return;
 
     if (result?.value) {
-      this.searchResults(result.value);
+      const mappedResults = result.value.map(
+        (user) =>
+          new People({
+            Title: user.displayName,
+            LoginName:
+              "i:0#.f|membership|" + user.userPrincipalName.toLocaleLowerCase(),
+          })
+      );
+      this.searchResults(mappedResults);
     }
   };
 
   selectUser = async (user) => {
-    const initials = user.givenName[0] + user.surname[0];
+    // 1. Stage
 
-    const selectedUser = {
+    const stagedUser = {
       resolutionStatus: ko.observable("searching"),
       resolutionMessage: ko.observable(),
-      id: ko.observable(),
-      initials,
       ...user,
     };
 
-    this.selectedUsers.push(selectedUser);
+    this.stagedUsers.push(stagedUser);
 
-    const result = await ensureUserByKeyAsync(user.userPrincipalName);
+    // 2. Ensure
+    const result = await ensureUserByKeyAsync(user.LoginName);
 
     if (!result) {
-      selectedUser.resolutionStatus("fail");
-      selectedUser.resolutionMessage("Could not ensure user!");
+      stagedUser.resolutionStatus("fail");
+      stagedUser.resolutionMessage("Could not ensure user!");
       return;
     }
 
-    selectedUser.resolutionStatus("resolved");
-    selectedUser.id(result.ID);
+    // 3. Store
+    this.stagedUsers.remove(stagedUser);
+
+    const people = new People(result);
+
+    if (ko.isObservableArray(this.Value)) {
+      this.Value.push(people);
+    } else {
+      this.Value(people);
+    }
   };
 
-  removeUser = (user) => this.selectedUsers.remove(user);
+  storePeople = (people) => {};
+
+  removeUser = (user) => {
+    if (this.stagedUsers.remove(user).length) return;
+
+    if (ko.isObservableArray(this.Value)) {
+      this.Value.remove(user);
+      return;
+    }
+
+    if (this.Value() == user) {
+      this.Value(null);
+    }
+  };
 
   static viewTemplate = viewTemplate;
   static editTemplate = editTemplate;

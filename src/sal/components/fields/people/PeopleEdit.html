@@ -1,15 +1,13 @@
 <div>
   <div class="selected-people" data-bind="foreach: selectedUsers">
     <div class="selected-person">
+      <!-- ko ifnot: ID  -->
       <div
         class="status"
-        data-bind="attr: {title: id}, class: resolutionStatus"
+        data-bind="attr: {title: ID}, class: resolutionStatus"
       >
         <!-- ko if: resolutionStatus() == 'searching' -->
         <span class="small loader"></span>
-        <!-- /ko -->
-        <!-- ko if: resolutionStatus() == 'resolved' -->
-        <span data-bind="text: initials"></span>
         <!-- /ko -->
         <!-- ko if: resolutionStatus() == 'fail' -->
         <i
@@ -18,9 +16,15 @@
         ></i>
         <!-- /ko -->
       </div>
+      <!-- /ko -->
+      <!-- ko if: ID -->
+      <div class="status resolved" data-bind="attr: {title: ID}">
+        <span data-bind="text: Initials()"></span>
+      </div>
+      <!-- /ko -->
       <div
         class="display-name"
-        data-bind="text: displayName, attr: {title: userPrincipalName}"
+        data-bind="text: Title, attr: {title: LoginName}"
       ></div>
       <div
         class="remove"
@@ -34,8 +38,8 @@
   <input type="text" data-bind="textInput: searchTerm" />
   <ul class="search-opts" data-bind="foreach: userOpts">
     <li class="search-opt" data-bind="click: $parent.selectUser">
-      <span data-bind="text: displayName"></span> [<span
-        data-bind="text: userPrincipalName"
+      <span data-bind="text: Title"></span> [<span
+        data-bind="text: LoginName"
       ></span
       >]
     </li>

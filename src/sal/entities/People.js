@@ -20,6 +20,15 @@ export class People {
   LoginName = null;
   LookupValue = null;
 
+  Initials = () => {
+    if (!this.Title) return "";
+
+    return this.Title.split(" ")
+      .slice(0, 2)
+      .map((name) => name[0])
+      .join("");
+  };
+
   getKey = () => this.LoginName ?? this.Title;
 
   static Create = function (props) {
