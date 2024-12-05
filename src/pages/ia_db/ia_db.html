@@ -683,14 +683,14 @@
             <span
               class="fa-solid"
               data-bind="class: sample ? 'fa-check' : 'fa-xmark',
-                text: sample ?? 'false'"
+              attr: {title: sentEmail ?? 'false'}"
             ></span>
           </td>
           <td class="sr1-request-sentEmail">
             <span
               class="fa-solid"
               data-bind="class: sentEmail ? 'fa-check' : 'fa-xmark',
-                text: sentEmail ?? 'false'"
+                attr: {title: sentEmail ?? 'false'}"
             ></span>
           </td>
           <td class="sr1-request-actionOffice">
