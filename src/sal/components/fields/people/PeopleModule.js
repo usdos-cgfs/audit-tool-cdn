@@ -66,7 +66,7 @@ export class PeopleModule extends BaseFieldModule {
         // Search for the users with givenName, surname, or displayName equal to the searchFor value
         return client.get(
           `https://graph.microsoft.com/v1.0/users?` +
-            `$select=displayName,mail,userPrincipalName&` +
+            `$select=givenName,surname,displayName,mail,userPrincipalName&` +
             `$filter=startsWith(givenName, '${encodedSearchTerm}') or ` +
             `startsWith(surname, '${encodedSearchTerm}') or ` +
             `startsWith(displayName, '${encodedSearchTerm}')`,
@@ -86,9 +86,13 @@ export class PeopleModule extends BaseFieldModule {
   };
 
   selectUser = async (user) => {
+    const initials = user.givenName[0] + user.surname[0];
+
     const selectedUser = {
       resolutionStatus: ko.observable("searching"),
+      resolutionMessage: ko.observable(),
       id: ko.observable(),
+      initials,
       ...user,
     };
 
@@ -98,10 +102,11 @@ export class PeopleModule extends BaseFieldModule {
 
     if (!result) {
       selectedUser.resolutionStatus("fail");
+      selectedUser.resolutionMessage("Could not ensure user!");
       return;
     }
 
-    selectedUser.resolutionStatus("success");
+    selectedUser.resolutionStatus("resolved");
     selectedUser.id(result.ID);
   };
 
