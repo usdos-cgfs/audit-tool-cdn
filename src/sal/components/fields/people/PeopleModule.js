@@ -39,6 +39,11 @@ export class PeopleModule extends BaseFieldModule {
     return options.length;
   });
 
+  focused = ko.observable();
+
+  focusin = () => this.focused(true);
+  focusout = () => this.focused(false);
+
   searchTerm = ko.observable();
   searchResults = ko.observableArray();
 

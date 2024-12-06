@@ -1,52 +1,103 @@
 <div>
-  <div class="selected-people" data-bind="foreach: selectedUsers">
-    <div class="selected-person">
-      <!-- ko ifnot: ID  -->
-      <div
-        class="status"
-        data-bind="attr: {title: ID}, class: resolutionStatus"
-      >
-        <!-- ko if: resolutionStatus() == 'searching' -->
-        <span class="small loader"></span>
-        <!-- /ko -->
-        <!-- ko if: resolutionStatus() == 'fail' -->
-        <i
-          class="fa-solid fa-triangle-exclamation"
-          data-bind="attr: {title: resolutionMessage}"
-        ></i>
-        <!-- /ko -->
+  <div
+    class="people-picker"
+    tabindex="0"
+    data-bind="css: { focused: focused }, event: { focusin, focusout }"
+  >
+    <div class="search-group form-select">
+      <div class="selected-people" data-bind="foreach: selectedUsers">
+        <div class="selected-person">
+          <!-- ko ifnot: ID  -->
+          <div
+            class="status"
+            data-bind="attr: {title: ID}, class: resolutionStatus"
+          >
+            <!-- ko if: resolutionStatus() == 'searching' -->
+            <span class="small loader"></span>
+            <!-- /ko -->
+            <!-- ko if: resolutionStatus() == 'fail' -->
+            <i
+              class="fa-solid fa-triangle-exclamation"
+              data-bind="attr: {title: resolutionMessage}"
+            ></i>
+            <!-- /ko -->
+          </div>
+          <!-- /ko -->
+          <!-- ko if: ID -->
+          <div class="status resolved" data-bind="attr: {title: ID}">
+            <span data-bind="text: Initials()"></span>
+          </div>
+          <!-- /ko -->
+          <div
+            class="display-name"
+            data-bind="text: Title, attr: {title: LoginName}"
+          ></div>
+          <div
+            class="remove"
+            title="Remove User"
+            data-bind="click: $parent.removeUser"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </div>
+        </div>
       </div>
-      <!-- /ko -->
-      <!-- ko if: ID -->
-      <div class="status resolved" data-bind="attr: {title: ID}">
-        <span data-bind="text: Initials()"></span>
-      </div>
-      <!-- /ko -->
-      <div
-        class="display-name"
-        data-bind="text: Title, attr: {title: LoginName}"
-      ></div>
-      <div
-        class="remove"
-        title="Remove User"
-        data-bind="click: $parent.removeUser"
-      >
-        <i class="fa-solid fa-xmark"></i>
-      </div>
+      <input
+        type="text"
+        class=""
+        data-bind="textInput: searchTerm, event: { focusin }"
+      />
     </div>
+    <ul class="search-opts" data-bind="foreach: userOpts, visible: focused">
+      <li class="search-opt" data-bind="click: $parent.selectUser">
+        <span data-bind="text: Title, attr: {title: LoginName}"></span>
+      </li>
+    </ul>
   </div>
-  <input type="text" data-bind="textInput: searchTerm" />
-  <ul class="search-opts" data-bind="foreach: userOpts">
-    <li class="search-opt" data-bind="click: $parent.selectUser">
-      <span data-bind="text: Title"></span> [<span
-        data-bind="text: LoginName"
-      ></span
-      >]
-    </li>
-  </ul>
 </div>
 
 <style>
+  .people-picker {
+    /* background-color: white; */
+  }
+
+  .search-group {
+    background-color: white;
+    border: 1px solid var(--primary-muted-color);
+    border-radius: 6px;
+  }
+
+  .people-picker.focused .search-group {
+    border-color: var(--primary-color);
+  }
+
+  .search-group > input {
+    width: 100%;
+    border: none;
+    outline: none;
+    /* margin: 0.1rem; */
+    border-radius: 4px;
+  }
+
+  .search-opts {
+    list-style: none;
+    padding: 0;
+    margin: 0.4rem 0 0 0;
+    width: 100%;
+    position: absolute;
+    z-index: 5;
+    background-color: white;
+    border: 1px solid var(--secondary-color);
+    border-radius: 6px;
+  }
+
+  .search-opts .search-opt:nth-child(even) {
+    background-color: var(--primary-muted-color);
+  }
+
+  .search-opts .search-opt {
+    cursor: pointer;
+  }
+
   .selected-people {
     display: flex;
     gap: 0.4rem;
