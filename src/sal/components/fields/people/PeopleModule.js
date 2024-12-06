@@ -44,6 +44,69 @@ export class PeopleModule extends BaseFieldModule {
   focusin = () => this.focused(true);
   focusout = () => this.focused(false);
 
+  keydown = (self, e) => {
+    switch (e.code) {
+      case "Escape":
+        // tab
+        this.focusout();
+        break;
+      case "ArrowDown":
+        // down arrow
+        this.updateActiveFilteredItem(1);
+        break;
+      case "ArrowUp":
+        // up arrow
+        this.updateActiveFilteredItem(-1);
+        break;
+      case "Enter":
+        // Enter
+        this.selectActiveFilteredItem();
+        break;
+      default:
+        // console.log(e.keyCode);
+        return true;
+    }
+    return true;
+  };
+
+  updateActiveFilteredItem = (keyDirection) => {
+    const opts = ko.unwrap(this.userOpts);
+
+    if (!opts.length) return;
+
+    // find the current active index
+    const activeItemIndex = opts.findIndex((opt) => opt.active());
+
+    let nextIndex =
+      (activeItemIndex + keyDirection + opts.length) % opts.length;
+
+    if (activeItemIndex >= 0) {
+      opts[activeItemIndex]?.active(false);
+    } else if (keyDirection <= 0) {
+      nextIndex = opts.length - 1;
+    }
+
+    opts[nextIndex]?.active(true);
+  };
+
+  selectActiveFilteredItem = () => {
+    const opts = ko.unwrap(this.userOpts);
+
+    if (!opts.length) return;
+
+    // find the current active index
+    const activeItemIndex = opts.findIndex((opt) => opt.active());
+
+    if (activeItemIndex >= 0) {
+      opts[activeItemIndex]?.active(false);
+    }
+
+    this.selectUser(opts[activeItemIndex]);
+
+    // now set the next item to true
+    opts[(activeItemIndex + 1) % opts.length]?.active(true);
+  };
+
   searchTerm = ko.observable();
   searchResults = ko.observableArray();
 
@@ -81,7 +144,6 @@ export class PeopleModule extends BaseFieldModule {
       this.searchResults.removeAll();
       return;
     }
-    console.log("Searching People for: ", searchTerm);
     // Only search for terms that are 3 letters or longer
     if (searchTerm.length < 3) return;
 
@@ -107,20 +169,23 @@ export class PeopleModule extends BaseFieldModule {
     if (ko.unwrap(searchTerm) != searchTerm) return;
 
     if (result?.value) {
-      const mappedResults = result.value.map(
-        (user) =>
-          new People({
+      const mappedResults = result.value.map((user) => {
+        return {
+          ...new People({
             Title: user.displayName,
             LoginName:
               "i:0#.f|membership|" + user.userPrincipalName.toLocaleLowerCase(),
-          })
-      );
+          }),
+          active: ko.observable(),
+        };
+      });
       this.searchResults(mappedResults);
     }
   };
 
   selectUser = async (user) => {
     // 1. Stage
+    if (user.active()) user.active(false);
 
     const stagedUser = {
       resolutionStatus: ko.observable("searching"),

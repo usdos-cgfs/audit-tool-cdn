@@ -1,63 +1,86 @@
 <div>
-  <div
-    class="people-picker"
-    tabindex="0"
-    data-bind="css: { focused: focused }, event: { focusin, focusout }"
-  >
-    <div class="search-group form-select">
-      <div class="selected-people" data-bind="foreach: selectedUsers">
-        <div class="selected-person">
-          <!-- ko ifnot: ID  -->
-          <div
-            class="status"
-            data-bind="attr: {title: ID}, class: resolutionStatus"
-          >
-            <!-- ko if: resolutionStatus() == 'searching' -->
-            <span class="small loader"></span>
+  <label class="fw-semibold w-100"
+    ><span data-bind="text: displayName"></span
+    ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
+    <div
+      class="people-picker"
+      tabindex="0"
+      data-bind="css: { focused }, event: { focusin, focusout }"
+    >
+      <div
+        class="search-group form-select"
+        data-bind="event: { keydown },
+      class: ValidationClass"
+      >
+        <div class="selected-people" data-bind="foreach: selectedUsers">
+          <div class="selected-person">
+            <!-- ko ifnot: ID  -->
+            <div
+              class="status"
+              data-bind="attr: {title: ID}, class: resolutionStatus"
+            >
+              <!-- ko if: resolutionStatus() == 'searching' -->
+              <span class="small loader"></span>
+              <!-- /ko -->
+              <!-- ko if: resolutionStatus() == 'fail' -->
+              <i
+                class="fa-solid fa-triangle-exclamation"
+                data-bind="attr: {title: resolutionMessage}"
+              ></i>
+              <!-- /ko -->
+            </div>
             <!-- /ko -->
-            <!-- ko if: resolutionStatus() == 'fail' -->
-            <i
-              class="fa-solid fa-triangle-exclamation"
-              data-bind="attr: {title: resolutionMessage}"
-            ></i>
+            <!-- ko if: ID -->
+            <div class="status resolved" data-bind="attr: {title: ID}">
+              <span data-bind="text: Initials()"></span>
+            </div>
             <!-- /ko -->
-          </div>
-          <!-- /ko -->
-          <!-- ko if: ID -->
-          <div class="status resolved" data-bind="attr: {title: ID}">
-            <span data-bind="text: Initials()"></span>
-          </div>
-          <!-- /ko -->
-          <div
-            class="display-name"
-            data-bind="text: Title, attr: {title: LoginName}"
-          ></div>
-          <div
-            class="remove"
-            title="Remove User"
-            data-bind="click: $parent.removeUser"
-          >
-            <i class="fa-solid fa-xmark"></i>
+            <div
+              class="display-name"
+              data-bind="text: Title, attr: {title: LoginName}"
+            ></div>
+            <div
+              class="remove"
+              title="Remove User"
+              data-bind="click: $parent.removeUser"
+            >
+              <i class="fa-solid fa-xmark"></i>
+            </div>
           </div>
         </div>
+        <input
+          type="text"
+          class=""
+          placeholder="Search..."
+          data-bind="textInput: searchTerm, event: { focusin }"
+        />
       </div>
-      <input
-        type="text"
-        class=""
-        data-bind="textInput: searchTerm, event: { focusin }"
-      />
+      <ul
+        class="search-opts"
+        data-bind="foreach: userOpts, 
+      visible: focused() && userOpts().length"
+      >
+        <li
+          class="search-opt"
+          data-bind="click: $parent.selectUser, css: { active }"
+        >
+          <span data-bind="text: Title, attr: {title: LoginName}"></span>
+        </li>
+      </ul>
     </div>
-    <ul class="search-opts" data-bind="foreach: userOpts, visible: focused">
-      <li class="search-opt" data-bind="click: $parent.selectUser">
-        <span data-bind="text: Title, attr: {title: LoginName}"></span>
-      </li>
-    </ul>
-  </div>
+  </label>
+  <!-- ko if: ShowErrors -->
+  <!-- ko foreach: Errors -->
+  <div class="fw-semibold text-danger" data-bind="text: description"></div>
+  <!-- /ko -->
+  <!-- /ko -->
 </div>
 
 <style>
   .people-picker {
     /* background-color: white; */
+    position: relative;
+    outline: none;
   }
 
   .search-group {
@@ -74,6 +97,7 @@
     width: 100%;
     border: none;
     outline: none;
+    font-size: 1rem;
     /* margin: 0.1rem; */
     border-radius: 4px;
   }
@@ -81,21 +105,31 @@
   .search-opts {
     list-style: none;
     padding: 0;
-    margin: 0.4rem 0 0 0;
+    margin: 0.1rem 0 0 0;
     width: 100%;
     position: absolute;
     z-index: 5;
     background-color: white;
     border: 1px solid var(--secondary-color);
-    border-radius: 6px;
+    border-radius: 4px;
+    overflow: hidden;
   }
 
   .search-opts .search-opt:nth-child(even) {
-    background-color: var(--primary-muted-color);
+    background-color: var(--bg-very-light-color);
   }
 
   .search-opts .search-opt {
     cursor: pointer;
+    padding: 4px;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-weight: normal;
+  }
+
+  .search-opts .search-opt:hover,
+  .search-opts .search-opt.active {
+    background-color: var(--bg-light-color);
   }
 
   .selected-people {
