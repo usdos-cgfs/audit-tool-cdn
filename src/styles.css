@@ -607,54 +607,56 @@
   border-radius: 6px;
 }
 
-.request-detail-view .request-detail-documents {
+.audit .request-detail-view .request-detail-documents {
   min-width: 860px;
   background-color: white;
 }
 
-.response-detail-view {
+.audit .response-detail-view {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap-reverse;
 }
 
-.response-detail-view .response-info-form {
+.audit .response-detail-view .response-info-form {
   max-width: 600px;
   border: 2px solid var(--primary-color);
   border-radius: 6px;
 }
 
-.response-detail-view .response-info-form {
+.audit .response-detail-view .response-info-form {
   max-width: 600px;
   border: 2px solid var(--primary-color);
   border-radius: 6px;
 }
 
-.response-detail-view .response-detail-documents {
+.audit .response-detail-view .response-detail-documents {
   min-width: 860px;
   background-color: white;
 }
 
-#tblCoverSheets tbody td {
+.audit #tblCoverSheets tbody td {
   width: 300px;
 }
 
-table.tablesorter thead tr .header {
+.audit table.tablesorter thead tr .header {
   background-position: left center;
   padding-left: 20px;
 }
-​ .request {
+
+.audit ​.request {
   background-color: lightblue;
   font-weight: bold;
 }
-.response-header {
+
+.audit .response-header {
   /*background-color: lightgreen;*/
   font-weight: bold;
 }
-.request-subject {
+.audit .request-subject {
   text-align: left !important;
 }
-.coversheet-header {
+.audit .coversheet-header {
   background-color: lightyellow;
   font-weight: bold;
 }
@@ -683,18 +685,18 @@ table.tablesorter thead tr .header {
   /*background-color: #CCFFCC;*/
 }
 
-.response-resStatus {
+.audit .response-resStatus {
   /*background-color: #CCFFCC;*/
   white-space: nowrap;
 }
 
-.response-permissions {
+.audit .response-permissions {
   white-space: nowrap;
   /*this is toggled on IA dashboard*/
   /* display: none; */
 }
 
-.requestInfo-response-doc {
+.audit .requestInfo-response-doc {
   background-color: lightsteelblue;
 }
 .requestInfo-response-doc,
@@ -729,11 +731,11 @@ table.tablesorter thead tr .header {
   text-align: left !important;
 }
 
-.collapsed {
+.audit .collapsed {
   display: none;
 }
 
-.auditAlert {
+.audit .auditAlert {
   font-size: 11pt;
   font-weight: bold;
   color: green;
@@ -741,18 +743,18 @@ table.tablesorter thead tr .header {
   margin-bottom: 20px;
 }
 
-.auditAlert div {
+.audit .auditAlert div {
   font-size: 9pt;
   font-weight: normal;
   padding-top: 5px;
 }
 
-.sr1-request-item .almost-due {
+.audit .sr1-request-item .almost-due {
   background-color: coral;
   font-weight: bold;
 }
 
-.sr1-request-item .past-due {
+.audit .sr1-request-item .past-due {
   background-color: salmon;
   font-weight: bold;
 }
