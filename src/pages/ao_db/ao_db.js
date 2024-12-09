@@ -231,6 +231,10 @@ Audit.AOReport.NewReportPage = function () {
       }, 100);
     };
 
+    self.ClickGoToResponse = function (response) {
+      GoToResponse(response);
+    };
+
     self.ClickSubmitResponse = function () {
       m_fnSubmitPackage();
     };
