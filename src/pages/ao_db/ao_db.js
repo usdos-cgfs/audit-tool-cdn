@@ -153,6 +153,17 @@ Audit.AOReport.NewReportPage = function () {
 
     self.showUpload = ko.observable(false);
     self.showSubmit = ko.observable(false);
+    self.showReturned = ko.pureComputed(() => {
+      const oResponse = ko.unwrap(self.currentResponse);
+
+      if (!oResponse) return false;
+
+      return (
+        oResponse.resStatus == m_responseStatus2 &&
+        oResponse.returnReason != null &&
+        oResponse.returnReason != ""
+      );
+    });
 
     self.refresh = () => window.location.reload();
     self.onNewResponseDocCallback = self.refresh;
@@ -529,7 +540,7 @@ Audit.AOReport.NewReportPage = function () {
       '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
     );
     m_aoItems = aoList.getItems(aoQuery);
-    currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
+    currCtx.load(m_aoItems, "Include(ID, Title, UserGroup, Role)");
 
     //Library GUIDS
     m_responseDocsLibrary = currCtx
@@ -1131,13 +1142,6 @@ Audit.AOReport.NewReportPage = function () {
       const submitPackageTask = addTask(submitPackageTaskDef);
 
       m_bIsTransactionExecuting = true;
-
-      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Submitting Response",
-        "Please wait... Submitting Response",
-        200,
-        400
-      );
 
       var currCtx = new SP.ClientContext.get_current();
       var web = currCtx.get_web();
