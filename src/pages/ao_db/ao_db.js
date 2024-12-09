@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { NewUtilities, getUrlParam } from "../../common/index.js";
-import aoDbTemplate from "./ao_db.html" assert { type: "html" };
+import aoDbTemplate from "./ao_db.html";
 import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 import { setUrlParam } from "../../common/index.js";
 import {
@@ -19,14 +19,9 @@ import {
 } from "../../services/tasks.js";
 
 import "../../sal/infrastructure/knockout_extensions.js";
-import stylesheet from "../../styles.css" assert { type: "css" };
 import { registerStyles } from "../../infrastructure/register_styles.js";
 import { InitSal } from "../../sal/infrastructure/sal.js";
 import { addNotification } from "../../services/notifications.js";
-
-const styles = document.createElement("style");
-styles.innerHTML = stylesheet;
-document.head.append(styles);
 
 var Audit = window.Audit || {
   Common: {},
@@ -37,6 +32,17 @@ var Audit = window.Audit || {
 
 const responseParam = "ResNum";
 
+export async function load(element, context) {
+  window.context = context;
+  element.innerHTML = aoDbTemplate;
+  registerStyles(element);
+  initAppcontext();
+  await InitSal();
+  Audit.Common.Utilities = new NewUtilities();
+  Audit.AOReport.Report = new Audit.AOReport.NewReportPage();
+  Audit.AOReport.Init();
+}
+
 Audit.AOReport.Init = function () {
   var paramShowSiteActionsToAnyone = getUrlParam("ShowSiteActions");
   if (paramShowSiteActionsToAnyone != true) {
@@ -45,28 +51,17 @@ Audit.AOReport.Init = function () {
     $(".ms-siteactionsmenu").hide();
   }
 
-  /*setInterval(function() {
-	    var divVal = $("#divCounter").text();
-	    var count = divVal * 1 - 1;
-	    $("#divCounter").text(count);
-	    if (count <= 0) {
-	       // location.href="https://example.com";
-	       Audit.Common.Utilities.Refresh();
-	    }
-	}, 1000);
-	*/
-
   function SetTimer() {
     var intervalRefreshID = setInterval(function () {
-      var divVal = $("#divCounter").text();
+      var divVal = document.getElementById("divCounter").innerText;
       var count = divVal * 1 - 1;
-      $("#divCounter").text(count);
+      document.getElementById("divCounter").innerText = count;
       if (count <= 0) {
         if (!Audit.AOReport.Report.IsTransactionExecuting())
-          Audit.Common.Utilities.Refresh();
+          Audit.AOReport.Report.Refresh();
         else {
           clearInterval(intervalRefreshID);
-          $("#divCounter").text("1200");
+          document.getElementById("divCounter").innerText = "1200";
           SetTimer();
         }
       }
@@ -1434,14 +1429,3 @@ Audit.AOReport.NewReportPage = function () {
 
   return publicMembers;
 };
-
-export async function load(element, context) {
-  window.context = context;
-  element.innerHTML = aoDbTemplate;
-  registerStyles(element);
-  initAppcontext();
-  await InitSal();
-  Audit.Common.Utilities = new NewUtilities();
-  Audit.AOReport.Report = new Audit.AOReport.NewReportPage();
-  Audit.AOReport.Init();
-}
