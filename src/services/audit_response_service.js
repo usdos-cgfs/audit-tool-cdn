@@ -316,6 +316,7 @@ export async function uploadResponseDocFile(response, file) {
     Title: file.name,
     ReqNumId: response.ReqNum.Value().ID,
     ResIDId: response.ID,
+    DocumentStatus: AuditResponseDocStates.Open,
   };
 
   await appContext.AuditResponseDocs.UploadFileToFolderAndUpdateMetadata(
