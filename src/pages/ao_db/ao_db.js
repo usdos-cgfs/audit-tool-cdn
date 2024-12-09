@@ -20,6 +20,9 @@ import {
 
 import "../../sal/infrastructure/knockout_extensions.js";
 import stylesheet from "../../styles.css" assert { type: "css" };
+import { registerStyles } from "../../infrastructure/register_styles.js";
+import { InitSal } from "../../sal/infrastructure/sal.js";
+import { addNotification } from "../../services/notifications.js";
 
 const styles = document.createElement("style");
 styles.innerHTML = stylesheet;
@@ -307,7 +310,7 @@ Audit.AOReport.NewReportPage = function () {
             paramTabIndex == 0
           ) {
             if (self.cntPendingReview() > 0) {
-              SP.UI.Notify.addNotification(
+              addNotification(
                 "<div style='text-align:left'>There are <b>" +
                   self.cntPendingReview() +
                   "</b> Responses pending your review/action. <br/> <br/> Please click on the links in the <b>Response Name</b> column of the <b>Status Report tab</b> <br/> to access each response and upload documents and submit the package.</div>",
@@ -350,10 +353,10 @@ Audit.AOReport.NewReportPage = function () {
           self.filterResponseTabResponseStatus(m_statusToFilterOn);
 
           //$( "#tblStatusReportResponses" ).trigger("update");
-          $("#tblStatusReportResponses").tablesorter({
-            sortList: [[2, 0]],
-            selectorHeaders: ".sorter-true",
-          });
+          // $("#tblStatusReportResponses").tablesorter({
+          //   sortList: [[2, 0]],
+          //   selectorHeaders: ".sorter-true",
+          // });
         }, 200);
       }
     });
@@ -1075,7 +1078,6 @@ Audit.AOReport.NewReportPage = function () {
         oResponse.returnReason != ""
       ) {
         if (m_curResponseSelectedIsEditableByAO && cntAddedByAO == 0) {
-          //notifyId = SP.UI.Notify.addNotification("Response Return Reason: " + oResponse.returnReason, false);
           var waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
             "Notice - Response Needs to be Updated",
             "<span style=''><span class='ui-icon ui-icon-alert'></span>Response Return Reason: <span style='font-weight:bold; color:red;'>" +
@@ -1095,7 +1097,7 @@ Audit.AOReport.NewReportPage = function () {
         oResponse.resStatus == "3-Returned to Action Office"
       ) {
         if (m_curResponseSelectedIsEditableByAO && cntAddedByAO > 0) {
-          const notifyId = SP.UI.Notify.addNotification(
+          addNotification(
             "<div style='text-align:left'>Response documents have been added. <br/><br/>Your package <span style='font-weight:bold; color:red'>has not yet been submitted</span>. <br></br>Please review your documents and click on the link <b>SUBMIT this Response Package</b> below</div>",
             false
           );
@@ -1114,7 +1116,7 @@ Audit.AOReport.NewReportPage = function () {
             resetColor();
           }, 2000);
         } else if (m_curResponseSelectedIsEditableByAO && cntAddedByAO == 0) {
-          const notifyId = SP.UI.Notify.addNotification(
+          addNotification(
             "<div style='text-align:left'>Please review the Response Information and any CoverSheets/Supplemental Documents. <br/><br/>Then, click the link to <span style='font-weight:bold; color:gree'>Upload Response Documents</span> pertaining to this Response</div>",
             false
           );
@@ -1147,7 +1149,6 @@ Audit.AOReport.NewReportPage = function () {
   function m_fnUploadResponseDoc(requestID, responseID) {
     m_bIsTransactionExecuting = true;
 
-    //		notifyId = SP.UI.Notify.addNotification("<span style='font-size:11pt'><span class='ui-icon ui-icon-info'></span>Please <span style='font-weight:bold; color:green'>zip</span> the documents you are uploading.</span>", false);
     var waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
       "Loading...",
       "<span style='font-size:11pt'><span class='ui-icon ui-icon-info'></span>If you are uploading <span style='font-weight:bold; color:green;text-decoration:underline'>multiple</span> documents, please <span style='font-weight:bold; color:green;text-decoration:underline'>zip </span> them.</span>",
@@ -1179,7 +1180,6 @@ Audit.AOReport.NewReportPage = function () {
         requestID +
         "&ResID=" +
         responseID;
-      //notifyId = SP.UI.Notify.addNotification("Uploading documents to: " + options.url, false)
       SP.UI.ModalDialog.showModalDialog(options);
     }, 3000);
   }
@@ -1253,10 +1253,7 @@ Audit.AOReport.NewReportPage = function () {
         }
 
         if (ctOpenResponseDocs == 0) {
-          const notifyId = SP.UI.Notify.addNotification(
-            "Please upload a Response document.",
-            false
-          );
+          addNotification("Please upload a Response document.", false);
           m_waitDialog.close();
           return;
         }
@@ -1438,10 +1435,12 @@ Audit.AOReport.NewReportPage = function () {
   return publicMembers;
 };
 
-export function load(element, context) {
+export async function load(element, context) {
   window.context = context;
   element.innerHTML = aoDbTemplate;
+  registerStyles(element);
   initAppcontext();
+  await InitSal();
   Audit.Common.Utilities = new NewUtilities();
   Audit.AOReport.Report = new Audit.AOReport.NewReportPage();
   Audit.AOReport.Init();
