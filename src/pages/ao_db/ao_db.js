@@ -22,6 +22,7 @@ import "../../sal/infrastructure/knockout_extensions.js";
 import { registerStyles } from "../../infrastructure/register_styles.js";
 import { InitSal } from "../../sal/infrastructure/sal.js";
 import { addNotification } from "../../services/notifications.js";
+import { loadData, loadInfo, submitPackageTaskDef } from "../../tasks/index.js";
 
 var Audit = window.Audit || {
   Common: {},
@@ -237,12 +238,6 @@ Audit.AOReport.NewReportPage = function () {
 
     self.ClickSubmitResponse = function () {
       m_fnSubmitPackage();
-    };
-
-    self.ClickUploadResponseDoc = function () {
-      var oResponse = self.currentResponse();
-      if (oResponse && oResponse.number && oResponse.title)
-        m_fnUploadResponseDoc(oResponse.number, oResponse.title);
     };
 
     self.ClickMarkForDeletionResponseDoc = function (oResponseDoc) {
@@ -475,6 +470,8 @@ Audit.AOReport.NewReportPage = function () {
   LoadInfo();
 
   async function LoadInfo() {
+    const loadInfoTask = addTask(loadInfo);
+
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
@@ -493,34 +490,6 @@ Audit.AOReport.NewReportPage = function () {
       m_requestItems,
       "Include(ID, Title, ReqSubject, ReqStatus, InternalDueDate, ActionOffice, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate)"
     );
-    /*
-    var responseList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-    var responseQuery = new SP.CamlQuery();
-    responseQuery.set_viewXml(
-      '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
-    );
-    m_responseItems = responseList.getItems(responseQuery);
-    currCtx.load(
-      m_responseItems,
-      "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, POC)"
-    );
-
-    //make sure to only pull documents (fsobjtype = 0)
-    var responseDocsLib = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-    var responseDocsQuery = new SP.CamlQuery();
-    responseDocsQuery.set_viewXml(
-      '<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq></Where></Query></View>'
-    );
-    m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
-    currCtx.load(
-      m_ResponseDocsItems,
-      "Include(ID, Title, ReqNum, ResID, DocumentStatus, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, Modified, Editor)"
-    );
-    */
 
     await Promise.all([
       getAllItems(Audit.Common.Utilities.GetListTitleResponses(), [
@@ -585,29 +554,29 @@ Audit.AOReport.NewReportPage = function () {
     function OnSuccess(sender, args) {
       $("#divRefresh").show();
       m_fnLoadData();
+      finishTask(loadInfoTask);
     }
     function OnFailure(sender, args) {
       $("#divRefresh").hide();
       $("#divLoading").hide();
 
-      const statusId = SP.UI.Status.addStatus(
+      loadInfoTask.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
-      SP.UI.Status.setStatusPriColor(statusId, "red");
     }
   }
 
   function m_fnLoadData() {
+    const loadDataTask = addTask(loadData);
     Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
     LoadLibGUIDS();
     Audit.Common.Utilities.LoadActionOffices(m_aoItems);
 
     if (memberGroup != null) m_IA_SPGroupName = memberGroup.get_title();
     if (m_IA_SPGroupName == null || m_IA_SPGroupName == "") {
-      const statusId = SP.UI.Status.addStatus(
+      loadDataTask.addStatus(
         "Unable to retrieve the IA SharePoint Group. Please contact the Administrator"
       );
-      SP.UI.Status.setStatusPriColor(statusId, "red");
       return;
     }
 
@@ -620,6 +589,8 @@ Audit.AOReport.NewReportPage = function () {
     LoadResponseDocs();
 
     LoadTabStatusReport(m_arrResponses, "fbody");
+
+    finishTask(loadDataTask);
   }
 
   function LoadLibGUIDS() {
@@ -1026,10 +997,9 @@ Audit.AOReport.NewReportPage = function () {
       RenderResponses(oResponse);
     }
     function OnFailure(sender, args) {
-      const statusId = SP.UI.Status.addStatus(
+      alert(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
-      SP.UI.Status.setStatusPriColor(statusId, "red");
     }
     currCtx.executeQueryAsync(OnSuccess, OnFailure);
 
@@ -1145,44 +1115,6 @@ Audit.AOReport.NewReportPage = function () {
     return emailText;
   }
 
-  function m_fnUploadResponseDoc(requestID, responseID) {
-    m_bIsTransactionExecuting = true;
-
-    var waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-      "Loading...",
-      "<span style='font-size:11pt'><span class='ui-icon ui-icon-info'></span>If you are uploading <span style='font-weight:bold; color:green;text-decoration:underline'>multiple</span> documents, please <span style='font-weight:bold; color:green;text-decoration:underline'>zip </span> them.</span>",
-      100,
-      600
-    );
-
-    setTimeout(function () {
-      waitDialog.close();
-
-      var options = SP.UI.$create_DialogOptions();
-      options.title = "Upload Response Document to: " + responseID;
-      options.dialogReturnValueCallback = OnCallbackForm;
-
-      //this subfolder should have been created when the response was created
-      var rootFolder =
-        Audit.Common.Utilities.GetSiteUrl() +
-        "/" +
-        Audit.Common.Utilities.GetLibNameResponseDocs() +
-        "/" +
-        responseID;
-      options.url =
-        Audit.Common.Utilities.GetSiteUrl() +
-        "/_layouts/Upload.aspx?List={" +
-        Audit.Common.Utilities.GetResponseDocLibGUID() +
-        "}&RootFolder=" +
-        rootFolder +
-        "&ReqNum=" +
-        requestID +
-        "&ResID=" +
-        responseID;
-      SP.UI.ModalDialog.showModalDialog(options);
-    }, 3000);
-  }
-
   function OnCallbackForm(result, value) {
     if (result === true) {
       Audit.Common.Utilities.Refresh();
@@ -1196,6 +1128,8 @@ Audit.AOReport.NewReportPage = function () {
         "Are you sure you would like to submit these response documents? Note: You will NOT be able to make changes or upload any more documents after you submit this package."
       )
     ) {
+      const submitPackageTask = addTask(submitPackageTaskDef);
+
       m_bIsTransactionExecuting = true;
 
       const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
@@ -1252,8 +1186,13 @@ Audit.AOReport.NewReportPage = function () {
         }
 
         if (ctOpenResponseDocs == 0) {
-          addNotification("Please upload a Response document.", false);
-          m_waitDialog.close();
+          alert("Please upload a Response document.");
+          submitPackageTask.addStatus(
+            "Please upload a Response document.",
+            false
+          );
+
+          finishTask(submitPackageTask);
           return;
         }
 
@@ -1279,7 +1218,7 @@ Audit.AOReport.NewReportPage = function () {
         }
 
         if (oRequest == null) {
-          m_waitDialog.close();
+          finishTask(submitPackageTask);
           return;
         }
 
@@ -1313,18 +1252,19 @@ Audit.AOReport.NewReportPage = function () {
 
         function OnSuccessUpdateResponse(sender, args) {
           document.body.style.cursor = "default";
-          m_waitDialog.close();
+
+          finishTask(submitPackageTask);
           Audit.Common.Utilities.Refresh();
         }
         function OnFailureUpdateResponse(sender, args) {
-          m_waitDialog.close();
-          const statusId = SP.UI.Status.addStatus(
+          submitPackageTask.addStatus(
             "Request failed: " +
               args.get_message() +
               "\n" +
               args.get_stackTrace()
           );
-          SP.UI.Status.setStatusPriColor(statusId, "red");
+
+          finishTask(submitPackageTask);
         }
 
         currCtx.executeQueryAsync(
@@ -1334,11 +1274,11 @@ Audit.AOReport.NewReportPage = function () {
       }
 
       function OnFailureLoadedResponseDocs(sender, args) {
-        m_waitDialog.close();
-        const statusId = SP.UI.Status.addStatus(
+        submitPackageTask.addStatus(
           "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
         );
-        SP.UI.Status.setStatusPriColor(statusId, "red");
+
+        // finishTask(submitPackageTask)
       }
 
       currCtx.executeQueryAsync(
@@ -1366,10 +1306,9 @@ Audit.AOReport.NewReportPage = function () {
         Audit.Common.Utilities.Refresh();
       }
       function OnFailure(sender, args) {
-        const statusId = SP.UI.Status.addStatus(
+        alert(
           "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
         );
-        SP.UI.Status.setStatusPriColor(statusId, "red");
       }
       currCtx.executeQueryAsync(OnSuccess, OnFailure);
     }
