@@ -1088,8 +1088,7 @@ TABLE.tablesorter THEAD TR .header {
 }
 
 /* EFFECTS */
-.bg-flash,
-.bg-flash:hover {
+.bg-flash {
   animation: flash 1s ease-in-out;
 }
 
