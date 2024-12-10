@@ -22,7 +22,11 @@
   <!-- /ko -->
 
   <!-- ko with: runningTasks -->
-  <div class="tasks running">
+  <div
+    class="tasks running"
+    style="display: none"
+    data-bind="visible: $data.length"
+  >
     <ul class="" data-bind="foreach: $data">
       <li data-bind="text: msg + '... ' + Status()"></li>
     </ul>

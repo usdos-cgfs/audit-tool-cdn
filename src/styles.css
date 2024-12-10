@@ -25,12 +25,14 @@
 
 /* Main Layout */
 .audit {
-  overflow-x: auto;
+  /* overflow-x: auto; */
 }
 
 .audit-body {
   display: flex;
   justify-content: flex-start;
+  align-items: stretch;
+  height: 100%;
 }
 
 #divLoading {
@@ -42,7 +44,7 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  height: calc(100vh - 96px);
+  /* height: calc(100vh - 96px); */
   position: sticky;
   top: 0;
   width: 4rem;
@@ -118,6 +120,7 @@
 .audit-body .reports-container {
   /* min-width: 1200px; */
   padding: 1rem;
+  overflow-y: auto;
 }
 
 .audit-body .quick-links {

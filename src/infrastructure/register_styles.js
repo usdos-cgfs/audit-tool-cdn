@@ -8,4 +8,17 @@ export function registerStyles(element) {
     // element.append(styles);
     document.head.append(styles);
   });
+
+  // Set width and height of our window
+  const contentWindow = document.querySelector(".audit");
+
+  contentWindow.style.height =
+    document.defaultView.innerHeight -
+    contentWindow.getBoundingClientRect().top +
+    "px";
+
+  // Scrollable region for some reason
+  const s = document.querySelector('[data-is-scrollable="true"]');
+
+  if (s) s.style.overflowY = "auto";
 }
