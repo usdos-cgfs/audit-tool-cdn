@@ -116,7 +116,7 @@
 }
 
 .audit-body .reports-container {
-  min-width: 1200px;
+  /* min-width: 1200px; */
   padding: 1rem;
 }
 
@@ -1082,6 +1082,31 @@ TABLE.tablesorter THEAD TR .header {
   background-color: var(--bg-dark-secondary-color);
   color: white;
 }
+
+.bg-danger {
+  background-color: color-mix(in srgb, var(--danger-color) 25%, transparent);
+}
+
+/* EFFECTS */
+.bg-flash,
+.bg-flash:hover {
+  animation: flash 1s ease-in-out;
+}
+
+@keyframes flash {
+  0% {
+    opacity: 1;
+    filter: brightness(1.5); /* Makes it perceivably brighter */
+  }
+  30% {
+    opacity: 1;
+    filter: brightness(1); /* Normal brightness */
+  }
+  100% {
+    opacity: 0; /* Fade to transparent */
+  }
+}
+
 /* Display */
 .audit .flex {
   display: flex;

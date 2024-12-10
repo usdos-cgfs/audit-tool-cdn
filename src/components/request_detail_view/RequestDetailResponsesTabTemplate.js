@@ -148,7 +148,7 @@ export const requestDetailResponsesTabTemplate = html`
               >
             </div>
           </td>
-          <td class="response-returnReason" style="white-space: pre-line">
+          <td class="response-returnReason" style="white-space: normal">
             <span data-bind="text: returnReason"></span>
           </td>
           <td class="response-specialPermissions">

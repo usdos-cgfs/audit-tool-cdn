@@ -324,6 +324,17 @@
       </div>
 
       <div>
+        <div
+          class="divReturned"
+          data-bind="if: currentResponse && showReturned"
+        >
+          <fieldset class="danger bg-danger bg-flash" style="border-color: red">
+            <legend class="danger">
+              <span class="ui-icon ui-icon-alert"></span>Response Return Reason
+            </legend>
+            <div data-bind="text: currentResponse().returnReason"></div>
+          </fieldset>
+        </div>
         <div id="divCoverSheets" data-bind="visible: currentResponse">
           <fieldset>
             <legend>Cover Sheets/Supplemental Documents</legend>
@@ -370,17 +381,7 @@
             </table>
           </fieldset>
         </div>
-        <div
-          class="divReturned"
-          data-bind="if: currentResponse && showReturned"
-        >
-          <fieldset style="color: red; border-color: red">
-            <legend>
-              <span class="ui-icon ui-icon-alert"></span>Response Return Reason
-            </legend>
-            <div data-bind="text: currentResponse().returnReason"></div>
-          </fieldset>
-        </div>
+
         <div
           class="divSubmit"
           data-bind="visible: currentResponse && showSubmit"

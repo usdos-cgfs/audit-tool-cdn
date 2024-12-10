@@ -221,17 +221,20 @@ export function NewUtilities() {
     while (listItemEnumerator.moveNext()) {
       var oListItem = listItemEnumerator.get_current();
 
-      var id = oListItem.get_item("ID");
+      var ID = oListItem.get_item("ID");
       var title = oListItem.get_item("Title");
       var userGroup = oListItem.get_item("UserGroup");
       if (userGroup != null) {
         userGroup = userGroup.get_lookupValue();
       } else userGroup = "";
+      let role = oListItem.get_item("Role");
 
-      var aoObject = new Object();
-      aoObject["ID"] = id;
-      aoObject["title"] = title;
-      aoObject["userGroup"] = userGroup;
+      var aoObject = {
+        ID,
+        title,
+        userGroup,
+        role,
+      };
 
       m_arrAOs.push(aoObject);
     }

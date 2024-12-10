@@ -1051,27 +1051,6 @@ Audit.AOReport.NewReportPage = function () {
       _myViewModel.arrResponseDocs.valueHasMutated();
       _myViewModel.cntResponseDocs(oResponse.responseDocs.length);
 
-      //display warning message
-      if (
-        oResponse.resStatus == m_responseStatus2 &&
-        oResponse.returnReason != null &&
-        oResponse.returnReason != ""
-      ) {
-        if (m_curResponseSelectedIsEditableByAO && cntAddedByAO == 0) {
-          var waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-            "Notice - Response Needs to be Updated",
-            "<span style=''><span class='ui-icon ui-icon-alert'></span>Response Return Reason: <span style='font-weight:bold; color:red;'>" +
-              oResponse.returnReason +
-              "</span></span>",
-            100,
-            500
-          );
-          setTimeout(function () {
-            waitDialog.close();
-          }, 5000);
-        }
-      }
-
       if (
         oResponse.resStatus == "1-Open" ||
         oResponse.resStatus == "3-Returned to Action Office"

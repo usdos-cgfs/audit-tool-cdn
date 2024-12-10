@@ -720,7 +720,7 @@ async function LoadInfo() {
     '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
   );
   const m_aoItems = aoList.getItems(aoQuery);
-  currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
+  currCtx.load(m_aoItems, "Include(ID, Title, UserGroup, Role)");
 
   var ob = new SP.BasePermissions();
   ob.set(SP.PermissionKind.deleteListItems); //site owners and members should have this
@@ -2940,12 +2940,6 @@ export async function m_fnRejectResponseDoc(
 
   oListItem.update();
 
-  var siteUrl =
-    location.protocol +
-    "//" +
-    location.host +
-    _spPageContextInfo.webServerRelativeUrl +
-    "/";
   const filePath = oListItem.get_item("FileDirRef");
   // fileName = oListItem.get_item("FileLeafRef");
   var lastInd = filePath.lastIndexOf("/");
