@@ -105,6 +105,7 @@ Audit.AOReport.NewReportPage = function () {
 
     self.debugMode = ko.observable(false);
     self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
+    self.loadedAt = ko.observable();
 
     self.tabOpts = {
       Responses: new Tab("response-report", "Status Report", {
@@ -579,6 +580,7 @@ Audit.AOReport.NewReportPage = function () {
 
   function m_fnLoadData() {
     const loadDataTask = addTask(loadData);
+    _myViewModel.loadedAt(new Date());
     Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
     LoadLibGUIDS();
     Audit.Common.Utilities.LoadActionOffices(m_aoItems);

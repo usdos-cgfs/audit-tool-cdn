@@ -28,7 +28,7 @@
   <!-- /ko -->
 
   <!-- ko with: runningTasks -->
-  <div class="tasks running">
+  <div class="tasks running" data-bind="if: $data.length">
     <ul class="" data-bind="foreach: $data">
       <li data-bind="text: msg + '... ' + Status()"></li>
     </ul>
@@ -41,7 +41,7 @@
     ></span>
   </div>
   <div id="divUsersGroups" style="color: green; padding-bottom: 10px"></div>
-  <div class="audit-body">
+  <div class="audit-body" style="display: none" data-bind="visible: loadedAt">
     <div class="reports-container">
       <div id="divRefresh" class="quick-links" style="display: none">
         <div>
@@ -258,10 +258,11 @@
       </table>
     </div>
     <div class="response-detail-view">
+      <!-- ko with: currentResponse -->
       <div
         id="divResponseInfo"
         class="audit-form response-info-form"
-        data-bind="with: currentResponse"
+        data-bind=""
       >
         <div class="form-header">
           <h3 class="uppercase form-title">
@@ -339,7 +340,7 @@
           </dl>
         </div>
       </div>
-
+      <!-- /ko -->
       <div>
         <div
           class="divReturned"
