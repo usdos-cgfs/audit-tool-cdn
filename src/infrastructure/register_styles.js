@@ -10,12 +10,12 @@ export function registerStyles(element) {
   });
 
   // Set width and height of our window
-  const contentWindow = document.querySelector(".audit");
+  // const contentWindow = document.querySelector(".audit");
 
-  contentWindow.style.height =
-    document.defaultView.innerHeight -
-    contentWindow.getBoundingClientRect().top +
-    "px";
+  // contentWindow.style.height =
+  //   document.defaultView.innerHeight -
+  //   contentWindow.getBoundingClientRect().top +
+  //   "px";
 
   // Scrollable region for some reason
   const s = document.querySelector('[data-is-scrollable="true"]');
