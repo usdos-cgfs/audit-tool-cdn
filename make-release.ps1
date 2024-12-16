@@ -3,11 +3,11 @@ git checkout main
 git pull
 
 Write-Output "Remove our former release branch"
-git push origin --delete lastest-release
-git branch -D lastest-release
+git push origin --delete latest-release
+git branch -D latest-release
 
 Write-Output "Create a new branch to run the build under"
-git checkout -b lastest-release
+git checkout -b latest-release
 
 Write-Output "Ensure we have the latest version of things"
 # rm -rf node_modules # package-lock.json <-- may want to remove this file too if it suits your project.
@@ -39,6 +39,6 @@ git add -A && git commit -m "[BUILD] $releaseVersion"
 
 # Make a new tag off of the latest build
 git checkout main
-git tag "$releaseVersion" lastest-release
+git tag "$releaseVersion" latest-release
 git push origin "$releaseVersion"
-git push origin lastest-release
+git push origin latest-release
