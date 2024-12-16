@@ -2,14 +2,14 @@
 git checkout main
 git pull
 
-# Remove our former release branch
-git branch -D lastest-release 2>$null
+Write-Output "Remove our former release branch"
 git push origin --delete lastest-release 2>$null
+git branch -D lastest-release 2>$null
 
-# Create a new branch to run the build under
+Write-Output "Create a new branch to run the build under"
 git checkout -b lastest-release
 
-# Ensure we have the latest version of things
+Write-Output "Ensure we have the latest version of things"
 # rm -rf node_modules # package-lock.json <-- may want to remove this file too if it suits your project.
 npm install 
 
@@ -23,9 +23,10 @@ npm run rollup # && git add -A docs
 # releaseVersionNum=`node -e "let package = require('./package.json'); console.log(package.version)"`
 # releaseVersion="v$releaseVersionNum" # of the form vX.X.X
 
-# Collect the version number from package.json
+Write-Output "Collect the version number from package.json"
 $releaseVersionNum = node -e "let package = require('./package.json'); console.log(package.version)"
 $releaseVersion = "v$releaseVersionNum"
+Write-Output "Release: " $releaseVersionNum
 
 # Allow the `dist` folder to be in the release
 # newIgnore=`sed -e 's#dist##g' .gitignore`
