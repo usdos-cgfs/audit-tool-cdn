@@ -1,5 +1,5 @@
 # Make sure our master branch is up to date
-git checkout master
+git checkout main
 git pull
 
 # Remove our former release branch
