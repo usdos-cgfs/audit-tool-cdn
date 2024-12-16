@@ -1,5 +1,5 @@
-# Make sure our master branch is up to date
-git checkout master
+# Make sure our main branch is up to date
+git checkout main
 git pull
 
 # Remove our former release branch
@@ -17,7 +17,7 @@ npm install
 # npm test
 
 # Build and update docs
-npm run build # && git add -A docs
+npm run rollup # && git add -A docs
 
 # Collect the version number
 # releaseVersionNum=`node -e "let package = require('./package.json'); console.log(package.version)"`
@@ -37,7 +37,7 @@ $newIgnore | Set-Content .gitignore
 git add -A && git commit -m "[BUILD] $releaseVersion"
 
 # Make a new tag off of the latest build
-git checkout master
+git checkout main
 git tag "$releaseVersion" lastest-release
 git push origin "$releaseVersion"
 git push origin lastest-release
