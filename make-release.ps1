@@ -3,8 +3,8 @@ git checkout main
 git pull
 
 Write-Output "Remove our former release branch"
-git push origin --delete lastest-release 2>$null
-git branch -D lastest-release 2>$null
+git push origin --delete lastest-release
+git branch -D lastest-release
 
 Write-Output "Create a new branch to run the build under"
 git checkout -b lastest-release

@@ -18,10 +18,6 @@ export default [
         include: "**/*.html",
       }),
       css(), // Import CSS files as part of the bundle
-      serve({
-        contentBase: "./",
-        port: 5500,
-      }),
       nodeResolve(),
       commonjs(),
     ],

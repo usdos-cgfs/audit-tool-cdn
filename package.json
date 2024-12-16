@@ -1,5 +1,5 @@
 {
-  "version": "0.0.6",
+  "version": "0.0.7",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
@@ -9,7 +9,8 @@
   },
   "scripts": {
     "dev": "node esbuild.dev.mjs",
-    "rollup": "npx rollup -c rollup.config.mjs --watch"
+    "rollup": "npx rollup -c rollup.config.dev.mjs --watch",
+    "build": "npx rollup -c rollup.config.mjs"
   },
   "dependencies": {
     "knockout": "^3.5.1",
