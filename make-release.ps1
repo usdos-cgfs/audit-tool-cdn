@@ -17,7 +17,7 @@ npm install
 # npm test
 
 # Build and update docs
-npm run rollup # && git add -A docs
+npm run build # && git add -A docs
 
 # Collect the version number
 # releaseVersionNum=`node -e "let package = require('./package.json'); console.log(package.version)"`
