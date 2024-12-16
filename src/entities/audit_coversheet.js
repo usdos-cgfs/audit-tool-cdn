@@ -1,5 +1,6 @@
 import * as ko from "knockout";
-import { AuditRequest, AuditOrganization } from "./index.js";
+import { AuditRequest } from "./audit_request.js";
+import { AuditOrganization } from "./audit_organization.js";
 import { auditOrganizationStore } from "../infrastructure/store.js";
 
 import { ConstrainedEntity } from "../sal/primitives/constrained_entity.js";

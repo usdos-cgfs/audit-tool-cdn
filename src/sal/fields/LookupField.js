@@ -4,7 +4,7 @@ import {
   SearchSelectModule,
   SelectModule,
 } from "../components/fields/index.js";
-import { BaseField } from "./index.js";
+import { BaseField } from "./BaseField.js";
 
 export class LookupField extends BaseField {
   constructor({

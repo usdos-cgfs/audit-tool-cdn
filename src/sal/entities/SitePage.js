@@ -1,4 +1,4 @@
-import { Entity } from "../primitives/index.js";
+import { Entity } from "../primitives/entity.js";
 
 export class SitePage extends Entity {
   constructor(params) {

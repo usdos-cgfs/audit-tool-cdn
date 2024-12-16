@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { BaseField } from "./index.js";
+import { BaseField } from "./BaseField.js";
 import { BlobModule } from "../components/fields/index.js";
 
 export class BlobField extends BaseField {

@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { DateModule, dateFieldTypes } from "../components/fields/index.js";
-import { BaseField } from "./index.js";
+import { BaseField } from "./BaseField.js";
 
 // Re-export datefield types instead of allowing anything to reference the graphical component
 export { dateFieldTypes } from "../components/fields/index.js";

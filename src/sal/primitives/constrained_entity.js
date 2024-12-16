@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { Entity } from "./index.js";
+import { Entity } from "./entity.js";
 import { BaseField } from "../fields/index.js";
 
 /**

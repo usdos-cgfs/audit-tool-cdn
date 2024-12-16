@@ -4,7 +4,7 @@ import { PeopleModule } from "../components/fields/index.js";
 import { People } from "../entities/index.js";
 import { getUsersByGroupName } from "../infrastructure/index.js";
 import { ensureUserByKeyAsync } from "../infrastructure/sal.js";
-import { BaseField } from "./index.js";
+import { BaseField } from "./BaseField.js";
 
 const components = {
   view: "people-view",
