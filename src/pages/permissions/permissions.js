@@ -1,22 +1,37 @@
 ﻿import permissionsTemplate from "./permissions.html";
-import "../../common/utilities.js";
+import { NewUtilities } from "../../common/utilities.js";
+import { registerStyles } from "../../infrastructure/register_styles.js";
 
-window.Audit = window.Audit || {};
-Audit.Permissions = Audit.Permissions || {};
+var Audit = window.Audit || {
+  Common: {},
+  Permissions: {},
+};
 
-document.getElementById("app").innerHTML = permissionsTemplate;
+window.Audit = Audit;
 
-if (document.readyState === "ready" || document.readyState === "complete") {
-  InitPermissions();
-} else {
-  document.onreadystatechange = () => {
-    if (document.readyState === "complete" || document.readyState === "ready") {
-      ExecuteOrDelayUntilScriptLoaded(function () {
-        SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitPermissions);
-      }, "sp.js");
-    }
-  };
+export async function load(element, context) {
+  window.context = context;
+  element.innerHTML = permissionsTemplate;
+
+  registerStyles(element);
+
+  Audit.Common.Utilities = new NewUtilities();
+
+  Audit.Permissions.Report = new Audit.Permissions.Load();
+  Audit.Permissions.Init();
 }
+
+// if (document.readyState === "ready" || document.readyState === "complete") {
+//   InitPermissions();
+// } else {
+//   document.onreadystatechange = () => {
+//     if (document.readyState === "complete" || document.readyState === "ready") {
+//       ExecuteOrDelayUntilScriptLoaded(function () {
+//         SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitPermissions);
+//       }, "sp.js");
+//     }
+//   };
+// }
 
 function InitPermissions() {
   Audit.Permissions.Report = new Audit.Permissions.Load();
@@ -81,7 +96,7 @@ Audit.Permissions.Load = function () {
       '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
     );
     var m_aoItems = aoList.getItems(aoQuery);
-    currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
+    currCtx.load(m_aoItems, "Include(ID, Title, UserGroup, Role)");
 
     var ownerGroup = web.get_associatedOwnerGroup();
     var memberGroup = web.get_associatedMemberGroup();
