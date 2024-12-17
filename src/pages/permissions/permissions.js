@@ -1,6 +1,14 @@
 ﻿import permissionsTemplate from "./permissions.html";
 import { NewUtilities } from "../../common/utilities.js";
 import { registerStyles } from "../../infrastructure/register_styles.js";
+import $ from "../../../lib/jquery-bundle.js";
+// import { $, jQuery } from "jquery";
+// export for others scripts to use
+// window.$ = $;
+// window.jQuery = jQuery;
+// export default $;
+import "jquery-ui-dist/jquery-ui.min.js";
+import "jquery-ui-dist/jquery-ui.theme.min.css";
 
 var Audit = window.Audit || {
   Common: {},
