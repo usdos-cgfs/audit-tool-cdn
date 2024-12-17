@@ -451,7 +451,7 @@ export function NewUtilities() {
       .get_roleAssignments()
       .add(visitorGroup, roleDefBindingCollRestrictedRead);
 
-    var spGroupQA = commonUtilities.publicMembers.GetSPSiteGroup(m_groupNameQA);
+    var spGroupQA = m_fnGetSPSiteGroup(m_groupNameQA);
     if (spGroupQA != null)
       oNewEmailFolder
         .get_roleAssignments()
@@ -476,11 +476,8 @@ export function NewUtilities() {
         for (var x = 0; x < arrActionOffice.length; x++) {
           var actionOfficeName = arrActionOffice[x].get_lookupValue();
 
-          var actionOfficeGroupName =
-            commonUtilities.publicMembers.GetAOSPGroupName(actionOfficeName);
-          var actionOfficeGroup = commonUtilities.publicMembers.GetSPSiteGroup(
-            actionOfficeGroupName
-          );
+          var actionOfficeGroupName = m_fnGetAOSPGroupName(actionOfficeName);
+          var actionOfficeGroup = m_fnGetSPSiteGroup(actionOfficeGroupName);
 
           if (actionOfficeGroup != null) {
             m_cntAddToEmailFolder++;
@@ -832,13 +829,10 @@ export function NewUtilities() {
     //options.dialogReturnValueCallback = OnCallbackForm;
     if (docType != null)
       options.url =
-        commonUtilities.publicMembers.GetSiteUrl() +
+        m_fnGetSiteUrl() +
         "/SitePages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1=" +
         docType;
-    else
-      options.url =
-        commonUtilities.publicMembers.GetSiteUrl() +
-        "/SitePages/AuditUserManuals.aspx";
+    else options.url = m_fnGetSiteUrl() + "/SitePages/AuditUserManuals.aspx";
 
     SP.UI.ModalDialog.showModalDialog(options);
   }
@@ -1004,11 +998,12 @@ export function NewUtilities() {
     return str;
   }
 
+  function m_fnGetSiteUrl() {
+    if (m_siteUrl == "/") return "";
+    else return m_siteUrl;
+  }
   var publicMembers = {
-    GetSiteUrl: function () {
-      if (m_siteUrl == "/") return "";
-      else return m_siteUrl;
-    },
+    GetSiteUrl: m_fnGetSiteUrl,
     GetListTitleRequests: function () {
       return m_listTitleRequests;
     },
