@@ -2063,6 +2063,7 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
 
   if (!bHasResponseDoc) {
     RequestFinishedLoading();
+    finishTask(loadingResponseDocsTask);
     return;
   }
 
