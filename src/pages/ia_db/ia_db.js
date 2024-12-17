@@ -6032,7 +6032,8 @@ function OnCallbackFormNewRequest(result, value) {
             oListItem.get_item("Title"),
             oListItem,
             function (bDoneCreatingEmailFolder) {
-              _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
+              // _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
+              m_fnGoToRequest(oListItem.get_item("Title"));
               finishTask(newRequestTask);
               m_fnRefreshData(oListItem.get_item("ID"));
             }
@@ -6044,7 +6045,7 @@ function OnCallbackFormNewRequest(result, value) {
             oListItem.get_item("Title"),
             oListItem,
             function (bDoneCreatingEmailFolder) {
-              _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
+              m_fnGoToRequest(oListItem.get_item("Title"));
               finishTask(newRequestTask);
               m_fnRefreshData(oListItem.get_item("ID"));
             }
