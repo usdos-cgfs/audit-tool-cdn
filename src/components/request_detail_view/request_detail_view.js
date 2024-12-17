@@ -37,7 +37,7 @@ import { ConfirmApproveResponseDocForm } from "../forms/response_doc/confirm_app
 import { ConfirmRejectResponseDocForm } from "../forms/response_doc/confirm_reject/confirm_reject_response_doc_form.js";
 import { ConfirmDeleteRequestForm } from "../forms/request/confirm_delete/confirm_delete_request_form.js";
 
-import { requestDetailViewTemplate } from "./RequestDetailViewTemplate.js";
+import requestDetailViewTemplate from "./RequestDetailViewTemplate.html";
 import { requestDetailCoversheetsTabTemplate } from "./RequestDetailCoversheetsTabTemplate.js";
 import { requestDetailResponsesTabTemplate } from "./RequestDetailResponsesTabTemplate.js";
 import { requestDetailResponseDocsTabTemplate } from "./RequestDetailResponseDocsTabTemplate.js";
