@@ -1,14 +1,16 @@
 ﻿import permissionsTemplate from "./permissions.html";
 import { NewUtilities } from "../../common/utilities.js";
 import { registerStyles } from "../../infrastructure/register_styles.js";
-import $ from "../../../lib/jquery-bundle.js";
+// import $ from "../../../lib/jquery-bundle.js";
+import $ from "../../../lib/jquery-3.7.1.slim.js";
 // import { $, jQuery } from "jquery";
 // export for others scripts to use
 // window.$ = $;
 // window.jQuery = jQuery;
 // export default $;
-import "jquery-ui-dist/jquery-ui.min.js";
-import "jquery-ui-dist/jquery-ui.theme.min.css";
+// import "jquery-ui-dist/jquery-ui.min.js";
+// import "jquery-ui-dist/jquery-ui.theme.min.css";
+import { tabs } from "../../../lib/tabs.js";
 
 var Audit = window.Audit || {
   Common: {},
@@ -127,7 +129,10 @@ Audit.Permissions.Load = function () {
 			
 			LoadDDOptions();
 		*/
-      $("#tabs").tabs().show();
+      // $("#tabs").tabs().show();
+      const tabsDiv = document.getElementById("tabs");
+      tabsDiv.style.display = "block";
+      tabs(tabsDiv);
 
       m_fnBindHandlersOnLoad();
 
@@ -136,7 +141,7 @@ Audit.Permissions.Load = function () {
 
       var isModalDlg = GetUrlKeyValue("IsDlg");
       if (isModalDlg == null || isModalDlg == "" || isModalDlg == false) {
-        $("#btnRefresh").show();
+        document.querySelector("#btnRefresh").style.display = "block";
       }
 
       var doneLoadingSPGroupPermissions = false;
@@ -148,7 +153,7 @@ Audit.Permissions.Load = function () {
       });
     }
     function OnFailure(sender, args) {
-      $("#divLoading").hide();
+      document.querySelector("#divLoading").style.display = "none";
 
       statusId = SP.UI.Status.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
@@ -878,9 +883,11 @@ Audit.Permissions.Load = function () {
   }
 
   function m_fnBindHandlerPermissionLinks() {
-    $(".permsLink").click(function () {
-      $(this).find(".permsInfo").toggleClass("collapsed");
-    });
+    document.querySelectorAll(".permsLink").forEach((link) =>
+      link.addEventListener("click", function () {
+        $(this).find(".permsInfo").toggleClass("collapsed");
+      })
+    );
   }
 
   function m_fnLoadSPGroupPermissions(OnCompleteLoading) {
@@ -1546,71 +1553,88 @@ Audit.Permissions.Load = function () {
 
     m_fnBindHandlerPermissionLinks();
 
-    $("#ddlRequestID").change(function () {
-      $("#ddlResponseRequestID").val($(this).val());
+    document
+      .querySelector("#ddlRequestID")
+      .addEventListener("change", function () {
+        $("#ddlResponseRequestID").val($(this).val());
 
-      setTimeout(function () {
-        FilterRequests();
-      }, 10);
-    });
+        setTimeout(function () {
+          FilterRequests();
+        }, 10);
+      });
 
-    $("#ddlResponseRequestID").change(function () {
-      $("#ddlRequestID").val($(this).val());
+    document
+      .querySelector("#ddlResponseRequestID")
+      .addEventListener("change", function () {
+        $("#ddlRequestID").val($(this).val());
 
-      setTimeout(function () {
-        FilterRequests();
-      }, 10);
-    });
+        setTimeout(function () {
+          FilterRequests();
+        }, 10);
+      });
 
-    $("#ddlResponseFolderResponseID").change(function () {
-      setTimeout(function () {
-        FilterResponses();
-      }, 10);
-    });
+    document
+      .querySelector("#ddlResponseFolderResponseID")
+      .addEventListener("change", function () {
+        setTimeout(function () {
+          FilterResponses();
+        }, 10);
+      });
 
-    $("#linkViewAO").click(function () {
-      m_fnViewAOs();
-    });
-    $("#linkAddAO").click(function () {
+    document
+      .querySelector("#linkViewAO")
+      .addEventListener("click", function () {
+        m_fnViewAOs();
+      });
+
+    document.querySelector("#linkAddAO").addEventListener("click", function () {
       m_fnAddAO();
     });
 
-    $("#linkUploadPermissions").click(function () {
-      m_fnUploadPermissions();
-    });
-
-    $("#linkGetVerification").click(function () {
-      m_fnGetVerification();
-    });
-
-    $("#linkEmailHistory").click(function () {
-      m_fnViewEmailHistoryFolder();
-    });
-
-    $("#linkViewExportFriendly").click(function () {
-      $(".removeOnExport").toggle();
-
-      $(".groupPerms").each(function () {
-        if ($(this).html().toLowerCase().indexOf("<ul>") >= 0) {
-          var friendlyNames = "";
-
-          $(this)
-            .find("LI")
-            .each(function () {
-              var curText = $(this).text();
-              var index = curText.indexOf("(");
-              if (index >= 0) curText = curText.substring(0, index);
-              curText = $.trim(curText);
-
-              friendlyNames += curText + ";";
-            });
-
-          $(this).html(friendlyNames);
-        }
+    document
+      .querySelector("#linkUploadPermissions")
+      .addEventListener("click", function () {
+        m_fnUploadPermissions();
       });
-    });
 
-    $("#cbAOAll").click(function () {
+    document
+      .querySelector("#linkGetVerification")
+      .addEventListener("click", function () {
+        m_fnGetVerification();
+      });
+
+    document
+      .querySelector("#linkEmailHistory")
+      .addEventListener("click", function () {
+        m_fnViewEmailHistoryFolder();
+      });
+
+    document
+      .querySelector("#linkViewExportFriendly")
+      .addEventListener("click", function () {
+        $(".removeOnExport").toggle();
+
+        $(".groupPerms").each(function () {
+          if ($(this).html().toLowerCase().indexOf("<ul>") >= 0) {
+            var friendlyNames = "";
+
+            $(this)
+              .find("LI")
+              .each(function () {
+                var curText = $(this).text();
+                var index = curText.indexOf("(");
+                if (index >= 0) curText = curText.substring(0, index);
+                curText = $.trim(curText);
+
+                friendlyNames += curText + ";";
+              });
+
+            $(this).html(friendlyNames);
+          }
+        });
+      });
+
+    document.querySelector("#cbAOAll").addEventListener("click", function () {
       if ($(this).is(":checked")) m_fnCheckCheckboxes();
       else m_fnUncheckCheckboxes();
     });
@@ -1713,16 +1737,18 @@ Audit.Permissions.Load = function () {
 
   function m_fnBindPrintButton(btnPrint, divTbl) {
     var pageTitle = "Audit Site Group Permissions (SharePoint Site)";
-    $(btnPrint).on("click", function () {
+    document.querySelector(btnPrint).addEventListener("click", function () {
       PrintPage(pageTitle, divTbl);
     });
   }
 
   function m_fnBindExportButton(btnExport, fileNamePrefix, tbl) {
-    $(btnExport).on("click", function (event) {
-      var curDate = new Date().format("yyyyMMdd");
-      ExportToCsv(fileNamePrefix + curDate, tbl);
-    });
+    document
+      .querySelector(btnExport)
+      .addEventListener("click", function (event) {
+        var curDate = new Date().format("yyyyMMdd");
+        ExportToCsv(fileNamePrefix + curDate, tbl);
+      });
   }
 
   //This function will grab the html from the container var to display in a new window.
