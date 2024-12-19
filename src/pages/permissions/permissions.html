@@ -1,10 +1,10 @@
 ﻿<link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/fontawesome-6.5.1/css/fontawesome.min.css"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-cdn@latest/lib/fontawesome-6.5.1/css/fontawesome.min.css"
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/fontawesome-6.5.1/css/solid.min.css"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-cdn@latest/lib/fontawesome-6.5.1/css/solid.min.css"
 />
 
 <div class="audit">
@@ -28,9 +28,9 @@
   <div id="divErrorMsg" style="color: red; padding-bottom: 10px"></div>
 
   <div id="tabs" style="display: none; margin-top: 20px">
-    <ul>
-      <li><a href="#tabs-0">Action Office Groups and Users</a></li>
-      <li><a href="#tabs-1">Site Groups and Users</a></li>
+    <ul class="ui-tabs-nav">
+      <li href="#tabs-0" class="active">Action Office Groups and Users</li>
+      <li href="#tabs-1">Site Groups and Users</li>
       <li style="display: none"><a href="#tabs-2">Request Permissions</a></li>
       <li style="display: none">
         <a href="#tabs-3">Response Permissions</a>
@@ -145,7 +145,7 @@
       </div>
     </div>
 
-    <div id="tabs-1">
+    <div id="tabs-1" style="display: none">
       <div id="divTblSiteUsersOutput" style="width: 100%; padding-bottom: 10px">
         <table id="table_SiteGroups" class="tablesorter">
           <thead>
@@ -159,7 +159,7 @@
       </div>
     </div>
 
-    <div id="tabs-2">
+    <div id="tabs-2" style="display: none">
       <table id="tblRequestsPermissions" class="tablesorter">
         <thead>
           <tr valign="top">
