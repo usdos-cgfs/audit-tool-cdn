@@ -39,10 +39,15 @@ class ModalDialogModule {
       this.url = parsedUrl.href;
     }
 
+    if (dialogOpts.html) {
+      this.html = dialogOpts.html;
+    }
+
     toggle = this.toggle;
   }
 
   url = null;
+  html = null;
 
   toggle = (show = null) => {
     if (show == null) show = !this.dlgElement.hasAttribute("open");

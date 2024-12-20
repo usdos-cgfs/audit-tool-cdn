@@ -8,6 +8,11 @@
 />
 
 <div class="audit">
+  <!-- ko foreach: currentDialogs -->
+  <div
+    data-bind="component: { name: 'modal-dialog-component', params: $data }"
+  ></div>
+  <!-- /ko -->
   <iframe id="CsvExpFrame" style="display: none"></iframe>
 
   <div style="padding-bottom: 10px">

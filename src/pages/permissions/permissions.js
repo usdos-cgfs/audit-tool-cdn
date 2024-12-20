@@ -3,6 +3,7 @@ import { NewUtilities } from "../../common/utilities.js";
 import { registerStyles } from "../../infrastructure/register_styles.js";
 // import $ from "../../../lib/jquery-bundle.js";
 import $ from "../../../lib/jquery-3.7.1.slim.js";
+import * as ko from "knockout";
 // import { $, jQuery } from "jquery";
 // export for others scripts to use
 // window.$ = $;
@@ -11,6 +12,9 @@ import $ from "../../../lib/jquery-3.7.1.slim.js";
 // import "jquery-ui-dist/jquery-ui.min.js";
 // import "jquery-ui-dist/jquery-ui.theme.min.css";
 import { tabs } from "../../../lib/tabs.js";
+
+import * as ModalDialog from "../../sal/components/modal/modalDialog.js";
+import { AoVerification } from "../../components/ao_verifcation/ao_verification.js";
 
 var Audit = window.Audit || {
   Common: {},
@@ -70,23 +74,31 @@ Audit.Permissions.Load = function () {
 
   var m_oAOGroupUsers = new Object();
 
+  class ViewModel {
+    constructor() {}
+
+    currentDialogs = ModalDialog.currentDialogs;
+  }
+
   LoadInfo();
 
   function LoadInfo() {
     //$("#divTblOutput").html("");
 
+    ko.applyBindings(new ViewModel());
+
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
     /*	var requestList = web.get_lists().getByTitle( Audit.Common.Utilities.GetListTitleRequests() );
-		var requestQuery = new SP.CamlQuery();	
+		var requestQuery = new SP.CamlQuery();
 		requestQuery.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>');
 		m_requestItems = requestList.getItems( requestQuery );
 		//request status has internal name as response status in the request list
 		currCtx.load( m_requestItems, 'Include(ID, Title, ReqStatus, IsSample, ActionOffice, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
-	    
+
 		var responseList = web.get_lists().getByTitle( Audit.Common.Utilities.GetListTitleResponses() );
-		var responseQuery = new SP.CamlQuery();	
+		var responseQuery = new SP.CamlQuery();
 		responseQuery.set_viewXml('<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>');
 		m_responseItems = responseList.getItems( responseQuery );
 		currCtx.load( m_responseItems, 'Include(ID, Title, ReqNum, ActionOffice, SampleNumber, ResStatus, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))' );
@@ -126,7 +138,7 @@ Audit.Permissions.Load = function () {
       /*	m_fnLoadRequestPermissions();
 			m_fnLoadResponsePermissions();
 			m_fnLoadResponseFolderPermissions();
-			
+
 			LoadDDOptions();
 		*/
       // $("#tabs").tabs().show();
@@ -155,10 +167,9 @@ Audit.Permissions.Load = function () {
     function OnFailure(sender, args) {
       document.querySelector("#divLoading").style.display = "none";
 
-      statusId = SP.UI.Status.addStatus(
+      alert(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
-      SP.UI.Status.setStatusPriColor(statusId, "red");
     }
   }
 
@@ -362,7 +373,7 @@ Audit.Permissions.Load = function () {
         oRequest.number +
         "</a>";
 
-      /*sTablePermissionsBody += '<tr class="request-perm-item" ' + styleTag + '>' + 
+      /*sTablePermissionsBody += '<tr class="request-perm-item" ' + styleTag + '>' +
 				'<td class="request-perm-item-number" title="Request number">' + link + '</td>' +
 				'<td class="request-perm-item-status" title="Request status">' + status + '</td>' +
 				'<td class="request-perm-item-actionOffices" title="Request action offices">' + actionOffices + '</td>' +
@@ -528,7 +539,7 @@ Audit.Permissions.Load = function () {
         actionOffice,
         "<b>" + actionOffice + "</b>"
       );
-      /*sTablePermissionsBody += '<tr class="response-perm-item" ' + styleTag + '>' + 
+      /*sTablePermissionsBody += '<tr class="response-perm-item" ' + styleTag + '>' +
 				'<td class="response-perm-item-number" title="Request number" nowrap>' + number + '</td>' +
 				'<td class="response-perm-item-title" title="Response title" nowrap>' + link + '</td>' +
 				'<td class="response-perm-item-status" title="Response status" nowrap>' + status + '</td>' +
@@ -713,7 +724,7 @@ Audit.Permissions.Load = function () {
         responseActionOffice,
         "<b>" + responseActionOffice + "</b>"
       );
-      /*sTablePermissionsBody += '<tr class="responseFolder-perm-item" ' + styleTag + '>' + 
+      /*sTablePermissionsBody += '<tr class="responseFolder-perm-item" ' + styleTag + '>' +
 				'<td class="responseFolder-perm-item-number" title="Request number" nowrap>' + number  + '</td>' +
 				'<td class="responseFolder-perm-item-responseTitle" title="Response title">' + title  + '</td>' +
 				'<td class="responseFolder-perm-item-title" title="Response folder" nowrap>' + folderName + '</td>' +
@@ -926,55 +937,55 @@ Audit.Permissions.Load = function () {
   /*	function m_fnLoadSPGroupPermissions( OnCompleteLoading )
 	{
 		m_arrGroups = new Array();
-		
+
 		var currCtx = new SP.ClientContext.get_current();
 		var web = currCtx.get_web();
-		
+
 		m_collGroup = currCtx.get_web().get_siteGroups();
 	    currCtx.load( m_collGroup );
 	   	currCtx.load( m_collGroup, "Include(Users)")
-	   	
+
 		function OnSuccess1(sender, args)
 		{
 			m_arrGroups = new Array();
-			var listEnumerator = m_collGroup.getEnumerator(); 
-			while (listEnumerator.moveNext()) 
-			{ 
-				var item = listEnumerator.get_current(); 
-				groupName = item.get_title(); 			
+			var listEnumerator = m_collGroup.getEnumerator();
+			while (listEnumerator.moveNext())
+			{
+				var item = listEnumerator.get_current();
+				groupName = item.get_title();
 				groupName = $.trim(groupName);
 				groupID = item.get_id();
-	
+
 				var arrPerms = new Array();
-				var listEnumerator1 = item.get_users().getEnumerator(); 
-				while (listEnumerator1.moveNext()) 
+				var listEnumerator1 = item.get_users().getEnumerator();
+				while (listEnumerator1.moveNext())
 				{
-					 var item1 = listEnumerator1.get_current();							 
+					 var item1 = listEnumerator1.get_current();
 					 var displayName = item1.get_loginName();
 					 arrPerms.push( displayName );
 				}
-				
-				arrPerms.sort();						
+
+				arrPerms.sort();
 				var users = "";
 				for( var g = 0; g < arrPerms.length; g++ )
 				{
-					 users += arrPerms[g] + "; ";							 
+					 users += arrPerms[g] + "; ";
 				}
-	
+
 				var oGroup = new Object();
 				oGroup["Title"] = groupName;
 				oGroup["ID"] = groupID;
 				oGroup["Users"] = users;
 				m_arrGroups.push( oGroup );
-			} 
-			
+			}
+
 			OnCompleteLoading ( true );
 		}
 		function OnFailure1(sender, args)
 		{
 			OnCompleteLoading ( true );
-		}				
-		currCtx.executeQueryAsync(OnSuccess1, OnFailure1);	
+		}
+		currCtx.executeQueryAsync(OnSuccess1, OnFailure1);
 	}
 */
   function m_fnDisplaySPGroupPermissions(itemCollection) {
@@ -1238,49 +1249,31 @@ Audit.Permissions.Load = function () {
     });
 
     if (aos == "") {
-      notifyId = SP.UI.Notify.addNotification(
-        "Please select an Action Office",
-        false
-      );
+      alert("Please select an Action Office", false);
       return;
     } else {
       aos = "<ul style='color:green'>" + aos + "</ul>";
     }
 
-    var verificationDocDlg =
-      "<div id='verificationDocDlg' style='padding:20px; height:100px'><div style='padding:20px; width:600px'>Are you sure you would like to Email the following Action Offices for Verification?<p style='padding-top:10px'>" +
-      aos +
-      "</p> <p style='padding-top:10px'>If so, please specify any Custom Message to Append to the Outgoing Email Text: </p><p><input id='txtOutgoingEmailText' maxlength='300' size='100' onkeyup='Audit.Permissions.Report.GetEmailText()'></input></p></span></div>" +
-      "<table style='padding-top:10px; width:400px; margin:0px auto'>" +
-      "<tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Yes Send Email' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td>" +
-      "<td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
-      "</table></div>";
-
-    $("body").append(verificationDocDlg);
-
-    var options = SP.UI.$create_DialogOptions();
+    const form = new AoVerification({ aos });
+    var options = {};
     options.title = "Email Action Office for User Verification";
     options.dialogReturnValueCallback = OnCallbackSendVerification;
-    options.html = document.getElementById("verificationDocDlg");
-    SP.UI.ModalDialog.showModalDialog(options);
+    // options.html = verificationDocDlg;
+    options.form = form;
+
+    ModalDialog.showModalDialog(options);
   }
 
   function OnCallbackSendVerification(result, value) {
-    if (result === SP.UI.DialogResult.OK) {
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Sending Emails",
-        "Please wait... Sending Emails",
-        200,
-        400
-      );
+    if (result === false) return;
 
-      setTimeout(function () {
-        m_fnSendVerificationEmails();
-      }, 1000);
-    }
+    // setTimeout(function () {
+    m_fnSendVerificationEmails(result);
+    // }, 1000);
   }
 
-  function m_fnSendVerificationEmails() {
+  function m_fnSendVerificationEmails(message) {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
@@ -1323,10 +1316,7 @@ Audit.Permissions.Load = function () {
       });
 
       if (m_emailCount == 0) {
-        notifyId = SP.UI.Notify.addNotification(
-          "Please select an Action Office",
-          false
-        );
+        alert("Please select an Action Office", false);
         //document.body.style.cursor = 'default';
         m_waitDialog.close();
       }
@@ -1345,7 +1335,7 @@ Audit.Permissions.Load = function () {
           var emailSubject =
             "Please review the Audit Tool users for (" + group + ")";
           var emailText = m_fnFormatEmailBodyToAOForVerification(
-            m_txtOutgoingEmailText,
+            message,
             group,
             users
           );
@@ -1371,12 +1361,9 @@ Audit.Permissions.Load = function () {
             function () {
               cnt++;
               if (cnt == m_emailCount) {
-                m_waitDialog.close();
+                // m_waitDialog.close();
                 //document.body.style.cursor = 'default';
-                notifyId = SP.UI.Notify.addNotification(
-                  "Completed Sending Email Verifications",
-                  false
-                );
+                alert("Completed Sending Email Verifications", false);
 
                 m_fnUncheckCheckboxes();
                 //m_fnViewEmailHistoryFolder();
@@ -1384,7 +1371,6 @@ Audit.Permissions.Load = function () {
             },
             function (sender, args) {
               //document.body.style.cursor = 'default';
-              m_waitDialog.close();
               alert(
                 "Request failed: " +
                   args.get_message() +
@@ -1444,28 +1430,28 @@ Audit.Permissions.Load = function () {
   /*function m_fnDisplaySPGroupPermissions( itemCollection )
 	{
 		var arrGroups = new Array();
-		var listEnumerator = itemCollection.getEnumerator(); 
-		while (listEnumerator.moveNext()) 
-		{ 
-			var item = listEnumerator.get_current(); 
-			groupName = item.get_title(); 			
+		var listEnumerator = itemCollection.getEnumerator();
+		while (listEnumerator.moveNext())
+		{
+			var item = listEnumerator.get_current();
+			groupName = item.get_title();
 			groupName = $.trim(groupName);
 			groupID = item.get_id();
 
 			var arrPerms = new Array();
-			var listEnumerator1 = item.get_users().getEnumerator(); 
-			while (listEnumerator1.moveNext()) 
+			var listEnumerator1 = item.get_users().getEnumerator();
+			while (listEnumerator1.moveNext())
 			{
-				 var item1 = listEnumerator1.get_current();							 
+				 var item1 = listEnumerator1.get_current();
 				 var displayName = item1.get_loginName();
 				 arrPerms.push( displayName );
 			}
-			
-			arrPerms.sort();						
+
+			arrPerms.sort();
 			var users = "";
 			for( var g = 0; g < arrPerms.length; g++ )
 			{
-				 users += arrPerms[g] + "; ";							 
+				 users += arrPerms[g] + "; ";
 			}
 
 			var oGroup = new Object();
@@ -1473,25 +1459,25 @@ Audit.Permissions.Load = function () {
 			oGroup["ID"] = groupID;
 			oGroup["Users"] = users;
 			arrGroups.push( oGroup );
-		} 
-			
+		}
+
 		var output = "<table id='table_Groups' class='tablesorter' style='width:800px'><thead><tr><th>SharePoint Group Name</th><th>Users</th></tr></thead><tbody id='fbody'>";
-		
+
 		for( var x = 0; x < arrGroups.length; x++ )
 		{
 			var groupName = arrGroups[x].Title;
 			var groupId = arrGroups[x].ID;
 			var perms = arrGroups[x].Users;
-			
+
 			output += "<tr><td class='groupName' style='white-space:nowrap'><a href='javascript:void(0)' onclick='Audit.Permissions.Report.ViewSitePermissionsGroup(\"" + groupId + "\",\"" + groupName + "\")'>" + groupName + "</a></td><td id='groupPerms" + x +"' >" + perms + "</td></tr>";
 		}
 		output += "</tbody><tfoot><tr><th colspan = '3' style='text-align:left;white-space:nowrap'>Total: " + arrGroups.length + "</th></tr></tfoot></table>";
-		
+
 		if( arrGroups.length == 0 )
 		{
 			output = "<div>0 Groups found</div>";
 		}
-		
+
 		$("#divTblOutput").html( output );
 	}*/
 
@@ -1521,28 +1507,6 @@ Audit.Permissions.Load = function () {
       "#ddlResponseFolderResponseID",
       false
     );
-  }
-
-  function m_fnGoToRequest(requestNumber) {
-    notifyId = SP.UI.Notify.addNotification(
-      "Displaying Request (" + requestNumber + ")",
-      false
-    );
-
-    $("#ddlResponseRequestID").val(requestNumber).change();
-
-    $("#tabs").tabs({ active: 1 });
-  }
-
-  function m_fnGoToResponse(responseTitle) {
-    notifyId = SP.UI.Notify.addNotification(
-      "Displaying Response (" + responseTitle + ")",
-      false
-    );
-
-    $("#ddlResponseFolderResponseID").val(responseTitle).change();
-
-    $("#tabs").tabs({ active: 2 });
   }
 
   function m_fnBindHandlersOnLoad() {
@@ -1641,7 +1605,7 @@ Audit.Permissions.Load = function () {
   }
 
   function m_fnViewAOs() {
-    var options = SP.UI.$create_DialogOptions();
+    var options = {};
     options.title = "View Action Office Details";
     //options.height = "800";
     options.autoSize = true;
@@ -1652,12 +1616,12 @@ Audit.Permissions.Load = function () {
       "/lists/" +
       Audit.Common.Utilities.GetListNameActionOffices();
 
-    SP.UI.ModalDialog.showModalDialog(options);
+    ModalDialog.showModalDialog(options);
   }
 
   function m_fnAddAO() {
     var formName = "NewForm.aspx";
-    var options = SP.UI.$create_DialogOptions();
+    var options = {};
     options.title = "Add Action Office";
     //options.height = "800";
     options.autoSize = true;
@@ -1670,7 +1634,7 @@ Audit.Permissions.Load = function () {
       "/" +
       formName;
 
-    SP.UI.ModalDialog.showModalDialog(options);
+    ModalDialog.showModalDialog(options);
   }
 
   //Captures the values from all of the drop downs and uses them to filter the rows
@@ -1894,7 +1858,7 @@ Audit.Permissions.Load = function () {
   function m_fnViewSitePermissionsGroup(groupID, groupName) {
     ///The call back on this does not refresh the page BECAUSE if you add/remove a user on that dialog with the group users, it will try to refresh and it will look
     //odd. so don't refresh here.
-    /*var options = SP.UI.$create_DialogOptions();	
+    /*var options = SP.UI.$create_DialogOptions();
 		options.title = "View Site Permissions on Group " + groupName;
 		//options.dialogReturnValueCallback = OnCallbackFormNoRefresh;
 		options.url = Audit.Common.Utilities.GetSiteUrl() + "/_layouts/people.aspx?MembershipGroupId=" + groupID;
@@ -1919,7 +1883,7 @@ Audit.Permissions.Load = function () {
   }
 
   function m_fnViewEmailHistoryFolder() {
-    var options = SP.UI.$create_DialogOptions();
+    var options = {};
     options.title = "View Email History";
     //options.height = "600";
     //options.width = "900";
@@ -1935,11 +1899,11 @@ Audit.Permissions.Load = function () {
       "/" +
       m_emailFolderName;
 
-    SP.UI.ModalDialog.showModalDialog(options);
+    ModalDialog.showModalDialog(options);
   }
 
   function m_fnUploadPermissions() {
-    var options = SP.UI.$create_DialogOptions();
+    var options = {};
     options.title = "Upload Permissions";
     options.height = "800";
     options.autoSize = true;
@@ -1949,7 +1913,7 @@ Audit.Permissions.Load = function () {
       Audit.Common.Utilities.GetSiteUrl() +
       "/SitePages/AuditUpdateSiteGroups.aspx";
 
-    SP.UI.ModalDialog.showModalDialog(options);
+    ModalDialog.showModalDialog(options);
   }
 
   function OnCallbackFormNoRefresh(result, value) {
@@ -1961,18 +1925,14 @@ Audit.Permissions.Load = function () {
   }
 
   function OnCallbackForm(result, value) {
-    if (result === SP.UI.DialogResult.OK) {
+    if (result === true) {
       m_fnRefresh();
     }
   }
 
   var publicMembers = {
-    GoToRequest: function (requestNum) {
-      m_fnGoToRequest(requestNum);
-    },
-    GoToResponse: function (responseTitle) {
-      m_fnGoToResponse(responseTitle);
-    },
+    GoToRequest: function (requestNum) {},
+    GoToResponse: function (responseTitle) {},
     ViewSitePermissionsGroup: function (groupID, groupName) {
       m_fnViewSitePermissionsGroup(groupID, groupName);
     },

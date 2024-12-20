@@ -1,0 +1,34 @@
+<div class="audit-form bg-dark">
+  <div class="form-row">
+    Are you sure you would like to Email the following Action Offices for
+    Verification?
+  </div>
+  <div class="form-row">
+    <p data-bind="html: aos"></p>
+  </div>
+  <div class="form-row">
+    <p>
+      If so, please specify any Custom Message to Append to the Outgoing Email
+      Text:
+    </p>
+  </div>
+  <div class="form-row">
+    <textarea
+      class="w-full"
+      id="txtOutgoingEmailText"
+      maxlength="300"
+      rows="6"
+      data-bind="textInput: message"
+    ></textarea>
+  </div>
+  <div class="form-actions">
+    <button
+      type="button"
+      class="btn btn-success"
+      data-bind="click: clickSubmit"
+      title="Yes, Send Email"
+    >
+      Yes, Send Email
+    </button>
+  </div>
+</div>
