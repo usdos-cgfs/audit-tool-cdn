@@ -2,6 +2,35 @@
 git checkout main
 git pull
 
+# Collect the version number
+Write-Output "Collect the version number from package.json"
+$releaseVersionNum = node -e "let package = require('./package.json'); console.log(package.version)"
+$releaseVersion = "v$releaseVersionNum"
+Write-Output "Release: $releaseVersion"
+
+# Check for existing tags
+Write-Output "Checking for existing tags"
+$existingTags = git tag
+if ($existingTags -contains $releaseVersion) {
+    Write-Output "Version conflict detected: $releaseVersion already exists."
+
+    # Increment patch version
+    $versionParts = $releaseVersionNum -split '\.'
+    $versionParts[2] = [int]$versionParts[2] + 1
+    # $versionParts[2] = 0 # Reset patch version
+    $releaseVersionNum = $versionParts -join '.'
+    $releaseVersion = "v$releaseVersionNum"
+
+    # Update package.json
+    Write-Output "Updating package.json to $releaseVersionNum"
+    node -e "let package = require('./package.json'); package.version = '$releaseVersionNum'; require('fs').writeFileSync('./package.json', JSON.stringify(package, null, 2));"
+
+    # Commit version bump
+    git add package.json
+    git commit -m "[VERSION BUMP] Increment version to $releaseVersionNum"
+    git push origin main
+}
+
 Write-Output "Remove our former release branch"
 git push origin --delete latest-release
 git branch -D latest-release
@@ -19,33 +48,6 @@ npm install
 # Build and update docs
 npm run build # && git add -A docs
 
-# Collect the version number
-Write-Output "Collect the version number from package.json"
-$releaseVersionNum = node -e "let package = require('./package.json'); console.log(package.version)"
-$releaseVersion = "v$releaseVersionNum"
-Write-Output "Release: $releaseVersion"
-
-# Check for existing tags
-Write-Output "Checking for existing tags"
-$existingTags = git tag
-if ($existingTags -contains $releaseVersion) {
-    Write-Output "Version conflict detected: $releaseVersion already exists."
-
-    # Increment minor version
-    $versionParts = $releaseVersionNum -split '\.'
-    $versionParts[2] = [int]$versionParts[2] + 1
-    # $versionParts[2] = 0 # Reset patch version
-    $releaseVersionNum = $versionParts -join '.'
-    $releaseVersion = "v$releaseVersionNum"
-
-    # Update package.json
-    Write-Output "Updating package.json to $releaseVersionNum"
-    node -e "let package = require('./package.json'); package.version = '$releaseVersionNum'; require('fs').writeFileSync('./package.json', JSON.stringify(package, null, 2));"
-
-    # Commit version bump
-    git add package.json
-    git commit -m "[VERSION BUMP] Increment version to $releaseVersionNum"
-}
 
 # Allow the `dist` folder to be in the release
 # newIgnore=`sed -e 's#dist##g' .gitignore`
