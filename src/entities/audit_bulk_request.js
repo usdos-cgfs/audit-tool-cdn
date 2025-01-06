@@ -43,7 +43,6 @@ export class AuditBulkRequest extends AuditRequest {
       "RelatedAudit",
       "ActionItems",
       "Comments",
-      "Reminders",
       "Sensitivity",
       "ActionOffice",
       "RequestingOffice",
