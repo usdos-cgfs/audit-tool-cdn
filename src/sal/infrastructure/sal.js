@@ -501,7 +501,9 @@ sal.NewUtilities = function () {
 };
 
 export async function copyFileAsync(sourceFilePath, destFilePath) {
-  const uri = `/web/getfilebyserverrelativeurl('${sourceFilePath}')/copyto('${destFilePath}')`;
+  const uri =
+    `/web/getfilebyserverrelativeurl(@source)/copyto(@dest)` +
+    `?@source='${sourceFilePath}'&@dest='${destFilePath}'`;
 
   const result = await fetchSharePointData(uri, "POST");
 
