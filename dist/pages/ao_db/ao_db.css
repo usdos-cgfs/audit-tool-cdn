@@ -1,0 +1,2125 @@
+/* src/styles.css */
+.audit {
+  --bg-very-light-color: #edf1f2;
+  --bg-light-color: #eefbfb;
+  --bg-dark-color: #1d2b36;
+  --bg-dark-secondary-color: #2a3c48;
+  --text-primary: #1e2a36;
+  --success-color: #4fbf77;
+  --success-hover-color: #1f8f46;
+  --warn-color: #f0bb51;
+  --warn-hover-color: #d6930c;
+  --danger-color: rgb(182, 49, 49);
+  --danger-hover-color: rgb(179, 26, 26);
+  --danger-disabled-color: rgb(203, 113, 113);
+  --primary-muted-color: #b9dfe2;
+}
+.colors {
+  height: 100px;
+  justify-content: space-between;
+  align-items: stretch;
+}
+.colors div {
+  flex-grow: 1;
+}
+.colors .primary {
+  background-color: var(--primary-color);
+}
+.colors .secondary {
+  background-color: var(--secondary-color);
+}
+.colors .tertiary {
+  background-color: var(--tertiary-color);
+}
+.colors .dark {
+  background-color: var(--dark);
+}
+.colors .darker {
+  background-color: var(--darker);
+}
+.colors .dark-alt {
+  background-color: var(--dark-alt);
+}
+.colors .light {
+  background-color: var(--light);
+}
+.colors .lighter {
+  background-color: var(--lighter);
+}
+.audit {
+  height: calc(100vh - 140px);
+}
+.audit-body {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  height: 100%;
+}
+#divLoading {
+  color: lightgray;
+  padding: 0.2rem 0;
+}
+.audit-body .quick-info-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: sticky;
+  top: 0;
+  width: 4rem;
+  transition: width 0.6s ease-in-out;
+  color: white;
+}
+.audit-body .quick-info-container.active {
+  min-width: 356px;
+  width: 356px;
+  max-width: 356px;
+}
+.audit-body .quick-info-container .quick-info-toolbar {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-dark-secondary-color);
+  align-items: stretch;
+}
+.audit-body .quick-info-container.active .quick-info-toolbar button {
+  text-align: start;
+  direction: rtl;
+  padding: 0 1.5rem;
+}
+.audit-body .quick-info {
+  background-color: var(--bg-dark-color);
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  flex-grow: 1;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  gap: 0.75rem;
+  padding: 0 0.5rem 0 0.5rem;
+}
+.audit-body .quick-info-container.active .quick-info {
+  display: flex;
+}
+.audit-body .quick-info .status-set-container {
+  color: white;
+  background-color: #2a3c48;
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+.audit-body .quick-info details summary {
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.audit-body .quick-info details summary:hover {
+  text-decoration: underline;
+}
+.audit-body .quick-info a {
+  color: var(--primary-muted-color);
+}
+.audit-body .reports-container {
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+.audit-body .quick-links {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: fit-content;
+  align-items: start;
+  padding: 0.75rem;
+  border: 1px solid var(--secondary-color);
+}
+.audit-body .quick-links a {
+  font-weight: bold;
+  color: var(--text-primary);
+}
+.audit-body .quick-links a:hover {
+  color: var(--primary-color);
+}
+.audit-body .quick-links.secondary {
+  font-weight: 500;
+  border: none;
+  padding: 0.25rem 0 0.15rem 0;
+  flex-direction: row;
+  font-size: 1rem;
+}
+.ui-tabs-nav {
+  display: flex;
+  gap: 0.25rem;
+  color: white;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ui-tabs-nav li {
+  text-decoration: none;
+  background-color: var(--secondary-color);
+  padding: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.ui-tabs-secondary .ui-tabs-nav li {
+  border: 1px solid var(--secondary-color);
+  background-color: transparent;
+  color: var(--secondary-color);
+  padding: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+.ui-tabs-nav li.active {
+  text-decoration: none;
+  background-color: var(--primary-color);
+}
+.ui-tabs-secondary .ui-tabs-nav li.active {
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  background-color: transparent;
+}
+.ui-tab-panel {
+  display: none;
+  padding-top: 0.25rem;
+}
+.ui-tab-panel.active {
+  display: revert;
+}
+.audit-form {
+  padding: 1.5rem;
+  background-color: var(--bg-light-color);
+}
+.audit-form.bg-dark {
+  color: white;
+  background-color: var(--bg-dark-color);
+}
+.audit-form .form-header {
+  width: 100%;
+  margin: 0.35rem 0 0.25rem 0;
+  display: flex;
+  justify-content: space-between;
+}
+.audit-form .form-title {
+  font-size: 1.1rem;
+  margin: 0;
+  color: inherit;
+}
+.audit-form .form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.audit-form .form-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+}
+.audit-form .form-fields.two-wide {
+  max-width: 550px;
+}
+.audit-form .form-fields.two-wide .form-field-component {
+  width: 45%;
+}
+.audit-form .form-actions {
+  display: flex;
+  justify-content: end;
+  gap: 1rem;
+  padding: 2rem 0;
+}
+.audit-form .form-field-component {
+  max-width: 300px;
+  min-width: 200px;
+  flex: 1 0;
+}
+.audit-form.bg-dark .btn-link {
+  color: var(--primary-muted-color);
+}
+.audit-form dl {
+  flex: 1 0;
+  padding: 0 1.5rem 0 0;
+}
+.audit-form dt {
+  font-weight: 300;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+.audit-form dd {
+  font-weight: 500;
+  margin-inline-start: 0;
+  padding-block-end: 0.75rem;
+}
+.audit .emphasized-section {
+  background-color: var(--bg-very-light-color);
+  color: var(--primary-color);
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: 6px;
+  border-color: var(--primary-color);
+  padding: 0.5rem;
+}
+.audit .bg-dark .emphasized-section {
+  background-color: var(--bg-dark-secondary-color);
+}
+.audit .emphasized-section .btn-link {
+}
+.audit .form-field-component .form-control {
+  width: 100%;
+}
+.audit .form-field-component .form-select {
+  width: 100%;
+}
+.audit .form-field-component .sp-peoplepicker-topLevel {
+  width: 100%;
+  display: block;
+  background-color: white;
+  color: var(--text-primary);
+  border: none;
+  border-radius: 4px;
+  padding: 4px;
+  font-size: 1rem;
+}
+.audit .richtext-field .ql-toolbar {
+  background-color: var(--bg-very-light-color);
+}
+.audit .richtext-field .ql-toolbar button {
+  min-width: 0;
+}
+.audit .tasks.blocking {
+  position: fixed;
+  top: 85px;
+  height: 100vh;
+}
+.audit .tasks.running {
+  position: fixed;
+  bottom: 0.2rem;
+  right: 1.75rem;
+  z-index: 10;
+  background-color: color-mix(in srgb, var(--bg-very-light-color) 70%, transparent);
+  border-radius: 0.6rem;
+}
+.audit .tasks ul {
+  list-style: none;
+  font-size: 1rem;
+  margin: 0;
+  padding: 1.5rem;
+}
+.audit .dimmer {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  color: var(--primary-muted-color);
+  background-color: #1d2b36e3;
+}
+.audit .dimmer.active {
+  display: flex;
+}
+.audit .loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid var(--primary-muted-color);
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+.audit .small.loader {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 3px;
+}
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.audit .card {
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+}
+.audit .card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+}
+.audit .card .card-title {
+  color: inherit;
+  margin: 0;
+}
+.audit .card .card-body {
+  padding: 0.5rem 1.5rem;
+  overflow: auto;
+}
+.audit .card .card-body > div {
+  padding: 0;
+}
+.audit .card .card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: auto;
+  padding: 0.5rem 1.5rem 1.5rem 1.5rem;
+}
+.audit .card .card-actions button {
+}
+.audit .alert {
+  border-radius: 6px;
+}
+.audit .alert-warning {
+  background-color: var(--warn-color);
+  color: var(--warn-hover-color);
+}
+.audit .modal-dialog {
+  display: none;
+  position: absolute;
+  z-index: 15;
+  width: 615px;
+  min-width: 400px;
+  max-height: 85vh;
+  padding: 0;
+  margin: 0;
+  top: 125px;
+  resize: both;
+}
+.audit .modal-dialog.active {
+  display: flex;
+}
+.audit .modal-dialog .card-body {
+  flex-grow: 1;
+}
+.audit .modal-dialog iframe {
+  width: 100%;
+  height: calc(100% - 1rem);
+}
+.audit fieldset {
+  margin-bottom: 10px;
+  border-width: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 10px;
+}
+.audit legend {
+  color: var(--primary-color);
+  font-weight: 700;
+  padding-bottom: 5px;
+  background-color: inherit;
+  border-radius: 0.5rem;
+  padding: 0 4px;
+}
+.audit .colorRedLegend {
+  border: 1px solid red !important;
+}
+.audit table.tablesorter.report {
+  margin-top: 0;
+}
+.audit .tablesorter.report thead {
+  position: sticky;
+  top: 0;
+}
+.audit .tablesorter tbody {
+}
+.audit .tablesorter tbody td {
+  text-align: left;
+  padding-left: 5px;
+  padding-right: 5px;
+  background-color: transparent;
+}
+.audit .tablesorter tfoot th,
+.audit .tablesorter thead th {
+  text-align: left;
+}
+.audit .tablesorter thead th {
+  color: white;
+  background-color: #374955;
+  padding: 0.5rem;
+  vertical-align: middle;
+}
+.audit .tablesorter thead th:nth-of-type(even) {
+  background-color: #2a3c48;
+}
+.audit .tablesorter thead .rowFilters th {
+  color: white;
+  background-color: var(--primary-muted-color);
+  align-content: end;
+}
+.audit .tablesorter thead .rowFilters th.filter {
+  background-color: var(--primary-color);
+}
+.audit table.tablesorter thead th.sorter-true {
+  position: relative;
+  cursor: pointer;
+  padding-right: 1.5rem;
+}
+.audit .tablesorter th.sorter-true i[class*=fa-sort] {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(-100%, -50%);
+}
+.audit .sorter-true.asc,
+.audit .sorter-true.desc {
+  border-bottom: var(--primary-color) 2px solid;
+}
+.audit table.tablesorter tbody td:hover {
+}
+.audit table .rowFilters .filter-date-range .filter-inputs.active {
+  display: flex;
+}
+.audit table .rowFilters .filter-date-range .filter-inputs {
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+}
+.audit table .rowFilters .filter-date-range {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  font-weight: normal;
+  color: var(--text-primary);
+}
+.audit table .rowFilters .filter-date-range label {
+  display: flex;
+  justify-content: end;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+.audit table .rowFilters .filter-date-range button {
+  align-self: end;
+}
+.audit #tblRequests tbody tr:hover {
+  background-color: lemonchiffon !important;
+}
+.audit .request-detail-view {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap-reverse;
+  align-items: start;
+}
+.audit #divRequestInfoContainer {
+  position: sticky;
+  top: 0;
+}
+.audit .request-info-form {
+  max-width: 600px;
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+}
+.audit .request-detail-view .request-detail-documents {
+  min-width: 860px;
+  background-color: white;
+}
+.audit .response-detail-view {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap-reverse;
+}
+.audit .response-detail-view .response-info-form {
+  max-width: 600px;
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+}
+.audit .response-detail-view .response-info-form {
+  max-width: 600px;
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+}
+.audit .response-detail-view .response-detail-documents {
+  min-width: 860px;
+  background-color: white;
+}
+.audit #tblCoverSheets tbody td {
+  width: 300px;
+}
+.audit table.tablesorter thead tr .header {
+  background-position: left center;
+  padding-left: 20px;
+}
+.audit \200b.request {
+  background-color: lightblue;
+  font-weight: bold;
+}
+.audit .response-header {
+  font-weight: bold;
+}
+.audit .request-subject {
+  text-align: left !important;
+}
+.audit .coversheet-header {
+  background-color: lightyellow;
+  font-weight: bold;
+}
+.response-header-title,
+.response-title,
+.response-returnReason,
+.response-header-action,
+.response-documents {
+  white-space: nowrap;
+}
+.response-action,
+.response-doc-action,
+.coversheet-action,
+.request-action {
+  white-space: nowrap;
+  text-align: left !important;
+}
+.response-title,
+.response-action,
+.response-sample,
+.response-returnReason,
+.response-documents,
+.response-documents span {
+}
+.audit .response-resStatus {
+  white-space: nowrap;
+}
+.audit .response-permissions {
+  white-space: nowrap;
+}
+.audit .requestInfo-response-doc {
+  background-color: lightsteelblue;
+}
+.requestInfo-response-doc,
+.requestInfo-response-doc-title,
+.requestInfo-response-doc-modified,
+.requestInfo-response-doc-modifiedBy {
+  white-space: nowrap;
+}
+.requestInfo-response-doc-title {
+  padding-left: 30px;
+}
+.requestInfo-response-doc img {
+  padding-right: 3px;
+}
+.requestInfo-response-doc img:hover {
+  cursor: pointer;
+}
+.sr2-response-modified,
+.sr-response-modified {
+  white-space: nowrap;
+}
+.response-item {
+}
+.request-number,
+.request-subject {
+  white-space: nowrap;
+}
+.coversheet-header-title,
+.coversheet-title {
+  text-align: left !important;
+}
+.audit .collapsed {
+  display: none;
+}
+.audit .auditAlert {
+  font-size: 11pt;
+  font-weight: bold;
+  color: green;
+  border: 1px solid lightgray;
+  margin-bottom: 20px;
+}
+.audit .auditAlert div {
+  font-size: 9pt;
+  font-weight: normal;
+  padding-top: 5px;
+}
+.audit .sr1-request-item .almost-due {
+  background-color: coral;
+  font-weight: bold;
+}
+.audit .sr1-request-item .past-due {
+  background-color: salmon;
+  font-weight: bold;
+}
+label.file-upload-field .dropzone {
+  color: gray;
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 1.5rem;
+  border: 2px dashed lightgray;
+}
+label.file-upload-field.dragging .dropzone {
+  border: 2px dashed gray;
+}
+.ms-formbody {
+  background-color: #eeeef1;
+}
+.ms-formlabel {
+  background-color: #eeeef1;
+  color: black;
+}
+.hiddenRow {
+  display: none;
+  font-weight: bold;
+  padding-bottom: 5px;
+  width: 800px;
+  text-align: center;
+}
+.tablesorter {
+  border-collapse: collapse !important;
+}
+.tablesorter th {
+  border: 1px DarkGray solid;
+  border-left: none;
+  border-right: none;
+  background-color: Gainsboro;
+}
+table.tablesorter td {
+  border: 1px DarkGray solid;
+  border-left: none;
+  border-right: none;
+  vertical-align: top;
+  vertical-align: top;
+}
+table.tablesorter tr {
+  border: 1px DarkGray solid;
+}
+table.tablesorter input {
+}
+#tblCommitStatus td span {
+  display: flex;
+}
+#tblCommitStatus td span > * {
+  padding-right: 3px;
+}
+.report tfoot th {
+  text-align: left;
+}
+table.tablesorter tbody td:hover {
+}
+table.tablesorter tbody tr:hover {
+}
+TABLE.tablesorter THEAD TR .header {
+  padding-right: 10px !important;
+}
+.request-item {
+  display: none;
+  white-space: nowrap;
+}
+.request-item:hover {
+  background-color: var(--primary-muted-color) !important;
+}
+#tblResponses tr:hover {
+  background-color: var(--primary-muted-color) !important;
+}
+.clear {
+  overflow: hidden;
+  width: 100%;
+}
+.ui-icon {
+  overflow: hidden;
+  text-indent: -9999px;
+  margin-bottom: 2px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  display: inline-block !important;
+  white-space: normal !important;
+  vertical-align: middle !important;
+}
+.filteredMsg {
+  color: green;
+  font-weight: bold;
+}
+.unhighlighted {
+  background-color: white !important;
+}
+.highlighted {
+  background-color: lightyellow !important;
+}
+.Upcoming {
+  background-color: LightGreen;
+}
+.Canceled {
+  background-color: PeachPuff;
+}
+.Completed {
+  background-color: Gainsboro;
+}
+.hidden {
+  display: none !important;
+}
+.button {
+  color: white !important;
+  display: inline-block;
+  zoom: 1;
+  vertical-align: baseline;
+  margin: 0 2px;
+  outline: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  font:
+    14px/100% Arial,
+    Helvetica,
+    sans-serif;
+  padding: 0.5em 2em 0.55em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  -webkit-border-radius: 0.5em;
+  -moz-border-radius: 0.5em;
+  border-radius: 0.5em;
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.button:hover {
+  text-decoration: none;
+}
+.button:active {
+  position: relative;
+  top: 1px;
+}
+.btn {
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  border: none;
+  margin-left: 0;
+}
+.btn[disabled] {
+  cursor: not-allowed;
+  color: white;
+}
+.btn.btn-toolbar {
+  min-width: 4rem;
+  height: 4rem;
+  border-radius: 0;
+  background-color: var(--bg-dark-color);
+  padding: 0;
+}
+.btn.btn-toolbar:hover {
+  background-color: var(--bg-dark-secondary-color);
+}
+.btn.btn-link {
+  color: var(--text-primary);
+  border: none;
+  font-weight: inherit;
+  background-color: inherit;
+  padding: 0;
+  min-width: 0;
+  vertical-align: inherit;
+  font-size: inherit;
+}
+.btn.btn-link:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+.btn.btn-success {
+  background-color: var(--success-color);
+}
+.btn.btn-success:hover {
+  background-color: var(--success-hover-color);
+}
+.btn.btn-success[disabled] {
+  background-color: var(--success-hover-color);
+}
+.btn.btn-primary {
+  background-color: var(--primary-color);
+}
+.btn.btn-primary:hover {
+  background-color: var(--primary-muted-color);
+}
+.btn.btn-primary[disabled] {
+  background-color: var(--primary-muted-color);
+}
+.btn.btn-warn {
+  background-color: var(--warn-color);
+}
+.btn.btn-warn:hover {
+  background-color: var(--warn-hover-color);
+}
+.btn.btn-warn[disabled] {
+  background-color: var(--warn-hover-color);
+}
+.btn.btn-danger {
+  background-color: var(--danger-color);
+}
+.btn.btn-danger:hover {
+  background-color: var(--danger-hover-color);
+}
+.btn.btn-danger[disabled] {
+  background-color: var(--danger-disabled-color);
+}
+.form-control,
+.form-check-input,
+.form-control,
+.form-select {
+  display: block;
+  background-color: white;
+  color: var(--text-primary);
+  border: none;
+  border-radius: 4px;
+  padding: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.pointer {
+  cursor: pointer;
+}
+.white {
+  color: white !important;
+}
+.primary {
+  color: var(--primary-color) !important;
+}
+.primary-muted {
+  color: var(--primary-muted-color) !important;
+}
+.secondary {
+  color: var(--secondary-color) !important;
+}
+.success {
+  color: var(--success-color) !important;
+}
+.warn {
+  color: var(--warn-color) !important;
+}
+.danger {
+  color: var(--danger-color) !important;
+}
+.text-danger {
+  color: var(--primary-color) !important;
+}
+.bg-dark {
+  background-color: var(--bg-dark-color);
+  color: white;
+}
+.bg-dark-secondary {
+  background-color: var(--bg-dark-secondary-color);
+  color: white;
+}
+.bg-danger {
+  background-color: color-mix(in srgb, var(--danger-color) 25%, transparent);
+}
+.bg-flash {
+  animation: flash 1s ease-in-out;
+}
+@keyframes flash {
+  0% {
+    opacity: 1;
+    filter: brightness(1.5);
+  }
+  30% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.audit .flex {
+  display: flex;
+}
+.vertical {
+  flex-direction: column;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-center {
+  justify-content: center;
+}
+.position-fixed {
+  position: fixed;
+}
+.bigrounded {
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  border-radius: 2em;
+}
+.medium {
+  font-size: 12px;
+  padding: 0.4em 1.5em 0.42em;
+}
+.small {
+  font-size: 0.75rem;
+  padding: 0.1rem 0.3rem;
+}
+.fst-italic {
+  font-style: italic;
+}
+.fw-lighter {
+  font-weight: 300;
+}
+.fw-light {
+  font-weight: 400;
+}
+.fw-semibold {
+  font-weight: 600 !important;
+}
+.fw-bold {
+  font-weight: bold !important;
+}
+.uppercase {
+  text-transform: uppercase;
+}
+.w-fit {
+  width: fit-content;
+}
+.w-full,
+.w-100 {
+  width: 100%;
+}
+.min-w-full {
+  min-width: 100% !important;
+}
+.h-1 {
+  height: 1rem;
+}
+.vh-100 {
+  height: 100vh;
+}
+.commentChain {
+  margin-top: 0.5rem;
+  color: var(--primary-color);
+}
+.commentChain .comment {
+  margin-bottom: 1rem;
+}
+.commentChain .comment .text {
+  font-size: 1rem;
+  color: var(--secondary-color);
+  padding-bottom: 0.4em;
+}
+.commentChain .comment .info {
+  font-size: 0.75rem;
+  font-style: italic;
+}
+.commentChain .comment .remove {
+  cursor: pointer;
+}
+.commentChain .new-comment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+.active-viewer {
+  display: flex;
+  align-items: center;
+}
+.draggable {
+  position: absolute;
+}
+.draggable .grabber {
+  cursor: move;
+}
+.s4-noti-in2 {
+  background: none;
+  background-color: yellow;
+}
+@media print {
+  a {
+    text-decoration: none;
+  }
+  body {
+    font-family: Arial;
+  }
+  tfoot {
+    display: table-footer-group;
+  }
+  thead {
+    display: table-header-group;
+  }
+  #s4-ribbonrow {
+    display: none;
+  }
+  #s4-titlerow {
+    display: none !important;
+  }
+  .s4-title {
+    display: none;
+  }
+  .hideOnPrint {
+    display: none;
+  }
+}
+
+/* node_modules/quill/dist/quill.snow.css */
+.ql-container {
+  box-sizing: border-box;
+  font-family:
+    Helvetica,
+    Arial,
+    sans-serif;
+  font-size: 13px;
+  height: 100%;
+  margin: 0;
+  position: relative;
+}
+.ql-container.ql-disabled .ql-tooltip {
+  visibility: hidden;
+}
+.ql-container:not(.ql-disabled) li[data-list=checked] > .ql-ui,
+.ql-container:not(.ql-disabled) li[data-list=unchecked] > .ql-ui {
+  cursor: pointer;
+}
+.ql-clipboard {
+  left: -100000px;
+  height: 1px;
+  overflow-y: hidden;
+  position: absolute;
+  top: 50%;
+}
+.ql-clipboard p {
+  margin: 0;
+  padding: 0;
+}
+.ql-editor {
+  box-sizing: border-box;
+  counter-reset: list-0 list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  line-height: 1.42;
+  height: 100%;
+  outline: none;
+  overflow-y: auto;
+  padding: 12px 15px;
+  tab-size: 4;
+  -moz-tab-size: 4;
+  text-align: left;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.ql-editor > * {
+  cursor: text;
+}
+.ql-editor p,
+.ql-editor ol,
+.ql-editor pre,
+.ql-editor blockquote,
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6 {
+  margin: 0;
+  padding: 0;
+}
+@supports (counter-set:none) {
+  .ql-editor p,
+  .ql-editor h1,
+  .ql-editor h2,
+  .ql-editor h3,
+  .ql-editor h4,
+  .ql-editor h5,
+  .ql-editor h6 {
+    counter-set: list-0 list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  }
+}
+@supports not (counter-set:none) {
+  .ql-editor p,
+  .ql-editor h1,
+  .ql-editor h2,
+  .ql-editor h3,
+  .ql-editor h4,
+  .ql-editor h5,
+  .ql-editor h6 {
+    counter-reset: list-0 list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  }
+}
+.ql-editor table {
+  border-collapse: collapse;
+}
+.ql-editor td {
+  border: 1px solid #000;
+  padding: 2px 5px;
+}
+.ql-editor ol {
+  padding-left: 1.5em;
+}
+.ql-editor li {
+  list-style-type: none;
+  padding-left: 1.5em;
+  position: relative;
+}
+.ql-editor li > .ql-ui:before {
+  display: inline-block;
+  margin-left: -1.5em;
+  margin-right: .3em;
+  text-align: right;
+  white-space: nowrap;
+  width: 1.2em;
+}
+.ql-editor li[data-list=checked] > .ql-ui,
+.ql-editor li[data-list=unchecked] > .ql-ui {
+  color: #777;
+}
+.ql-editor li[data-list=bullet] > .ql-ui:before {
+  content: "\2022";
+}
+.ql-editor li[data-list=checked] > .ql-ui:before {
+  content: "\2611";
+}
+.ql-editor li[data-list=unchecked] > .ql-ui:before {
+  content: "\2610";
+}
+@supports (counter-set:none) {
+  .ql-editor li[data-list] {
+    counter-set: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  }
+}
+@supports not (counter-set:none) {
+  .ql-editor li[data-list] {
+    counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  }
+}
+.ql-editor li[data-list=ordered] {
+  counter-increment: list-0;
+}
+.ql-editor li[data-list=ordered] > .ql-ui:before {
+  content: counter(list-0, decimal) ". ";
+}
+.ql-editor li[data-list=ordered].ql-indent-1 {
+  counter-increment: list-1;
+}
+.ql-editor li[data-list=ordered].ql-indent-1 > .ql-ui:before {
+  content: counter(list-1, lower-alpha) ". ";
+}
+@supports (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-1 {
+    counter-set: list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  }
+}
+@supports not (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-1 {
+    counter-reset: list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  }
+}
+.ql-editor li[data-list=ordered].ql-indent-2 {
+  counter-increment: list-2;
+}
+.ql-editor li[data-list=ordered].ql-indent-2 > .ql-ui:before {
+  content: counter(list-2, lower-roman) ". ";
+}
+@supports (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-2 {
+    counter-set: list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  }
+}
+@supports not (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-2 {
+    counter-reset: list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  }
+}
+.ql-editor li[data-list=ordered].ql-indent-3 {
+  counter-increment: list-3;
+}
+.ql-editor li[data-list=ordered].ql-indent-3 > .ql-ui:before {
+  content: counter(list-3, decimal) ". ";
+}
+@supports (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-3 {
+    counter-set: list-4 list-5 list-6 list-7 list-8 list-9;
+  }
+}
+@supports not (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-3 {
+    counter-reset: list-4 list-5 list-6 list-7 list-8 list-9;
+  }
+}
+.ql-editor li[data-list=ordered].ql-indent-4 {
+  counter-increment: list-4;
+}
+.ql-editor li[data-list=ordered].ql-indent-4 > .ql-ui:before {
+  content: counter(list-4, lower-alpha) ". ";
+}
+@supports (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-4 {
+    counter-set: list-5 list-6 list-7 list-8 list-9;
+  }
+}
+@supports not (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-4 {
+    counter-reset: list-5 list-6 list-7 list-8 list-9;
+  }
+}
+.ql-editor li[data-list=ordered].ql-indent-5 {
+  counter-increment: list-5;
+}
+.ql-editor li[data-list=ordered].ql-indent-5 > .ql-ui:before {
+  content: counter(list-5, lower-roman) ". ";
+}
+@supports (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-5 {
+    counter-set: list-6 list-7 list-8 list-9;
+  }
+}
+@supports not (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-5 {
+    counter-reset: list-6 list-7 list-8 list-9;
+  }
+}
+.ql-editor li[data-list=ordered].ql-indent-6 {
+  counter-increment: list-6;
+}
+.ql-editor li[data-list=ordered].ql-indent-6 > .ql-ui:before {
+  content: counter(list-6, decimal) ". ";
+}
+@supports (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-6 {
+    counter-set: list-7 list-8 list-9;
+  }
+}
+@supports not (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-6 {
+    counter-reset: list-7 list-8 list-9;
+  }
+}
+.ql-editor li[data-list=ordered].ql-indent-7 {
+  counter-increment: list-7;
+}
+.ql-editor li[data-list=ordered].ql-indent-7 > .ql-ui:before {
+  content: counter(list-7, lower-alpha) ". ";
+}
+@supports (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-7 {
+    counter-set: list-8 list-9;
+  }
+}
+@supports not (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-7 {
+    counter-reset: list-8 list-9;
+  }
+}
+.ql-editor li[data-list=ordered].ql-indent-8 {
+  counter-increment: list-8;
+}
+.ql-editor li[data-list=ordered].ql-indent-8 > .ql-ui:before {
+  content: counter(list-8, lower-roman) ". ";
+}
+@supports (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-8 {
+    counter-set: list-9;
+  }
+}
+@supports not (counter-set:none) {
+  .ql-editor li[data-list].ql-indent-8 {
+    counter-reset: list-9;
+  }
+}
+.ql-editor li[data-list=ordered].ql-indent-9 {
+  counter-increment: list-9;
+}
+.ql-editor li[data-list=ordered].ql-indent-9 > .ql-ui:before {
+  content: counter(list-9, decimal) ". ";
+}
+.ql-editor .ql-indent-1:not(.ql-direction-rtl) {
+  padding-left: 3em;
+}
+.ql-editor li.ql-indent-1:not(.ql-direction-rtl) {
+  padding-left: 4.5em;
+}
+.ql-editor .ql-indent-1.ql-direction-rtl.ql-align-right {
+  padding-right: 3em;
+}
+.ql-editor li.ql-indent-1.ql-direction-rtl.ql-align-right {
+  padding-right: 4.5em;
+}
+.ql-editor .ql-indent-2:not(.ql-direction-rtl) {
+  padding-left: 6em;
+}
+.ql-editor li.ql-indent-2:not(.ql-direction-rtl) {
+  padding-left: 7.5em;
+}
+.ql-editor .ql-indent-2.ql-direction-rtl.ql-align-right {
+  padding-right: 6em;
+}
+.ql-editor li.ql-indent-2.ql-direction-rtl.ql-align-right {
+  padding-right: 7.5em;
+}
+.ql-editor .ql-indent-3:not(.ql-direction-rtl) {
+  padding-left: 9em;
+}
+.ql-editor li.ql-indent-3:not(.ql-direction-rtl) {
+  padding-left: 10.5em;
+}
+.ql-editor .ql-indent-3.ql-direction-rtl.ql-align-right {
+  padding-right: 9em;
+}
+.ql-editor li.ql-indent-3.ql-direction-rtl.ql-align-right {
+  padding-right: 10.5em;
+}
+.ql-editor .ql-indent-4:not(.ql-direction-rtl) {
+  padding-left: 12em;
+}
+.ql-editor li.ql-indent-4:not(.ql-direction-rtl) {
+  padding-left: 13.5em;
+}
+.ql-editor .ql-indent-4.ql-direction-rtl.ql-align-right {
+  padding-right: 12em;
+}
+.ql-editor li.ql-indent-4.ql-direction-rtl.ql-align-right {
+  padding-right: 13.5em;
+}
+.ql-editor .ql-indent-5:not(.ql-direction-rtl) {
+  padding-left: 15em;
+}
+.ql-editor li.ql-indent-5:not(.ql-direction-rtl) {
+  padding-left: 16.5em;
+}
+.ql-editor .ql-indent-5.ql-direction-rtl.ql-align-right {
+  padding-right: 15em;
+}
+.ql-editor li.ql-indent-5.ql-direction-rtl.ql-align-right {
+  padding-right: 16.5em;
+}
+.ql-editor .ql-indent-6:not(.ql-direction-rtl) {
+  padding-left: 18em;
+}
+.ql-editor li.ql-indent-6:not(.ql-direction-rtl) {
+  padding-left: 19.5em;
+}
+.ql-editor .ql-indent-6.ql-direction-rtl.ql-align-right {
+  padding-right: 18em;
+}
+.ql-editor li.ql-indent-6.ql-direction-rtl.ql-align-right {
+  padding-right: 19.5em;
+}
+.ql-editor .ql-indent-7:not(.ql-direction-rtl) {
+  padding-left: 21em;
+}
+.ql-editor li.ql-indent-7:not(.ql-direction-rtl) {
+  padding-left: 22.5em;
+}
+.ql-editor .ql-indent-7.ql-direction-rtl.ql-align-right {
+  padding-right: 21em;
+}
+.ql-editor li.ql-indent-7.ql-direction-rtl.ql-align-right {
+  padding-right: 22.5em;
+}
+.ql-editor .ql-indent-8:not(.ql-direction-rtl) {
+  padding-left: 24em;
+}
+.ql-editor li.ql-indent-8:not(.ql-direction-rtl) {
+  padding-left: 25.5em;
+}
+.ql-editor .ql-indent-8.ql-direction-rtl.ql-align-right {
+  padding-right: 24em;
+}
+.ql-editor li.ql-indent-8.ql-direction-rtl.ql-align-right {
+  padding-right: 25.5em;
+}
+.ql-editor .ql-indent-9:not(.ql-direction-rtl) {
+  padding-left: 27em;
+}
+.ql-editor li.ql-indent-9:not(.ql-direction-rtl) {
+  padding-left: 28.5em;
+}
+.ql-editor .ql-indent-9.ql-direction-rtl.ql-align-right {
+  padding-right: 27em;
+}
+.ql-editor li.ql-indent-9.ql-direction-rtl.ql-align-right {
+  padding-right: 28.5em;
+}
+.ql-editor li.ql-direction-rtl {
+  padding-right: 1.5em;
+}
+.ql-editor li.ql-direction-rtl > .ql-ui:before {
+  margin-left: .3em;
+  margin-right: -1.5em;
+  text-align: left;
+}
+.ql-editor table {
+  table-layout: fixed;
+  width: 100%;
+}
+.ql-editor table td {
+  outline: none;
+}
+.ql-editor .ql-code-block-container {
+  font-family: monospace;
+}
+.ql-editor .ql-video {
+  display: block;
+  max-width: 100%;
+}
+.ql-editor .ql-video.ql-align-center {
+  margin: 0 auto;
+}
+.ql-editor .ql-video.ql-align-right {
+  margin: 0 0 0 auto;
+}
+.ql-editor .ql-bg-black {
+  background-color: #000;
+}
+.ql-editor .ql-bg-red {
+  background-color: #e60000;
+}
+.ql-editor .ql-bg-orange {
+  background-color: #f90;
+}
+.ql-editor .ql-bg-yellow {
+  background-color: #ff0;
+}
+.ql-editor .ql-bg-green {
+  background-color: #008a00;
+}
+.ql-editor .ql-bg-blue {
+  background-color: #06c;
+}
+.ql-editor .ql-bg-purple {
+  background-color: #93f;
+}
+.ql-editor .ql-color-white {
+  color: #fff;
+}
+.ql-editor .ql-color-red {
+  color: #e60000;
+}
+.ql-editor .ql-color-orange {
+  color: #f90;
+}
+.ql-editor .ql-color-yellow {
+  color: #ff0;
+}
+.ql-editor .ql-color-green {
+  color: #008a00;
+}
+.ql-editor .ql-color-blue {
+  color: #06c;
+}
+.ql-editor .ql-color-purple {
+  color: #93f;
+}
+.ql-editor .ql-font-serif {
+  font-family:
+    Georgia,
+    Times New Roman,
+    serif;
+}
+.ql-editor .ql-font-monospace {
+  font-family:
+    Monaco,
+    Courier New,
+    monospace;
+}
+.ql-editor .ql-size-small {
+  font-size: .75em;
+}
+.ql-editor .ql-size-large {
+  font-size: 1.5em;
+}
+.ql-editor .ql-size-huge {
+  font-size: 2.5em;
+}
+.ql-editor .ql-direction-rtl {
+  direction: rtl;
+  text-align: inherit;
+}
+.ql-editor .ql-align-center {
+  text-align: center;
+}
+.ql-editor .ql-align-justify {
+  text-align: justify;
+}
+.ql-editor .ql-align-right {
+  text-align: right;
+}
+.ql-editor .ql-ui {
+  position: absolute;
+}
+.ql-editor.ql-blank::before {
+  color: rgba(0, 0, 0, 0.6);
+  content: attr(data-placeholder);
+  font-style: italic;
+  left: 15px;
+  pointer-events: none;
+  position: absolute;
+  right: 15px;
+}
+.ql-snow.ql-toolbar:after,
+.ql-snow .ql-toolbar:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+.ql-snow.ql-toolbar button,
+.ql-snow .ql-toolbar button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+  float: left;
+  height: 24px;
+  padding: 3px 5px;
+  width: 28px;
+}
+.ql-snow.ql-toolbar button svg,
+.ql-snow .ql-toolbar button svg {
+  float: left;
+  height: 100%;
+}
+.ql-snow.ql-toolbar button:active:hover,
+.ql-snow .ql-toolbar button:active:hover {
+  outline: none;
+}
+.ql-snow.ql-toolbar input.ql-image[type=file],
+.ql-snow .ql-toolbar input.ql-image[type=file] {
+  display: none;
+}
+.ql-snow.ql-toolbar button:hover,
+.ql-snow .ql-toolbar button:hover,
+.ql-snow.ql-toolbar button:focus,
+.ql-snow .ql-toolbar button:focus,
+.ql-snow.ql-toolbar button.ql-active,
+.ql-snow .ql-toolbar button.ql-active,
+.ql-snow.ql-toolbar .ql-picker-label:hover,
+.ql-snow .ql-toolbar .ql-picker-label:hover,
+.ql-snow.ql-toolbar .ql-picker-label.ql-active,
+.ql-snow .ql-toolbar .ql-picker-label.ql-active,
+.ql-snow.ql-toolbar .ql-picker-item:hover,
+.ql-snow .ql-toolbar .ql-picker-item:hover,
+.ql-snow.ql-toolbar .ql-picker-item.ql-selected,
+.ql-snow .ql-toolbar .ql-picker-item.ql-selected {
+  color: #06c;
+}
+.ql-snow.ql-toolbar button:hover .ql-fill,
+.ql-snow .ql-toolbar button:hover .ql-fill,
+.ql-snow.ql-toolbar button:focus .ql-fill,
+.ql-snow .ql-toolbar button:focus .ql-fill,
+.ql-snow.ql-toolbar button.ql-active .ql-fill,
+.ql-snow .ql-toolbar button.ql-active .ql-fill,
+.ql-snow.ql-toolbar .ql-picker-label:hover .ql-fill,
+.ql-snow .ql-toolbar .ql-picker-label:hover .ql-fill,
+.ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-fill,
+.ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-fill,
+.ql-snow.ql-toolbar .ql-picker-item:hover .ql-fill,
+.ql-snow .ql-toolbar .ql-picker-item:hover .ql-fill,
+.ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-fill,
+.ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-fill,
+.ql-snow.ql-toolbar button:hover .ql-stroke.ql-fill,
+.ql-snow .ql-toolbar button:hover .ql-stroke.ql-fill,
+.ql-snow.ql-toolbar button:focus .ql-stroke.ql-fill,
+.ql-snow .ql-toolbar button:focus .ql-stroke.ql-fill,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke.ql-fill,
+.ql-snow .ql-toolbar button.ql-active .ql-stroke.ql-fill,
+.ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke.ql-fill,
+.ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke.ql-fill,
+.ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill,
+.ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill,
+.ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill,
+.ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill,
+.ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill,
+.ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill {
+  fill: #06c;
+}
+.ql-snow.ql-toolbar button:hover .ql-stroke,
+.ql-snow .ql-toolbar button:hover .ql-stroke,
+.ql-snow.ql-toolbar button:focus .ql-stroke,
+.ql-snow .ql-toolbar button:focus .ql-stroke,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.ql-snow .ql-toolbar button.ql-active .ql-stroke,
+.ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke,
+.ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke,
+.ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+.ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+.ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke,
+.ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke,
+.ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke,
+.ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke,
+.ql-snow.ql-toolbar button:hover .ql-stroke-miter,
+.ql-snow .ql-toolbar button:hover .ql-stroke-miter,
+.ql-snow.ql-toolbar button:focus .ql-stroke-miter,
+.ql-snow .ql-toolbar button:focus .ql-stroke-miter,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke-miter,
+.ql-snow .ql-toolbar button.ql-active .ql-stroke-miter,
+.ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke-miter,
+.ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke-miter,
+.ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter,
+.ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter,
+.ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke-miter,
+.ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke-miter,
+.ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter,
+.ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter {
+  stroke: #06c;
+}
+@media (pointer:coarse) {
+  .ql-snow.ql-toolbar button:hover:not(.ql-active),
+  .ql-snow .ql-toolbar button:hover:not(.ql-active) {
+    color: #444;
+  }
+  .ql-snow.ql-toolbar button:hover:not(.ql-active) .ql-fill,
+  .ql-snow .ql-toolbar button:hover:not(.ql-active) .ql-fill,
+  .ql-snow.ql-toolbar button:hover:not(.ql-active) .ql-stroke.ql-fill,
+  .ql-snow .ql-toolbar button:hover:not(.ql-active) .ql-stroke.ql-fill {
+    fill: #444;
+  }
+  .ql-snow.ql-toolbar button:hover:not(.ql-active) .ql-stroke,
+  .ql-snow .ql-toolbar button:hover:not(.ql-active) .ql-stroke,
+  .ql-snow.ql-toolbar button:hover:not(.ql-active) .ql-stroke-miter,
+  .ql-snow .ql-toolbar button:hover:not(.ql-active) .ql-stroke-miter {
+    stroke: #444;
+  }
+}
+.ql-snow {
+  box-sizing: border-box;
+}
+.ql-snow * {
+  box-sizing: border-box;
+}
+.ql-snow .ql-hidden {
+  display: none;
+}
+.ql-snow .ql-out-bottom,
+.ql-snow .ql-out-top {
+  visibility: hidden;
+}
+.ql-snow .ql-tooltip {
+  position: absolute;
+  transform: translateY(10px);
+}
+.ql-snow .ql-tooltip a {
+  cursor: pointer;
+  text-decoration: none;
+}
+.ql-snow .ql-tooltip.ql-flip {
+  transform: translateY(-10px);
+}
+.ql-snow .ql-formats {
+  display: inline-block;
+  vertical-align: middle;
+}
+.ql-snow .ql-formats:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+.ql-snow .ql-stroke {
+  fill: none;
+  stroke: #444;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+.ql-snow .ql-stroke-miter {
+  fill: none;
+  stroke: #444;
+  stroke-miterlimit: 10;
+  stroke-width: 2;
+}
+.ql-snow .ql-fill,
+.ql-snow .ql-stroke.ql-fill {
+  fill: #444;
+}
+.ql-snow .ql-empty {
+  fill: none;
+}
+.ql-snow .ql-even {
+  fill-rule: evenodd;
+}
+.ql-snow .ql-thin,
+.ql-snow .ql-stroke.ql-thin {
+  stroke-width: 1;
+}
+.ql-snow .ql-transparent {
+  opacity: .4;
+}
+.ql-snow .ql-direction svg:last-child {
+  display: none;
+}
+.ql-snow .ql-direction.ql-active svg:last-child {
+  display: inline;
+}
+.ql-snow .ql-direction.ql-active svg:first-child {
+  display: none;
+}
+.ql-snow .ql-editor h1 {
+  font-size: 2em;
+}
+.ql-snow .ql-editor h2 {
+  font-size: 1.5em;
+}
+.ql-snow .ql-editor h3 {
+  font-size: 1.17em;
+}
+.ql-snow .ql-editor h4 {
+  font-size: 1em;
+}
+.ql-snow .ql-editor h5 {
+  font-size: .83em;
+}
+.ql-snow .ql-editor h6 {
+  font-size: .67em;
+}
+.ql-snow .ql-editor a {
+  text-decoration: underline;
+}
+.ql-snow .ql-editor blockquote {
+  border-left: 4px solid #ccc;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  padding-left: 16px;
+}
+.ql-snow .ql-editor code,
+.ql-snow .ql-editor .ql-code-block-container {
+  background-color: #f0f0f0;
+  border-radius: 3px;
+}
+.ql-snow .ql-editor .ql-code-block-container {
+  margin-bottom: 5px;
+  margin-top: 5px;
+  padding: 5px 10px;
+}
+.ql-snow .ql-editor code {
+  font-size: 85%;
+  padding: 2px 4px;
+}
+.ql-snow .ql-editor .ql-code-block-container {
+  background-color: #23241f;
+  color: #f8f8f2;
+  overflow: visible;
+}
+.ql-snow .ql-editor img {
+  max-width: 100%;
+}
+.ql-snow .ql-picker {
+  color: #444;
+  display: inline-block;
+  float: left;
+  font-size: 14px;
+  font-weight: 500;
+  height: 24px;
+  position: relative;
+  vertical-align: middle;
+}
+.ql-snow .ql-picker-label {
+  cursor: pointer;
+  display: inline-block;
+  height: 100%;
+  padding-left: 8px;
+  padding-right: 2px;
+  position: relative;
+  width: 100%;
+}
+.ql-snow .ql-picker-label::before {
+  display: inline-block;
+  line-height: 22px;
+}
+.ql-snow .ql-picker-options {
+  background-color: #fff;
+  display: none;
+  min-width: 100%;
+  padding: 4px 8px;
+  position: absolute;
+  white-space: nowrap;
+}
+.ql-snow .ql-picker-options .ql-picker-item {
+  cursor: pointer;
+  display: block;
+  padding-bottom: 5px;
+  padding-top: 5px;
+}
+.ql-snow .ql-picker.ql-expanded .ql-picker-label {
+  color: #ccc;
+  z-index: 2;
+}
+.ql-snow .ql-picker.ql-expanded .ql-picker-label .ql-fill {
+  fill: #ccc;
+}
+.ql-snow .ql-picker.ql-expanded .ql-picker-label .ql-stroke {
+  stroke: #ccc;
+}
+.ql-snow .ql-picker.ql-expanded .ql-picker-options {
+  display: block;
+  margin-top: -1px;
+  top: 100%;
+  z-index: 1;
+}
+.ql-snow .ql-color-picker,
+.ql-snow .ql-icon-picker {
+  width: 28px;
+}
+.ql-snow .ql-color-picker .ql-picker-label,
+.ql-snow .ql-icon-picker .ql-picker-label {
+  padding: 2px 4px;
+}
+.ql-snow .ql-color-picker .ql-picker-label svg,
+.ql-snow .ql-icon-picker .ql-picker-label svg {
+  right: 4px;
+}
+.ql-snow .ql-icon-picker .ql-picker-options {
+  padding: 4px 0;
+}
+.ql-snow .ql-icon-picker .ql-picker-item {
+  height: 24px;
+  width: 24px;
+  padding: 2px 4px;
+}
+.ql-snow .ql-color-picker .ql-picker-options {
+  padding: 3px 5px;
+  width: 152px;
+}
+.ql-snow .ql-color-picker .ql-picker-item {
+  border: 1px solid transparent;
+  float: left;
+  height: 16px;
+  margin: 2px;
+  padding: 0;
+  width: 16px;
+}
+.ql-snow .ql-picker:not(.ql-color-picker):not(.ql-icon-picker) svg {
+  position: absolute;
+  margin-top: -9px;
+  right: 0;
+  top: 50%;
+  width: 18px;
+}
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-label]:not([data-label=""])::before,
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-label]:not([data-label=""])::before,
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-label]:not([data-label=""])::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-label]:not([data-label=""])::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-label]:not([data-label=""])::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-label]:not([data-label=""])::before {
+  content: attr(data-label);
+}
+.ql-snow .ql-picker.ql-header {
+  width: 98px;
+}
+.ql-snow .ql-picker.ql-header .ql-picker-label::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item::before {
+  content: "Normal";
+}
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before {
+  content: "Heading 1";
+}
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before {
+  content: "Heading 2";
+}
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before {
+  content: "Heading 3";
+}
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="4"]::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="4"]::before {
+  content: "Heading 4";
+}
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="5"]::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="5"]::before {
+  content: "Heading 5";
+}
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="6"]::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="6"]::before {
+  content: "Heading 6";
+}
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before {
+  font-size: 2em;
+}
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before {
+  font-size: 1.5em;
+}
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before {
+  font-size: 1.17em;
+}
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="4"]::before {
+  font-size: 1em;
+}
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="5"]::before {
+  font-size: .83em;
+}
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="6"]::before {
+  font-size: .67em;
+}
+.ql-snow .ql-picker.ql-font {
+  width: 108px;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item::before {
+  content: "Sans Serif";
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value=serif]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=serif]::before {
+  content: "Serif";
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value=monospace]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=monospace]::before {
+  content: "Monospace";
+}
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=serif]::before {
+  font-family:
+    Georgia,
+    Times New Roman,
+    serif;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=monospace]::before {
+  font-family:
+    Monaco,
+    Courier New,
+    monospace;
+}
+.ql-snow .ql-picker.ql-size {
+  width: 98px;
+}
+.ql-snow .ql-picker.ql-size .ql-picker-label::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item::before {
+  content: "Normal";
+}
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value=small]::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value=small]::before {
+  content: "Small";
+}
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value=large]::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value=large]::before {
+  content: "Large";
+}
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value=huge]::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value=huge]::before {
+  content: "Huge";
+}
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value=small]::before {
+  font-size: 10px;
+}
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value=large]::before {
+  font-size: 18px;
+}
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value=huge]::before {
+  font-size: 32px;
+}
+.ql-snow .ql-color-picker.ql-background .ql-picker-item {
+  background-color: #fff;
+}
+.ql-snow .ql-color-picker.ql-color .ql-picker-item {
+  background-color: #000;
+}
+.ql-code-block-container {
+  position: relative;
+}
+.ql-code-block-container .ql-ui {
+  right: 5px;
+  top: 5px;
+}
+.ql-toolbar.ql-snow {
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-family:
+    "Helvetica Neue",
+    "Helvetica",
+    "Arial",
+    sans-serif;
+  padding: 8px;
+}
+.ql-toolbar.ql-snow .ql-formats {
+  margin-right: 15px;
+}
+.ql-toolbar.ql-snow .ql-picker-label {
+  border: 1px solid transparent;
+}
+.ql-toolbar.ql-snow .ql-picker-options {
+  border: 1px solid transparent;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 2px 8px;
+}
+.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label {
+  border-color: #ccc;
+}
+.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-options {
+  border-color: #ccc;
+}
+.ql-toolbar.ql-snow .ql-color-picker .ql-picker-item.ql-selected,
+.ql-toolbar.ql-snow .ql-color-picker .ql-picker-item:hover {
+  border-color: #000;
+}
+.ql-toolbar.ql-snow + .ql-container.ql-snow {
+  border-top: 0;
+}
+.ql-snow .ql-tooltip {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 5px #ddd;
+  color: #444;
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+.ql-snow .ql-tooltip::before {
+  content: "Visit URL:";
+  line-height: 26px;
+  margin-right: 8px;
+}
+.ql-snow .ql-tooltip input[type=text] {
+  display: none;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  height: 26px;
+  margin: 0;
+  padding: 3px 5px;
+  width: 170px;
+}
+.ql-snow .ql-tooltip a.ql-preview {
+  display: inline-block;
+  max-width: 200px;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
+.ql-snow .ql-tooltip a.ql-action::after {
+  border-right: 1px solid #ccc;
+  content: "Edit";
+  margin-left: 16px;
+  padding-right: 8px;
+}
+.ql-snow .ql-tooltip a.ql-remove::before {
+  content: "Remove";
+  margin-left: 8px;
+}
+.ql-snow .ql-tooltip a {
+  line-height: 26px;
+}
+.ql-snow .ql-tooltip.ql-editing a.ql-preview,
+.ql-snow .ql-tooltip.ql-editing a.ql-remove {
+  display: none;
+}
+.ql-snow .ql-tooltip.ql-editing input[type=text] {
+  display: inline-block;
+}
+.ql-snow .ql-tooltip.ql-editing a.ql-action::after {
+  border-right: 0;
+  content: "Save";
+  padding-right: 0;
+}
+.ql-snow .ql-tooltip[data-mode=link]::before {
+  content: "Enter link:";
+}
+.ql-snow .ql-tooltip[data-mode=formula]::before {
+  content: "Enter formula:";
+}
+.ql-snow .ql-tooltip[data-mode=video]::before {
+  content: "Enter video:";
+}
+.ql-snow a {
+  color: #06c;
+}
+.ql-container.ql-snow {
+  border: 1px solid #ccc;
+}
+/*! Bundled license information:
+
+quill/dist/quill.snow.css:
+  (*!
+   * Quill Editor v2.0.3
+   * https://quilljs.com
+   * Copyright (c) 2017-2024, Slab
+   * Copyright (c) 2014, Jason Chen
+   * Copyright (c) 2013, salesforce.com
+   *)
+*/
+/*# sourceMappingURL=ao_db.css.map */
