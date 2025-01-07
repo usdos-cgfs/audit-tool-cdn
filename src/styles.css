@@ -1,9 +1,9 @@
 /* Properties */
 .audit {
-  --bg-very-light-color: #edf1f2;
+  /* --bg-very-light-color: #edf1f2;
   --bg-light-color: #eefbfb;
   --bg-dark-color: #1d2b36;
-  --bg-dark-secondary-color: #2a3c48;
+  --bg-dark-secondary-color: #2a3c48; */
 
   --text-primary: #1e2a36;
 
@@ -17,10 +17,51 @@
   --danger-hover-color: rgb(179, 26, 26);
   --danger-disabled-color: rgb(203, 113, 113);
 
-  --primary-color: #3bbfc3;
-  --primary-muted-color: #b9dfe2;
+  /* --primary-color: #3bbfc3; */
+  /* --primary-muted-color: #b9dfe2; */
 
-  --secondary-color: #3c474d;
+  /* --secondary-color: #3c474d; */
+}
+
+.colors {
+  height: 100px;
+  justify-content: space-between;
+  align-items: stretch;
+}
+.colors div {
+  flex-grow: 1;
+  color: white !important;
+}
+
+.colors .primary {
+  background-color: var(--primary-color);
+}
+
+.colors .secondary {
+  background-color: var(--secondary-color);
+}
+
+.colors .tertiary {
+  background-color: var(--tertiary-color);
+}
+
+.colors .dark {
+  background-color: var(--dark);
+}
+
+.colors .darker {
+  background-color: var(--darker);
+}
+
+.colors .dark-alt {
+  background-color: var(--dark-alt);
+}
+
+.colors .light {
+  background-color: var(--light);
+}
+.colors .lighter {
+  background-color: var(--lighter);
 }
 
 /* Main Layout */
@@ -91,7 +132,7 @@
 
 .audit-body .quick-info .status-set-container {
   color: white;
-  background-color: #2a3c48;
+  background-color: var(--bg-dark-secondary-color);
   border-radius: 6px;
   /* border-color: var(--primary-color);  */
   padding: 0.5rem;
@@ -165,7 +206,7 @@
 
 .ui-tabs-nav li {
   text-decoration: none;
-  background-color: var(--secondary-color);
+  background-color: var(--tertiary-color);
   padding: 0.75rem;
   font-size: 1.25rem;
   font-weight: 500;
@@ -173,9 +214,9 @@
 }
 
 .ui-tabs-secondary .ui-tabs-nav li {
-  border: 1px solid var(--secondary-color);
+  border: 1px solid var(--tertiary-color);
   background-color: transparent;
-  color: var(--secondary-color);
+  color: var(--tertiary-color);
   padding: 0.5rem;
   font-size: 1.1rem;
   font-weight: 500;
@@ -521,13 +562,13 @@
 
 .audit .tablesorter thead th {
   color: white;
-  background-color: #374955;
+  background-color: var(--bg-dark-color);
   padding: 0.5rem;
   vertical-align: middle;
 }
 
 .audit .tablesorter thead th:nth-of-type(even) {
-  background-color: #2a3c48;
+  background-color: var(--bg-dark-secondary-color);
 }
 
 .audit .tablesorter thead .rowFilters th {
@@ -1037,8 +1078,8 @@ TABLE.tablesorter THEAD TR .header {
   box-sizing: border-box;
 }
 
-/* 
-* UTILITIES 
+/*
+* UTILITIES
 */
 
 .pointer {
