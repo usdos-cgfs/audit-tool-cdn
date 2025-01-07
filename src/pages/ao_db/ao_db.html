@@ -34,13 +34,13 @@
     </ul>
   </div>
   <!-- /ko -->
-  <div id="divLoading" style="color: green; padding-bottom: 10px">
+  <div id="divLoading" style="padding-bottom: 10px">
     Please Wait... Loading
     <span
       data-bind="visible: arrResponses().length > 0 && debugMode, text: arrResponses().length"
     ></span>
   </div>
-  <div id="divUsersGroups" style="color: green; padding-bottom: 10px"></div>
+  <div id="divUsersGroups" style="padding-bottom: 10px"></div>
   <div class="audit-body" style="display: none" data-bind="visible: loadedAt">
     <div class="reports-container">
       <div id="divRefresh" class="quick-links" style="display: none">
@@ -92,10 +92,7 @@
 
 <script type="text/html" id="responseStatusReportTemplate">
   <div id="tabs-0">
-    <div
-      id="lblStatusReportResponsesMsg"
-      style="padding-top: 5px; color: green"
-    >
+    <div id="lblStatusReportResponsesMsg" style="padding-top: 5px;">
       <span
         data-bind="css: (cntPendingReview() > 0 ? 
         'fa-solid fa-triangle-exclamation' 

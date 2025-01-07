@@ -78,7 +78,7 @@
 }
 
 #divLoading {
-  color: lightgray;
+  color: var(--secondary-color);
   padding: 0.2rem 0;
 }
 
