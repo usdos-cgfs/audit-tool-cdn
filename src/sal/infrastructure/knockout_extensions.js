@@ -278,38 +278,42 @@ ko.bindingHandlers.toggleClick = {
       var containerType = allBindings.get("containerType");
 
       if (containerType && containerType == "sibling") {
-        $(element)
-          .nextUntil(classContainer)
-          .each(function () {
-            $(this).toggleClass(classToToggle);
-          });
+        let sibling = element.nextElementSibling;
+        while (sibling && !sibling.matches(classContainer)) {
+          sibling.classList.toggle(classToToggle);
+          sibling = sibling.nextElementSibling;
+        }
       } else if (containerType && containerType == "doc") {
-        var curIcon = $(element).attr("src");
-        if (curIcon == "/_layouts/images/minus.gif")
-          $(element).attr("src", "/_layouts/images/plus.gif");
-        else $(element).attr("src", "/_layouts/images/minus.gif");
+        var curIcon = element.getAttribute("src");
+        if (curIcon == "/_layouts/images/minus.gif") {
+          element.setAttribute("src", "/_layouts/images/plus.gif");
+        } else {
+          element.setAttribute("src", "/_layouts/images/minus.gif");
+        }
 
-        if ($(element).parent() && $(element).parent().parent()) {
-          $(element)
-            .parent()
-            .parent()
-            .nextUntil(classContainer)
-            .each(function () {
-              $(this).toggleClass(classToToggle);
-            });
+        if (element.parentElement && element.parentElement.parentElement) {
+          let sibling = element.parentElement.parentElement.nextElementSibling;
+          while (sibling && !sibling.matches(classContainer)) {
+            sibling.classList.toggle(classToToggle);
+            sibling = sibling.nextElementSibling;
+          }
         }
       } else if (containerType && containerType == "any") {
         const elements = document.querySelectorAll("." + classToToggle);
 
         elements.forEach(function (element) {
-          var style = window.getComputedStyle(element);
           if (element.style.display === "none") {
             element.style.display = ""; // Resets to default display value, such as 'block' or 'inline'
           } else {
             element.style.display = "none";
           }
         });
-      } else $(element).find(classContainer).toggleClass(classToToggle);
+      } else {
+        const containers = element.querySelectorAll(classContainer);
+        containers.forEach(function (container) {
+          container.classList.toggle(classToToggle);
+        });
+      }
     });
   },
 };
