@@ -537,6 +537,7 @@
 
 .audit table.tablesorter.report {
   margin-top: 0;
+  width: 100%;
 }
 
 .audit .tablesorter.report thead {

@@ -5,7 +5,8 @@
     "@rollup/plugin-node-resolve": "^15.3.0",
     "esbuild": "0.24.0",
     "esbuild-plugin-html-modules": "^0.8.0",
-    "esbuild-plugin-umd-wrapper": "^3.0.0"
+    "esbuild-plugin-umd-wrapper": "^3.0.0",
+    "google-charts": "^2.0.0"
   },
   "scripts": {
     "esbuild": "node esbuild.dev.mjs",

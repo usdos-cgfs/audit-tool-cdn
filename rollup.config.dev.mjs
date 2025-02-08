@@ -98,4 +98,21 @@ export default [
       commonjs(),
     ],
   },
+  {
+    input: "./src/pages/report_request_status/report_request_status.js",
+    output: {
+      file: "./dist/pages/report_request_status/report_request_status.umd.js",
+      format: "umd", // CommonJS format, compatible with "platform: 'node'" in esbuild
+      sourcemap: true,
+      name: "report_request_status",
+    },
+    plugins: [
+      html({
+        include: "**/*.html",
+      }),
+      css(),
+      nodeResolve(),
+      commonjs(),
+    ],
+  },
 ];
