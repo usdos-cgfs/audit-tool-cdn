@@ -1291,7 +1291,7 @@ Audit.AOReport.NewReportPage = function () {
     if (
       confirm("Are you sure you would like to Delete this Response Document?")
     ) {
-      var currCtx = new SP.ClientContext();
+      var currCtx = new SP.ClientContext.get_current();
       var responseDocsLib = currCtx
         .get_web()
         .get_lists()
