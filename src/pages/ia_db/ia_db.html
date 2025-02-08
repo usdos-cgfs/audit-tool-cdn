@@ -80,7 +80,7 @@
           data-bind="visible: arrRequestsThatNeedClosing().length > 0"
         >
           <fieldset>
-            <legend>
+            <legend class="white">
               <span class="fa-solid fa-triangle-exclamation"></span
               ><span
                 data-bind="text: arrRequestsThatNeedClosing().length"
@@ -101,7 +101,7 @@
                   <td>
                     <button
                       type="button"
-                      class="btn btn-link primary fw-bold"
+                      class="btn btn-link primary-muted fw-bold"
                       title="Click here to Go to this Request"
                       data-bind="click: $root.ClickGoToRequest, text: number"
                     ></button>

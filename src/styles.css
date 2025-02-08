@@ -78,7 +78,7 @@
 }
 
 #divLoading {
-  color: var(--secondary-color);
+  color: var(--primary-muted-color);
   padding: 0.2rem 0;
 }
 
