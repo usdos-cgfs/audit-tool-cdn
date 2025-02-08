@@ -626,21 +626,9 @@
             data-filter-prop="(r) => r.actionOffices.map(ao => ao.ao)"
             nowrap="nowrap"
           ></th>
-          <th
-            class="sorter-false"
-            data-filter="multiselect"
-            nowrap="nowrap"
-          ></th>
-          <th
-            class="sorter-false"
-            data-filter="multiselect"
-            nowrap="nowrap"
-          ></th>
-          <th
-            class="sorter-false"
-            data-filter="multiselect"
-            nowrap="nowrap"
-          ></th>
+          <th class="sorter-false" nowrap="nowrap"></th>
+          <th class="sorter-false" nowrap="nowrap"></th>
+          <th class="sorter-false" nowrap="nowrap"></th>
         </tr>
         <tr valign="top">
           <th class="sorter-true" nowrap="nowrap">Request #</th>
@@ -690,12 +678,20 @@
           ></td>
           <td class="sr1-request-sample">
             <span
+              class="hidden"
+              data-bind="text: sample ? 'true' : 'false'"
+            ></span>
+            <span
               class="fa-solid"
               data-bind="class: sample ? 'fa-check' : 'fa-xmark',
-              attr: {title: sentEmail ?? 'false'}"
+              attr: {title: sample ?? 'false'}"
             ></span>
           </td>
           <td class="sr1-request-sentEmail">
+            <span
+              class="hidden"
+              data-bind="text: sentEmail ? 'true' : 'false'"
+            ></span>
             <span
               class="fa-solid"
               data-bind="class: sentEmail ? 'fa-check' : 'fa-xmark',
@@ -784,11 +780,7 @@
             data-filter="multiselect"
             nowrap="nowrap"
           ></th>
-          <th
-            class="sorter-false"
-            data-filter="multiselect"
-            nowrap="nowrap"
-          ></th>
+          <th class="sorter-false" nowrap="nowrap"></th>
           <th class="sorter-false" data-filter="daterange" nowrap="nowrap"></th>
         </tr>
         <tr valign="top">
