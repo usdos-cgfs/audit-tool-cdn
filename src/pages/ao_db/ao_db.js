@@ -23,6 +23,8 @@ import { registerStyles } from "../../infrastructure/register_styles.js";
 import { InitSal } from "../../sal/infrastructure/sal.js";
 import { addNotification } from "../../services/notifications.js";
 import { loadData, loadInfo, submitPackageTaskDef } from "../../tasks/index.js";
+import { configurationsStore } from "../../infrastructure/store.js";
+import { CONFIGKEY } from "../../env.js";
 
 var Audit = window.Audit || {
   Common: {},
@@ -39,6 +41,13 @@ export async function load(element, context) {
   registerStyles(element);
   initAppcontext();
   await InitSal();
+
+  await appContext.AuditConfigurations.ToList().then((configurations) => {
+    configurations.map(
+      (config) => (configurationsStore[config.key] = config.value)
+    );
+  });
+
   Audit.Common.Utilities = new NewUtilities();
   Audit.AOReport.Report = new Audit.AOReport.NewReportPage();
   Audit.AOReport.Init();
@@ -106,6 +115,11 @@ Audit.AOReport.NewReportPage = function () {
     self.debugMode = ko.observable(false);
     self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
     self.loadedAt = ko.observable();
+
+    self.supportEmail = `mailto:${
+      configurationsStore[CONFIGKEY.SUPPORTEMAILAO] ??
+      "cgfsauditrequests@state.gov"
+    }`;
 
     self.tabOpts = {
       Responses: new Tab("response-report", "Status Report", {
@@ -1277,7 +1291,7 @@ Audit.AOReport.NewReportPage = function () {
     if (
       confirm("Are you sure you would like to Delete this Response Document?")
     ) {
-      var currCtx = new SP.ClientContext();
+      var currCtx = new SP.ClientContext.get_current();
       var responseDocsLib = currCtx
         .get_web()
         .get_lists()

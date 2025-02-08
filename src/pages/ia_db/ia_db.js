@@ -3082,7 +3082,7 @@ function m_fnDeleteResponseDoc(itemID) {
     const deletingResponseDocTask = addTask(deleteResponseDocTaskDef(itemID));
     m_bIsTransactionExecuting = true;
 
-    var currCtx = new SP.ClientContext();
+    var currCtx = new SP.ClientContext.get_current();
     var responseDocsLib = currCtx
       .get_web()
       .get_lists()
@@ -3118,7 +3118,7 @@ function m_fnResendRejectedResponseDocToQA(itemID) {
     m_bIsTransactionExecuting = true;
     const sendResponseDocToQATask = addTask(sendResponseDocToQATaskDef(itemID));
 
-    var currCtx = new SP.ClientContext();
+    var currCtx = new SP.ClientContext.get_current();
     var responseDocsLib = currCtx
       .get_web()
       .get_lists()

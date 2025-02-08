@@ -80,7 +80,7 @@
           data-bind="visible: arrRequestsThatNeedClosing().length > 0"
         >
           <fieldset>
-            <legend>
+            <legend class="white">
               <span class="fa-solid fa-triangle-exclamation"></span
               ><span
                 data-bind="text: arrRequestsThatNeedClosing().length"
@@ -101,7 +101,7 @@
                   <td>
                     <button
                       type="button"
-                      class="btn btn-link primary fw-bold"
+                      class="btn btn-link primary-muted fw-bold"
                       title="Click here to Go to this Request"
                       data-bind="click: $root.ClickGoToRequest, text: number"
                     ></button>
@@ -454,14 +454,14 @@
             ><span class="fa-solid fa-arrows-rotate"></span>Refresh</a
           >
         </div>
-        <div>
+        <!-- <div>
           <a
             title="View User Manuals"
             href="javascript:void(0)"
             onclick="Audit.Common.Utilities.ViewUserManuals()"
             ><span class="fa-solid fa-question"></span>User Manuals</a
           >
-        </div>
+        </div> -->
         <div>
           <a
             title="View Response Documents Uploaded by Action Offices Today but not yet Submitted"
@@ -473,11 +473,11 @@
         </div>
         <div>
           <a
-            title="View Response Documents Returned to GFS"
+            title="View Returned Response Documents"
             href="javascript:void(0)"
             onclick="Audit.IAReport.Report.ViewReturnedDocs()"
-            ><span class="fa-solid fa-magnifying-glass"></span>View Response
-            Documents Returned to GFS</a
+            ><span class="fa-solid fa-magnifying-glass"></span>View Returned
+            Response Documents</a
           >
         </div>
         <div>
@@ -626,21 +626,9 @@
             data-filter-prop="(r) => r.actionOffices.map(ao => ao.ao)"
             nowrap="nowrap"
           ></th>
-          <th
-            class="sorter-false"
-            data-filter="multiselect"
-            nowrap="nowrap"
-          ></th>
-          <th
-            class="sorter-false"
-            data-filter="multiselect"
-            nowrap="nowrap"
-          ></th>
-          <th
-            class="sorter-false"
-            data-filter="multiselect"
-            nowrap="nowrap"
-          ></th>
+          <th class="sorter-false" nowrap="nowrap"></th>
+          <th class="sorter-false" nowrap="nowrap"></th>
+          <th class="sorter-false" nowrap="nowrap"></th>
         </tr>
         <tr valign="top">
           <th class="sorter-true" nowrap="nowrap">Request #</th>
@@ -690,12 +678,20 @@
           ></td>
           <td class="sr1-request-sample">
             <span
+              class="hidden"
+              data-bind="text: sample ? 'true' : 'false'"
+            ></span>
+            <span
               class="fa-solid"
               data-bind="class: sample ? 'fa-check' : 'fa-xmark',
-              attr: {title: sentEmail ?? 'false'}"
+              attr: {title: sample ?? 'false'}"
             ></span>
           </td>
           <td class="sr1-request-sentEmail">
+            <span
+              class="hidden"
+              data-bind="text: sentEmail ? 'true' : 'false'"
+            ></span>
             <span
               class="fa-solid"
               data-bind="class: sentEmail ? 'fa-check' : 'fa-xmark',
@@ -784,11 +780,7 @@
             data-filter="multiselect"
             nowrap="nowrap"
           ></th>
-          <th
-            class="sorter-false"
-            data-filter="multiselect"
-            nowrap="nowrap"
-          ></th>
+          <th class="sorter-false" nowrap="nowrap"></th>
           <th class="sorter-false" data-filter="daterange" nowrap="nowrap"></th>
         </tr>
         <tr valign="top">
