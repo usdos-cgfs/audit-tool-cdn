@@ -838,78 +838,87 @@ export function NewUtilities() {
   }
 
   function m_fnPrintPage(pageTitle, divTbl) {
+    const table = document.querySelector(divTbl).querySelector("table");
+    // const pageTitle = table.dataset.title;
     var curDate = new Date();
-    var siteUrl = commonUtilities.publicMembers.GetSiteUrl();
-    var cssLink1 =
-      siteUrl +
-      "/siteassets/css/tablesorter/style.css?v=" +
-      curDate.format("MM_dd_yyyy");
-    var cssLink2 =
-      siteUrl +
-      "/siteAssets/css/audit_styles.css?v=" +
-      curDate.format("MM_dd_yyyy");
+    // var siteUrl = Audit.Common.Utilities.GetSiteUrl();
+    // var cssLink1 =
+    //   siteUrl +
+    //   "/siteassets/css/tablesorter/style.css?v=" +
+    //   curDate.format("MM_dd_yyyy");
+    // var cssLink2 =
+    //   siteUrl +
+    //   "/siteAssets/css/audit_styles.css?v=" +
+    //   curDate.format("MM_dd_yyyy");
 
-    var divOutput = $(divTbl).html();
+    var divOutput = table.outerHTML;
 
     //remove hyperlinks pointing to the job codes
-    var updatedDivOutput = $("<div>").append(divOutput);
-    updatedDivOutput.find(".sr-response-title a").each(function () {
-      $(this).removeAttr("onclick");
-      $(this).removeAttr("href");
+    var updatedDivOutput = document.createElement("div");
+    updatedDivOutput.innerHTML = divOutput;
+
+    updatedDivOutput
+      .querySelectorAll(".sr1-request-requestNum a, .sr2-response-requestNum a")
+      .forEach((link) => {
+        link.removeAttribute("onclick");
+        link.removeAttribute("href");
+      });
+
+    updatedDivOutput.querySelectorAll("button").forEach((btn) => {
+      btn.remove();
     });
 
-    divOutput = updatedDivOutput.html();
+    divOutput = updatedDivOutput.innerHTML;
 
-    var printDateString = curDate.format("MM/dd/yyyy hh:mm tt");
-    printDateString =
-      "<div style='padding-bottom:10px;'>" + printDateString + "</div>";
+    var printDateString =
+      "<div style='padding-bottom:10px;'>" +
+      curDate.format("MM/dd/yyyy hh:mm tt") +
+      " - " +
+      pageTitle +
+      "</div>";
+
     divOutput = printDateString + divOutput;
 
-    var cssFile1 = $("<div></div>");
-    var cssFile2 = $("<div></div>");
-
-    var def1 = $.Deferred();
-    var def2 = $.Deferred();
-
     var cssFileText = "";
-    cssFile1.load(cssLink1, function () {
-      cssFileText += "<style>" + cssFile1.html() + "</style>";
-      def1.resolve();
-    });
-    cssFile2.load(cssLink2, function () {
-      cssFileText += "<style>" + cssFile2.html() + "</style>";
-      def2.resolve();
-    });
 
-    //gets called asynchronously after the css files have been loaded
-    $.when(def1, def2).done(function () {
-      var html =
-        "<HTML>\n" +
-        "<HEAD>\n\n" +
-        "<Title>" +
-        pageTitle +
-        "</Title>\n" +
-        cssFileText +
-        "\n" +
-        "<style>" +
-        ".hideOnPrint, .rowFilters {display:none}" +
-        "</style>\n" +
-        "</HEAD>\n" +
-        "<BODY>\n" +
-        divOutput +
-        "\n" +
-        "</BODY>\n" +
-        "</HTML>";
+    var loadCSS = (url) => {
+      return fetch(url)
+        .then((response) => response.text())
+        .then((data) => "<style>" + data + "</style>");
+    };
 
-      var printWP = window.open("", "printWebPart");
-      printWP.document.open();
-      //insert content
-      printWP.document.write(html);
+    // Promise.all([loadCSS(cssLink1), loadCSS(cssLink2)]).then((styles) => {
+    // cssFileText = styles.join("");
+    var html =
+      "<HTML>\n" +
+      "<HEAD>\n\n" +
+      "<Title>" +
+      pageTitle +
+      "</Title>\n" +
+      cssFileText +
+      "\n" +
+      "<style>" +
+      ".hideOnPrint, .rowFilters, .actionOfficeContainer {display:none}" +
+      "</style>\n" +
+      "</HEAD>\n" +
+      "<BODY>\n" +
+      divOutput +
+      "\n" +
+      "</BODY>\n" +
+      "</HTML>";
 
-      printWP.document.close();
-      //open print dialog
-      printWP.print();
-    });
+    var printWP = window.open("", "Print Web Part");
+    if (!printWP) {
+      alert("No printWebPart!");
+      return;
+    }
+    printWP.document.open();
+    //insert content
+    printWP.document.write(html);
+
+    printWP.document.close();
+    //open print dialog
+    printWP.print();
   }
 
   //make sure iframe with id csvexprframe is added to page up top
@@ -946,29 +955,36 @@ export function NewUtilities() {
   }
 
   function m_fnGetCellValues(tableName) {
-    var table = document.getElementById(tableName);
-
-    //remove headers and footers
+    const tableToExport = document.getElementById(tableName);
+    if (!tableToExport) return;
+    const table = tableToExport.cloneNode(true);
+    // Remove headers and footers
     if (table.innerHTML.indexOf("rowFilters") >= 0) {
-      var deets = $("<div>").append(table.outerHTML);
-      deets.find(".rowFilters").each(function () {
-        $(this).remove();
-      });
-      table = deets.find("table")[0];
+      table.querySelectorAll(".rowFilters").forEach((el) => el.remove());
     }
     if (table.innerHTML.indexOf("footer") >= 0) {
-      var deets = $("<div>").append(table.outerHTML);
-      deets.find(".footer").each(function () {
-        $(this).remove();
+      table.querySelectorAll(".footer").forEach((el) => el.remove());
+    }
+    if (table.innerHTML.indexOf("ul") >= 0) {
+      table.querySelectorAll("ul").forEach((list) => {
+        const listItems = [...list.querySelectorAll("li")];
+        list.parentElement.replaceChildren(
+          listItems
+            .map((li) => li.textContent.trim())
+            .join(" ")
+            .trim()
+        );
       });
-      table = deets.find("table")[0];
+      // table.querySelectorAll(".sr1-request-actionOffice-item").forEach((el) => {
+      //   el.textContent += "; ";
+      // });
     }
 
-    var tableArray = [];
-    for (var r = 0, n = table.rows.length; r < n; r++) {
+    const tableArray = [];
+    for (let r = 0, n = table.rows.length; r < n; r++) {
       tableArray[r] = [];
-      for (var c = 0, m = table.rows[r].cells.length; c < m; c++) {
-        var text =
+      for (let c = 0, m = table.rows[r].cells.length; c < m; c++) {
+        const text =
           table.rows[r].cells[c].textContent ||
           table.rows[r].cells[c].innerText;
         tableArray[r][c] = text.trim();
