@@ -63,3 +63,13 @@ git checkout main
 git tag "$releaseVersion" latest-release
 git push origin "$releaseVersion"
 git push origin latest-release
+
+# Don't forget to purge!
+<#
+https://www.jsdelivr.com/tools/purge
+
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-cdn@latest/dist/pages/ao_db/ao_db.umd.js
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-cdn@latest/dist/pages/ao_db/ao_db.umd.js.map
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-cdn@latest/dist/pages/ia_db/ia_db.umd.js
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-cdn@latest/dist/pages/ia_db/ia_db.umd.js.map
+#>
