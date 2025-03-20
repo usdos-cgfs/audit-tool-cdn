@@ -8,22 +8,19 @@ import {
 import { appContext } from "../infrastructure/application_db_context.js";
 import { showModal } from "../sal/components/modal/index.js";
 import { ItemPermissions } from "../sal/infrastructure/sal.js";
-import { ValidationError } from "../sal/primitives/validation_error.js";
 import { Result } from "../sal/shared/index.js";
+import {
+  notifyIAResponsesClosed,
+  notifyIAResponsesReturned,
+} from "./audit_email_service.js";
 
 import {
-  breakRequestPermissions,
   getRequestById,
   getRequestResponseDocs,
   getRequestResponses,
-  requestHasSpecialPerms,
+  getResponseResponseDocs,
 } from "./audit_request_service.js";
-import { breakRequestCoversheetPerms } from "./coversheet_manager.js";
-import {
-  getQAGroup,
-  getSiteGroups,
-  getSpecialPermGroups,
-} from "./people_manager.js";
+import { getSiteGroups } from "./people_manager.js";
 import { roleNames } from "./permission_manager.js";
 import { addTask, finishTask, taskDefs } from "./tasks.js";
 
@@ -291,12 +288,15 @@ async function isResponseReadyToClose(response, responseDocs) {
 
 export async function closeResponseById(responseId) {
   const response = await appContext.AuditResponses.FindById(responseId);
+  const request = await appContext.AuditRequests.FindById(
+    response.ReqNum.Value().ID
+  );
   // TODO: Use Result
   if (!response) return;
-  return closeResponse(response);
+  return closeResponse(request, response);
 }
 
-async function closeResponse(response) {
+export async function closeResponse(request, response, notifyIA = true) {
   const closeResponseTask = addTask(
     taskDefs.closeResponse(response.Title.Value())
   );
@@ -307,7 +307,90 @@ async function closeResponse(response) {
     AuditResponse.Views.IAUpdateClosed
   );
 
+  // Archive all response docs that haven't been approved
+  const responseDocs = await getResponseResponseDocs(response);
+  for (const responseDoc of responseDocs) {
+    if (responseDoc.DocumentStatus.Value() != AuditResponseDocStates.Approved) {
+      responseDoc.DocumentStatus.Value(AuditResponseDocStates.Archived);
+      await appContext.AuditResponseDocs.UpdateEntity(responseDoc, [
+        "DocumentStatus",
+      ]);
+    }
+  }
+
+  if (notifyIA) {
+    await notifyIAResponsesClosed(request, [response]);
+  }
+
   finishTask(closeResponseTask);
+}
+
+export async function returnResponseToIAById(responseId) {
+  const response = await appContext.AuditResponses.FindById(responseId);
+  const request = await appContext.AuditRequests.FindById(
+    response.ReqNum.Value().ID
+  );
+  // TODO: Use Result
+  if (!response) return;
+  return returnResponseToIA(request, response);
+}
+
+export async function returnResponseToIA(request, response, notifyIA = true) {
+  response.ResStatus.Value(AuditResponseStates.ReturnedToGFS);
+  await appContext.AuditResponses.UpdateEntity(response, ["ResStatus"]);
+
+  if (notifyIA) await notifyIAResponsesReturned(request, [response]);
+}
+
+export async function closeOrReturnFinalizedResponsesQA(requestId) {
+  // For each Response in the Request, if all response docs are Approved, then close the response
+  // If all docs are processed and any response doc is rejected, then return the the response to IA
+  const request = await getRequestById(requestId);
+
+  const requestingOffice = request.RequestingOffice.Value();
+
+  if (!requestingOffice) return;
+
+  const allRequestResponseDocs = await getRequestResponseDocs(request);
+
+  const allRequestResponses = await getRequestResponses(request);
+
+  const closedResponses = [];
+  const returnedResponses = [];
+
+  for (const response of allRequestResponses) {
+    if (response.ResStatus.Value() != AuditResponseStates.ApprovedForQA) {
+      continue;
+    }
+
+    const responseDocs = allRequestResponseDocs.filter(
+      (responseDoc) => responseDoc.ResID.Value().ID == response.ID
+    );
+
+    const allResponseDocsApproved = responseDocs.every(
+      (responseDoc) =>
+        responseDoc.DocumentStatus.Value() == AuditResponseDocStates.Approved
+    );
+
+    const anyResponseDocsRejected = responseDocs.some(
+      (responseDoc) =>
+        responseDoc.DocumentStatus.Value() == AuditResponseDocStates.Rejected
+    );
+
+    const anyResponseDocsPending = responseDocs.some(
+      (responseDoc) =>
+        responseDoc.DocumentStatus.Value() == AuditResponseDocStates.SentToQA
+    );
+
+    if (allResponseDocsApproved) {
+      closedResponses.push(response);
+      await closeResponse(request, response);
+    } else if (anyResponseDocsRejected && !anyResponseDocsPending) {
+      // If all response docs have been processed and any are rejected, return the response to IA
+      returnedResponses.push(response);
+      await returnResponseToIA(request, response);
+    }
+  }
 }
 
 export async function uploadResponseDocFile(response, file) {

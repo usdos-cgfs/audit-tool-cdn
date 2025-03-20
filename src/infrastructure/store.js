@@ -10,3 +10,7 @@ export const allActionOfficesFilter = (org) =>
 
 export const allRequestingOfficesFilter = (org) =>
   ORGROLES.REQUESTINGOFFICE == org.Role;
+
+export const getOrgByRole = (role) => {
+  return auditOrganizationStore().find((org) => org.Role == role);
+};

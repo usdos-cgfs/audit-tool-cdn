@@ -32,7 +32,10 @@ import {
   AUDITREQUESTTYPES,
 } from "../../entities/index.js";
 
-import { m_fnRefreshData } from "../../pages/ia_db/ia_db.js";
+import {
+  m_fnRefreshData,
+  m_fnRejectResponseDoc,
+} from "../../pages/ia_db/ia_db.js";
 import { ConfirmApproveResponseDocForm } from "../forms/response_doc/confirm_approve/confirm_approve_response_doc_form.js";
 import { ConfirmRejectResponseDocForm } from "../forms/response_doc/confirm_reject/confirm_reject_response_doc_form.js";
 import { ConfirmDeleteRequestForm } from "../forms/request/confirm_delete/confirm_delete_request_form.js";
@@ -41,6 +44,10 @@ import requestDetailViewTemplate from "./RequestDetailViewTemplate.html";
 import { requestDetailCoversheetsTabTemplate } from "./RequestDetailCoversheetsTabTemplate.js";
 import { requestDetailResponsesTabTemplate } from "./RequestDetailResponsesTabTemplate.js";
 import { requestDetailResponseDocsTabTemplate } from "./RequestDetailResponseDocsTabTemplate.js";
+import {
+  approveResponseDocsForQA,
+  approveResponseDocsForRO,
+} from "../../services/approvals_service.js";
 
 const componentName = "component-request-detail-view";
 
@@ -311,39 +318,13 @@ export class RequestDetailView {
       (responseDoc) =>
         this.responseDocCanBeApproved(responseDocSummary, responseDoc)
     );
-    const request = this.currentRequest();
-
-    const newResponseDocForm = new ConfirmApproveResponseDocForm(
-      request,
-      null,
-      oResponseDocsForApproval
-    );
-
-    const options = {
-      form: newResponseDocForm,
-      dialogReturnValueCallback: this.OnCallBackApproveResponseDoc.bind(this),
-      title: "Approve Response Docs?",
-    };
-
-    ModalDialog.showModalDialog(options);
+    this.getResponseDocApproval(oResponseDocsForApproval);
   };
 
   ClickApproveResponseDoc = (oResponseDoc) => {
-    const request = this.currentRequest();
+    const oResponseDocsForApproval = [oResponseDoc];
 
-    const newResponseDocForm = new ConfirmApproveResponseDocForm(
-      request,
-      null,
-      [oResponseDoc]
-    );
-
-    const options = {
-      form: newResponseDocForm,
-      dialogReturnValueCallback: this.OnCallBackApproveResponseDoc.bind(this),
-      title: "Approve Response Doc?",
-    };
-
-    ModalDialog.showModalDialog(options);
+    this.getResponseDocApproval(oResponseDocsForApproval);
   };
 
   CheckResponseDocs = () => {
@@ -364,18 +345,37 @@ export class RequestDetailView {
   };
 
   ApproveCheckedResponseDocs = () => {
-    const allDocs = this.currentRequestResponseDocs()
+    const oResponseDocsForApproval = this.currentRequestResponseDocs()
       .flatMap((responseDocSummary) => {
         return responseDocSummary.responseDocs;
       })
       .filter((responseDoc) => responseDoc.chkApproveResDoc());
 
+    this.getResponseDocApproval(oResponseDocsForApproval);
+  };
+
+  getResponseDocApproval = (oResponseDocsForApproval) => {
     const request = this.currentRequest();
+    const isTasker = request.reqType == AUDITREQUESTTYPES.TASKER;
+
+    const sendToText = isTasker ? request.requestingOffice : "QA";
+
+    const onApprove = isTasker
+      ? () =>
+          approveResponseDocsForRO(
+            request.ID,
+            oResponseDocsForApproval.map((doc) => doc.ID)
+          )
+      : () =>
+          approveResponseDocsForQA(
+            request.ID,
+            oResponseDocsForApproval.map((doc) => doc.ID)
+          );
 
     const newResponseDocForm = new ConfirmApproveResponseDocForm(
-      request,
-      null,
-      allDocs
+      sendToText,
+      oResponseDocsForApproval,
+      onApprove
     );
 
     const options = {
@@ -416,9 +416,14 @@ export class RequestDetailView {
   ClickRejectResponseDoc = (oResponseDoc) => {
     const request = this.currentRequest();
 
-    const newResponseDocForm = new ConfirmRejectResponseDocForm(request, null, [
-      oResponseDoc,
-    ]);
+    const onSubmit = async (rejectReason) => {
+      await m_fnRejectResponseDoc(request, oResponseDoc, rejectReason);
+    };
+
+    const newResponseDocForm = new ConfirmRejectResponseDocForm(
+      [oResponseDoc],
+      onSubmit
+    );
 
     const options = {
       form: newResponseDocForm,

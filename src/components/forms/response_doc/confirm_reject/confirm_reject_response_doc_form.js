@@ -6,10 +6,9 @@ import { confirmRejectResponseDocFormTemplate } from "./ConfirmRejectResponseDoc
 const componentName = "confirm-reject-response-doc";
 
 export class ConfirmRejectResponseDocForm {
-  constructor(request, response, responseDocs) {
-    this.request = request;
-    this.response = response;
+  constructor(responseDocs, onSubmit) {
     this.responseDocs(responseDocs);
+    this.onSubmit = onSubmit;
   }
 
   rejectReason = ko.observable();
@@ -23,15 +22,7 @@ export class ConfirmRejectResponseDocForm {
   }
 
   async submit() {
-    await Promise.all(
-      this.responseDocs().map((responseDoc) => {
-        return m_fnRejectResponseDoc(
-          this.request,
-          responseDoc,
-          this.rejectReason()
-        );
-      })
-    );
+    await this.onSubmit(this.rejectReason());
     this.onComplete(true);
   }
 

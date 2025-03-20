@@ -1,31 +1,18 @@
 import * as ko from "knockout";
 import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
-import { m_fnApproveResponseDocsForQA } from "../../../../pages/ia_db/ia_db.js";
-import { approveResponseDocsForRO } from "../../../../services/index.js";
-import { AUDITREQUESTTYPES } from "../../../../entities/index.js";
 import { confirmApproveResponseDocFormTemplate } from "./ConfirmApproveResponseDocFormTemplate.js";
 
 const componentName = "confirm-approve-response-doc";
 
 export class ConfirmApproveResponseDocForm {
-  constructor(request, response, responseDocs) {
-    this.request = request;
-    this.response = response;
+  constructor(sendToText, responseDocs, onApprove) {
+    this.onApprove = onApprove;
     this.responseDocs(responseDocs);
 
-    switch (request.reqType) {
-      case AUDITREQUESTTYPES.TASKER:
-        this.sendToText("Send to " + request.requestingOffice);
-        break;
-      case AUDITREQUESTTYPES.REQUEST:
-        this.sendToText("Send to QA");
-        break;
-      default:
-        this.sendToText("Uh Oh");
-    }
+    this.sendToText = "Send to " + sendToText;
   }
 
-  sendToText = ko.observable();
+  sendToText;
 
   responseDocs = ko.observableArray();
   saving = ko.observable(false);
@@ -38,28 +25,8 @@ export class ConfirmApproveResponseDocForm {
 
   async submit() {
     const responseDocIds = this.responseDocs().map((doc) => doc.ID);
-    let result;
-    switch (this.request.reqType) {
-      case AUDITREQUESTTYPES.TASKER:
-        result = await approveResponseDocsForRO(
-          this.request.ID,
-          responseDocIds
-        );
-        break;
-      case AUDITREQUESTTYPES.REQUEST:
-        result = await m_fnApproveResponseDocsForQA(
-          this.request,
-          this.responseDocs()
-        );
-        break;
-      default:
-        this.sendToText("Uh Oh");
-    }
+    let result = await this.onApprove();
 
-    // const result = await m_fnApproveResponseDocsForQA(
-    //   this.request,
-    //   this.responseDocs()
-    // );
     if (result) {
       this.onComplete(true);
     }

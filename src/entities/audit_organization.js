@@ -8,6 +8,7 @@ export const ORGTYPES = {
 };
 
 export const ORGROLES = {
+  INTERNALAUDITOR: "Internal Auditor",
   ACTIONOFFICE: "Action Office",
   REQUESTINGOFFICE: "Requesting Office",
   QUALITYASSURANCE: "Quality Assurance",

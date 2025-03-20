@@ -377,6 +377,16 @@ export async function getRequestResponseDocs(request) {
   return responsesResult.results;
 }
 
+export async function getResponseResponseDocs(response) {
+  const responsesResult = await appContext.AuditResponseDocs.FindByColumnValue(
+    [{ column: "ResID", value: response.ID }],
+    {},
+    { includePermissions: true }
+  );
+
+  return responsesResult.results;
+}
+
 export async function getRequestResponseDocsFolders(responseTitle) {
   const responsesResult = await appContext.AuditResponseDocs.FindByColumnValue(
     [{ column: "Title", value: responseTitle }],

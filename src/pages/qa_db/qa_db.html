@@ -1,4 +1,13 @@
-﻿<iframe id="CsvExpFrame" style="display: none"></iframe>
+﻿<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/fontawesome-6.5.1/css/fontawesome.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/fontawesome-6.5.1/css/solid.min.css"
+/>
+
+<iframe id="CsvExpFrame" style="display: none"></iframe>
 
 <div
   id="divCounter"
@@ -9,6 +18,11 @@
 </div>
 
 <div class="audit">
+  <!-- ko foreach: currentDialogs -->
+  <div
+    data-bind="component: { name: 'modal-dialog-component', params: $data }"
+  ></div>
+  <!-- /ko -->
   <div id="divLoading" style="color: green; padding-bottom: 10px">
     Please Wait... Loading
     <span
@@ -24,7 +38,7 @@
             title="Refresh this page"
             href="javascript:void(0)"
             onclick="Audit.Common.Utilities.Refresh()"
-            ><span class="ui-icon ui-icon-refresh"></span>Refresh</a
+            ><span class="fa-solid fa-arrows-rotate"></span>Refresh</a
           >
         </div>
         <div style="padding-bottom: 10px">
@@ -32,7 +46,7 @@
             title="View User Manual"
             href="javascript:void(0)"
             onclick="Audit.Common.Utilities.ViewUserManuals('QA User Manual')"
-            ><span class="ui-icon ui-icon-help"></span>User Manual</a
+            ><span class="fa-solid fa-circle-question"></span>User Manual</a
           >
         </div>
       </div>
@@ -68,84 +82,45 @@
       style="padding-top: 5px; color: green"
     >
       <span
-        data-bind="css: (cntPendingReview() > 0 ? 'ui-icon ui-icon-alert' : 'ui-icon ui-icon-circle-check')"
+        data-bind="css: (cntPendingReview() > 0 ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check')"
       ></span
       >There are <span data-bind="text: cntPendingReview"></span> Responses
       pending your review
     </div>
-    <div
-      id="divButtons"
-      style="padding-top: 3px"
-      data-bind="visible: arrResponses().length > 0"
-    >
-      <a
-        id="btnPrint1"
-        title="Click here to Print"
-        href="javascript:void(0)"
-        class="hideOnPrint"
-        ><span class="ui-icon ui-icon-print">Print</span></a
-      >
-      <a class="export1 hideOnPrint" title="Export to CSV" href="#"
-        ><span class="ui-icon ui-icon-disk">Export to CSV</span></a
-      >
-      <a
-        id="btnViewAll"
-        title="View All"
-        href="javascript:void(0)"
-        data-bind="visible: arrFilteredResponsesCount() < arrResponses().length && doSort, click: ClearFiltersResponseTab"
-        ><span class="ui-icon ui-icon-circle-zoomout"></span>View All
-        Responses</a
-      >
-    </div>
     <div id="divStatusReportRespones">
       <table
         id="tblStatusReportResponses"
+        is="data-table"
         class="tablesorter report"
+        data-title="Response QA Status Report"
+        data-file-prefix="ResponseQAStatusReport_"
         data-bind="visible: arrResponses().length > 0"
       >
         <thead>
-          <tr
-            valign="top"
-            class="rowFilters"
-            data-bind="visible: arrResponses().length > 0"
-          >
-            <th class="sorter-false" nowrap="nowrap">
-              <select
-                id="ddlResponseRequestID"
-                data-bind="options: $root.ddOptionsResponseTabRequestID, value: filterResponseTabRequestID, optionsCaption: '-Select-'"
-              ></select>
-            </th>
-            <th class="sorter-false" nowrap="nowrap"></th>
-            <th class="sorter-false" nowrap="nowrap">
-              <select
-                id="ddlResponseRequestStatus"
-                data-bind="options: $root.ddOptionsResponseTabRequestStatus, value: filterResponseTabRequestStatus, optionsCaption: '-Select-'"
-              ></select>
-            </th>
-            <th class="sorter-false" nowrap="nowrap">
-              <select
-                id="ddlResponseRequestInternalDueDate"
-                data-bind="options: $root.ddOptionsResponseTabRequestInternalDueDate, value: filterResponseTabRequestIntDueDate, optionsCaption: '-Select-'"
-              ></select>
-            </th>
-            <th class="sorter-false" nowrap="nowrap">
-              <select
-                id="ddlResponseSampleNum"
-                data-bind="options: $root.ddOptionsResponseTabRequestSample, value: filterResponseTabSampleNum, optionsCaption: '-Select-'"
-              ></select>
-            </th>
-            <th class="sorter-false" nowrap="nowrap">
-              <select
-                id="ddlResponseName"
-                data-bind="options: $root.ddOptionsResponseTabResponseTitle, value: filterResponseTabResponseName, optionsCaption: '-Select-'"
-              ></select>
-            </th>
-            <th class="sorter-false" nowrap="nowrap">
-              <select
-                id="ddlResponseStatus"
-                data-bind="options: $root.ddOptionsResponseTabResponseStatus, value: filterResponseTabResponseStatus, optionsCaption: '-Select-'"
-              ></select>
-            </th>
+          <tr valign="top" class="rowFilters">
+            <th
+              class="sorter-false"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
+            <th class="sorter-false" data-filter="search" nowrap="nowrap"></th>
+            <th
+              class="sorter-false"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false"
+              data-filter="daterange"
+              nowrap="nowrap"
+            ></th>
+            <th class="sorter-false" data-filter="search" nowrap="nowrap"></th>
+            <th class="sorter-false" data-filter="search" nowrap="nowrap"></th>
+            <th
+              class="sorter-false"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
             <th class="sorter-false" nowrap="nowrap"></th>
             <th class="sorter-false" nowrap="nowrap"></th>
           </tr>
@@ -165,8 +140,7 @@
           <!-- ko foreach: arrResponses -->
           <tr
             class="sr-response-item"
-            data-bind="css: { 'highlighted': highlight},
-            visible: $root.filteredResponses().includes($data)"
+            data-bind="css: { 'highlighted': highlight}"
           >
             <td class="sr-response-requestNum" data-bind="text: reqNumber"></td>
             <td
@@ -187,7 +161,7 @@
                 href="javascript:void(0);"
                 title="Go to Response Details"
                 data-bind="text: title,
-                click: () => Audit.QAReport.Report.GoToResponse($data.title)"
+                click: () => window.Audit.QAReport.Report.GoToResponse($data.title)"
               ></a>
             </td>
             <td class="sr-response-status" data-bind="text: status"></td>
@@ -196,27 +170,6 @@
           </tr>
           <!-- /ko -->
         </tbody>
-        <tfoot class="footer">
-          <tr>
-            <th colspan="9">
-              Displaying
-              <span
-                id="spanResponsesDisplayedTotal"
-                style="color: green"
-                data-bind="text: arrFilteredResponsesCount()"
-                >0</span
-              >
-              out of
-              <span
-                id="spanResponsesTotal"
-                style="color: green"
-                data-bind="text: arrResponses().length"
-                >0</span
-              >
-              Responses
-            </th>
-          </tr>
-        </tfoot>
       </table>
     </div>
   </div>
@@ -296,7 +249,7 @@
             <dd>
               <span
                 id="requestInfoSample"
-                data-bind="text: request.sample, css: request.sample == true ? 'ui-icon ui-icon-check' : 'ui-icon ui-icon-close'"
+                data-bind="text: request.sample, css: request.sample == true ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"
               ></span>
             </dd>
             <dt>Response</dt>
@@ -384,7 +337,7 @@
                 href="javascript:void(0)"
                 data-bind="click: toggleShowHistory"
               >
-                <span class="ui-icon ui-icon-comment"></span>
+                <span class="fa-solid fa-comments"></span>
                 Toggle Comment History (<span
                   data-bind="text: comments().length"
                 ></span>
@@ -456,7 +409,7 @@
               title="Click to Close Response"
               style="font-size: 11pt"
               data-bind="click: ClickCloseResponse"
-              ><span class="ui-icon ui-icon-gear"></span>Close Response</a
+              ><span class="fa-solid fa-gears"></span>Close Response</a
             >
           </fieldset>
           <fieldset
@@ -470,7 +423,7 @@
               href="javascript:void(0)"
               title="Click to Return to CGFS"
               data-bind="click: ClickReturnToCGFS"
-              ><span class="ui-icon ui-icon-gear"></span>Return to CGFS</a
+              ><span class="fa-solid fa-gears"></span>Return to CGFS</a
             >
           </fieldset>
           <fieldset
@@ -483,7 +436,7 @@
               href="javascript:void(0)"
               title="Click to Approve Remaining Documents"
               data-bind="click: ClickBulkApprove"
-              ><span class="ui-icon ui-icon-circle-check"></span>Approve All
+              ><span class="fa-solid fa-circle-check"></span>Approve All
               Documents</a
             >
           </fieldset>
@@ -518,7 +471,7 @@
                         href="javascript:void(0)"
                         style="color: #0072bc"
                         data-bind="click: ClickHelpResponseDocs"
-                        ><span class="ui-icon ui-icon-help"></span></a
+                        ><span class="fa-solid fa-circle-question"></span></a
                     ></span>
                   </th>
                   <th class="sorter-false" nowrap="nowrap">Reason</th>
@@ -530,7 +483,7 @@
                         href="javascript:void(0)"
                         style="color: #0072bc"
                         data-bind="click: ClickHelpResponseDocs"
-                        ><span class="ui-icon ui-icon-help"></span></a
+                        ><span class="fa-solid fa-circle-question"></span></a
                     ></span>
                   </th>
                   <th class="sorter-false" nowrap="nowrap">Modified</th>
@@ -581,18 +534,14 @@
                         title="Approve this Document"
                         href="javascript:void(0)"
                         data-bind="click: $root.ClickApproveResponseDoc"
-                        ><span class="ui-icon ui-icon-circle-check"
-                          >Approve Response Doc</span
-                        ></a
-                      >
+                        ><span class="fa-solid fa-circle-check"></span
+                      ></a>
                       <a
                         title="Reject this Document"
                         href="javascript:void(0)"
                         data-bind="click: $root.ClickRejectResponseDoc"
-                        ><span class="ui-icon ui-icon-circle-close"
-                          >Reject Response Doc</span
-                        ></a
-                      >
+                        ><span class="fa-solid fa-circle-xmark"></span
+                      ></a>
                     </span>
                   </td>
                   <td
@@ -629,7 +578,7 @@
         >
           <fieldset style="border-color: GreenYellow">
             <legend style="font-weight: bold; font-size: 10pt">Action</legend>
-            <span class="ui-icon ui-icon-gear"></span
+            <span class="fa-solid fa-gears"></span
             ><a
               class="btnReturnToCGFS"
               href="javascript:void(0)"

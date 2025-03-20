@@ -10,6 +10,7 @@ const groupNameSpecialPermName1 = "CGFS Special Access1";
 const groupNameSpecialPermName2 = "CGFS Special Access2";
 const groupNameQA = "Quality Assurance";
 const groupNameEA = "External Auditors";
+export const groupNameIA = "Internal Auditors";
 
 export function getSiteGroups() {
   const groups = getDefaultGroups();

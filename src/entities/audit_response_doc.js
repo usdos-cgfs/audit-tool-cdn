@@ -101,6 +101,11 @@ export class AuditResponseDoc extends ConstrainedEntity {
     if (this.FileName.Value() != newFileName) this.FileName.Value(newFileName);
   }
 
+  markReturnedToIA(rejectReason) {
+    this.DocumentStatus.Value(AuditResponseDocStates.Rejected);
+    this.RejectReason.Value(rejectReason);
+  }
+
   static Views = {
     All: [
       "ID",

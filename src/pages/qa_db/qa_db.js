@@ -1,60 +1,76 @@
-﻿import qaDbTemplate from "./qa_db.html";
+﻿import "../../../lib/webcomponents/searchselect/searchselect.js";
+import "../../../lib/webcomponents/data-table/data-table.js";
+
+import qaDbTemplate from "./qa_db.html";
 import { setUrlParam } from "../../common/router.js";
 import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 import { getAllItems } from "../../services/legacy_helpers.js";
 
+import { addNotification } from "../../services/notifications.js";
+
+import * as ko from "knockout";
+import { NewUtilities } from "../../common/index.js";
+import {
+  appContext,
+  initAppcontext,
+} from "../../infrastructure/application_db_context.js";
+
 import "../../sal/infrastructure/knockout_extensions.js";
-import "../../common/utilities.js";
+import { registerStyles } from "../../infrastructure/register_styles.js";
+import { InitSal } from "../../sal/infrastructure/sal.js";
 
-document.getElementById("app").innerHTML = qaDbTemplate;
-// var SP = window.SP;
-// var ko = window.ko;
+import {
+  auditOrganizationStore,
+  configurationsStore,
+} from "../../infrastructure/store.js";
 
-window.Audit = window.Audit || {};
-Audit.QAReport = Audit.QAReport || {};
+import * as ModalDialog from "../../sal/components/modal/index.js";
+import { ConfirmApproveResponseDocForm } from "../../components/forms/response_doc/confirm_approve/confirm_approve_response_doc_form.js";
+import {
+  approveResponseDocsForRO,
+  returnResponseDocsToIA,
+} from "../../services/approvals_service.js";
+import { AuditResponseDocStates } from "../../entities/audit_response_doc.js";
+import {
+  closeOrReturnFinalizedResponsesQA,
+  closeResponseById,
+  returnResponseToIAById,
+} from "../../services/audit_response_service.js";
+import { sortByTitle } from "../../sal/infrastructure/entity_utilities.js";
+import { ConfirmRejectResponseDocForm } from "../../components/forms/response_doc/confirm_reject/confirm_reject_response_doc_form.js";
+
+const html = String.raw;
+var Audit = { ...window.Audit, Common: {}, QAReport: {} };
+
+window.Audit = Audit;
 
 const responseParam = "ResNum";
 
-var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");
-if (paramShowSiteActionsToAnyone != true) {
-  //hide it even for owners unless this param is passed into the URL; pass in param if you want to change the page web parts/settings
-  $("#RibbonContainer-TabRowLeft").hide();
-  $(".ms-siteactionsmenu").hide();
-}
+export async function load(element, context) {
+  window.context = context;
+  element.innerHTML = qaDbTemplate;
+  registerStyles(element);
+  initAppcontext();
+  await InitSal();
 
-if (document.readyState === "ready" || document.readyState === "complete") {
-  InitReport();
-} else {
-  document.onreadystatechange = () => {
-    if (document.readyState === "complete" || document.readyState === "ready") {
-      ExecuteOrDelayUntilScriptLoaded(function () {
-        SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport);
-      }, "sp.js");
-    }
-  };
-}
+  await appContext.AuditConfigurations.ToList().then((configurations) => {
+    configurations.map(
+      (config) => (configurationsStore[config.key] = config.value)
+    );
+  });
+  await appContext.AuditOrganizations.ToList().then((organizations) => {
+    ko.utils.arrayPushAll(
+      auditOrganizationStore,
+      organizations.sort(sortByTitle)
+    );
+  });
 
-function InitReport() {
+  Audit.Common.Utilities = new NewUtilities();
   Audit.QAReport.Report = new Audit.QAReport.NewReportPage();
   Audit.QAReport.Init();
 }
 
 Audit.QAReport.Init = function () {
-  var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");
-  if (paramShowSiteActionsToAnyone != true) {
-    //hide it even for owners unless this param is passed into the URL; pass in param if you want to change the page web parts/settings
-    $("#RibbonContainer-TabRowLeft").hide();
-    $(".ms-siteactionsmenu").hide();
-  }
-  /*setInterval(function() {
-	    var divVal = $("#divCounter").text();
-	    var count = divVal * 1 - 1;
-	    $("#divCounter").text(count);
-	    if (count <= 0) {
-	       Audit.Common.Utilities.Refresh();
-	    }
-	}, 1000);*/
-
   function SetTimer() {
     var intervalRefreshID = setInterval(function () {
       var divVal = $("#divCounter").text();
@@ -82,9 +98,6 @@ Audit.QAReport.NewReportPage = function () {
   var m_bigMap = new Object();
 
   var m_IA_SPGroupName = null;
-  var m_IA_ActionOffice = null;
-
-  var m_itemID = null;
   var m_RejectReason = "";
 
   var m_resStatusToFilterOn = "";
@@ -95,8 +108,6 @@ Audit.QAReport.NewReportPage = function () {
   var memberGroup = null;
 
   var statusId = null;
-  var notifyId = null;
-  let m_waitDialog = null;
 
   var m_requestItems = null;
   var m_requestInternalItems = null;
@@ -105,9 +116,6 @@ Audit.QAReport.NewReportPage = function () {
 
   var m_ResponseDocsItems = null;
   var m_aoItems = null;
-
-  let eaReponseDocsFolderItems = null;
-  let eaEmailLogListItems = null;
 
   function CommentChainField(requestId, props) {
     var requestListTitle = props.requestListTitle;
@@ -196,11 +204,13 @@ Audit.QAReport.NewReportPage = function () {
 
     self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
 
-    //cant add rate limit because it'll affect the refresh
-    //self.arrResponses = ko.observableArray( null ).extend({ rateLimit: 500 });
+    self.currentDialogs = ModalDialog.currentDialogs;
+
     self.arrResponses = ko.observableArray(null);
 
-    // self.arrFilteredResponsesCount = ko.observable(0);
+    self.arrResponses.subscribe((arrayChanges) => {
+      document.getElementById("tblStatusReportResponses")?.update();
+    }, "arrayChange");
 
     self.cntPendingReview = ko.observable(0);
 
@@ -247,27 +257,6 @@ Audit.QAReport.NewReportPage = function () {
 
     /** Behaviors **/
 
-    self.ClearFiltersResponseTab = function () {
-      self.filterResponseTabRequestID("");
-      self.filterResponseTabRequestStatus("");
-      self.filterResponseTabRequestIntDueDate("");
-      self.filterResponseTabSampleNum("");
-      self.filterResponseTabResponseName("");
-      self.filterResponseTabResponseStatus("");
-    };
-
-    /*self.GoToResponse = function( response )
-		{
-			$('#tabs').tabs({ active: 1 });			
-			
-			var requestStatus = response.requestStatus;
-			var responseStatus = response.status;
-			if( (responseStatus == "4-Approved for QA" || responseStatus == "6-Reposted After Rejection" ) && ( requestStatus  == "Open" || requestStatus == "ReOpened") )  
-				self.filterResponseNameOpen2 ( response.title );
-			else
-				self.filterResponseNameProcessed2 ( response.title );
-		};	*/
-
     self.filteredResponses = ko.pureComputed(() => {
       const responses = ko.unwrap(self.arrResponses);
       var requestID = self.filterResponseTabRequestID();
@@ -285,7 +274,6 @@ Audit.QAReport.NewReportPage = function () {
         !responseName &&
         !responseStatus
       ) {
-        // self.arrFilteredResponsesCount(responses.length);
         document.body.style.cursor = "default";
         return responses;
       }
@@ -302,102 +290,9 @@ Audit.QAReport.NewReportPage = function () {
 
         return true;
       });
-      // self.arrFilteredResponsesCount(filteredResponses.length);
 
       return filteredResponses;
     });
-    self.arrFilteredResponsesCount = ko.pureComputed(() => {
-      return self.filteredResponses().length;
-    });
-
-    // self.responseIsFiltered = function () {};
-
-    self.FilterChangedResponseTab = function () {
-      document.body.style.cursor = "wait";
-      setTimeout(function () {
-        var requestID = self.filterResponseTabRequestID();
-        var requestStatus = self.filterResponseTabRequestStatus();
-        var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
-        var sampleNum = self.filterResponseTabSampleNum();
-        var responseName = self.filterResponseTabResponseName();
-        var responseStatus = self.filterResponseTabResponseStatus();
-
-        if (
-          !requestID &&
-          !requestStatus &&
-          !requestIntDueDate &&
-          !sampleNum &&
-          !responseName &&
-          !responseStatus
-        ) {
-          $(".sr-response-item").show();
-          // self.arrFilteredResponsesCount(self.arrResponses().length);
-          document.body.style.cursor = "default";
-          return;
-        }
-
-        requestID = !requestID ? "" : requestID;
-        requestStatus = !requestStatus ? "" : requestStatus;
-        requestIntDueDate = !requestIntDueDate ? "" : requestIntDueDate;
-        sampleNum = !sampleNum ? "" : sampleNum;
-        responseName = !responseName ? "" : responseName;
-        responseStatus = !responseStatus ? "" : responseStatus;
-
-        var count = 0;
-        var eacher = $(".sr-response-item");
-        eacher.each(function () {
-          var hide = false;
-
-          if (
-            !hide &&
-            requestID != "" &&
-            $.trim($(this).find(".sr-response-requestNum").text()) != requestID
-          )
-            hide = true;
-          if (
-            !hide &&
-            requestStatus != "" &&
-            $.trim($(this).find(".sr-response-requestStatus").text()) !=
-              requestStatus
-          )
-            hide = true;
-          if (
-            !hide &&
-            requestIntDueDate != "" &&
-            $.trim($(this).find(".sr-response-internalDueDate").text()) !=
-              requestIntDueDate
-          )
-            hide = true;
-          if (
-            !hide &&
-            responseName != "" &&
-            $.trim($(this).find(".sr-response-title").text()) != responseName
-          )
-            hide = true;
-          if (
-            !hide &&
-            sampleNum != "" &&
-            $.trim($(this).find(".sr-response-sample").text()) != sampleNum
-          )
-            hide = true;
-          if (
-            !hide &&
-            responseStatus != "" &&
-            $.trim($(this).find(".sr-response-status").text()) != responseStatus
-          )
-            hide = true;
-
-          if (hide) $(this).hide();
-          else {
-            $(this).show();
-            count++;
-          }
-        });
-
-        // self.arrFilteredResponsesCount(count);
-        document.body.style.cursor = "default";
-      }, 100);
-    };
 
     self.ClickHelpResponseDocs = function () {
       m_fnDisplayHelpResponseDocs();
@@ -437,15 +332,8 @@ Audit.QAReport.NewReportPage = function () {
       //alert("in dosort: " + self.arrResponses().length );
       if (self.arrResponses().length > 0 && newValue) {
         //should trigger only once
-        // self.arrFilteredResponsesCount(self.arrResponses().length);
 
         //draw these first
-        ko.utils.arrayPushAll(
-          self.ddOptionsResponseTabResponseStatus(),
-          self.GetDDVals("status")
-        );
-        self.ddOptionsResponseTabResponseStatus.valueHasMutated();
-
         ko.utils.arrayPushAll(
           self.ddOptionsResponseInfoTabResponseNameOpen2(),
           self.GetDDVals2("1", true)
@@ -459,35 +347,6 @@ Audit.QAReport.NewReportPage = function () {
         self.ddOptionsResponseInfoTabResponseNameProcessed2.valueHasMutated();
 
         //draw these next
-        ko.utils.arrayPushAll(
-          self.ddOptionsResponseTabRequestID(),
-          self.GetDDVals("reqNumber")
-        );
-        self.ddOptionsResponseTabRequestID.valueHasMutated();
-
-        ko.utils.arrayPushAll(
-          self.ddOptionsResponseTabRequestStatus(),
-          self.GetDDVals("requestStatus")
-        );
-        self.ddOptionsResponseTabRequestStatus.valueHasMutated();
-
-        ko.utils.arrayPushAll(
-          self.ddOptionsResponseTabRequestInternalDueDate(),
-          self.GetDDVals("internalDueDate")
-        );
-        self.ddOptionsResponseTabRequestInternalDueDate.valueHasMutated();
-
-        ko.utils.arrayPushAll(
-          self.ddOptionsResponseTabRequestSample(),
-          self.GetDDVals("sample")
-        );
-        self.ddOptionsResponseTabRequestSample.valueHasMutated();
-
-        ko.utils.arrayPushAll(
-          self.ddOptionsResponseTabResponseTitle(),
-          self.GetDDVals("title", true)
-        );
-        self.ddOptionsResponseTabResponseTitle.valueHasMutated();
 
         setTimeout(function () {
           var paramTabIndex = GetUrlKeyValue("Tab");
@@ -525,17 +384,9 @@ Audit.QAReport.NewReportPage = function () {
             }
           }
 
-          BindHandlersOnLoad();
-
           if (m_resStatusToFilterOn != "")
             self.filterResponseTabResponseStatus(m_resStatusToFilterOn);
           else self.filterResponseTabRequestStatus("Open");
-
-          //$( "#tblStatusReportResponses" ).trigger("update");
-          $("#tblStatusReportResponses").tablesorter({
-            sortList: [[3, 0]],
-            selectorHeaders: ".sorter-true",
-          });
         }, 200);
       }
     });
@@ -577,7 +428,7 @@ Audit.QAReport.NewReportPage = function () {
         LoadTabResponseInfoResponseDocs(oResponse);
 
         setTimeout(function () {
-          const notifyId = SP.UI.Notify.addNotification(
+          const notifyId = addNotification(
             "Displaying Response (" + oResponse.title + ")",
             false
           );
@@ -586,18 +437,6 @@ Audit.QAReport.NewReportPage = function () {
     };
 
     /**Other**/
-    self.GetDDVals = function (fieldName, sortAsResponse) {
-      var types = ko.utils.arrayMap(self.arrResponses(), function (item) {
-        return item[fieldName];
-      });
-
-      var ddArr = ko.utils.arrayGetDistinctValues(types).sort();
-      if (sortAsResponse) ddArr.sort(Audit.Common.Utilities.SortResponseTitles);
-
-      if (ddArr[0] == "") ddArr.shift();
-
-      return ddArr;
-    };
 
     self.GetDDVals2 = function (responseStatusType, sortAsResponse) {
       var types = ko.utils.arrayMap(self.arrResponses(), function (item) {
@@ -654,7 +493,7 @@ Audit.QAReport.NewReportPage = function () {
     m_requestItems = requestList.getItems(requestQuery);
     currCtx.load(
       m_requestItems,
-      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, InternalDueDate, ActionOffice, Comments, RelatedAudit, ActionItems, EmailSent, ClosedDate, Modified)"
+      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, InternalDueDate, RequestingOffice, ActionOffice, Comments, RelatedAudit, ActionItems, EmailSent, ClosedDate, Modified)"
     );
 
     var requestInternalList = web
@@ -669,34 +508,7 @@ Audit.QAReport.NewReportPage = function () {
       m_requestInternalItems,
       "Include(ID, Title, ReqNum, InternalStatus)"
     );
-    /*
-    var responseList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-    var responseQuery = new SP.CamlQuery();
-    responseQuery.set_viewXml(
-      '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
-    );
-    m_responseItems = responseList.getItems(responseQuery);
-    currCtx.load(
-      m_responseItems,
-      "Include(ID, Title, ReqNum, ActionOffice, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy)"
-    );
 
-    //make sure to only pull documents (fsobjtype = 0)
-    var responseDocsLib = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-    var responseDocsQuery = new SP.CamlQuery();
-    responseDocsQuery.set_viewXml(
-      '<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'
-    );
-    m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
-    currCtx.load(
-      m_ResponseDocsItems,
-      "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, Modified, Editor)"
-    );
-*/
     await Promise.all([
       getAllItems(Audit.Common.Utilities.GetListTitleResponses(), [
         "ID",
@@ -719,6 +531,7 @@ Audit.QAReport.NewReportPage = function () {
         "ResID",
         "DocumentStatus",
         "ReceiptDate",
+        "RejectReason",
         "FileLeafRef",
         "FileDirRef",
         "File_x0020_Size",
@@ -735,7 +548,7 @@ Audit.QAReport.NewReportPage = function () {
       '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
     );
     m_aoItems = aoList.getItems(aoQuery);
-    currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
+    currCtx.load(m_aoItems, "Include(ID, Title, UserGroup, Role)");
 
     memberGroup = web.get_associatedMemberGroup();
     currCtx.load(memberGroup);
@@ -767,10 +580,6 @@ Audit.QAReport.NewReportPage = function () {
       SP.UI.Status.setStatusPriColor(statusId, "red");
       return;
     }
-
-    m_IA_ActionOffice = Audit.Common.Utilities.GetActionOffices()?.find(
-      (ao) => ao.userGroup == m_IA_SPGroupName
-    );
 
     LoadRequests();
     LoadResponses();
@@ -804,6 +613,11 @@ Audit.QAReport.NewReportPage = function () {
           "<div>" + arrActionOffice[x].get_lookupValue() + "</div>";
       }
 
+      var requestingOffice = oListItem.get_item("RequestingOffice");
+      if (requestingOffice != null)
+        requestingOffice = requestingOffice.get_lookupValue();
+      else requestingOffice = "";
+
       var internalDueDate = oListItem.get_item("InternalDueDate");
       var closedDate = oListItem.get_item("ClosedDate");
 
@@ -830,6 +644,7 @@ Audit.QAReport.NewReportPage = function () {
       requestObject["internalDueDate"] = internalDueDate;
       requestObject["sample"] = sample;
       requestObject["actionOffice"] = actionOffice;
+      requestObject["requestingOffice"] = requestingOffice;
       requestObject["comments"] = comments;
       requestObject["emailSent"] = emailSent;
       requestObject["closedDate"] = closedDate;
@@ -1076,18 +891,7 @@ Audit.QAReport.NewReportPage = function () {
         visibleRow: ko.observable(true),
       };
       responseArr.push(aResponse);
-
-      /*if( bLoadTest )
-			{
-				for( var z = 0; z < 99; z++ )
-				{
-					responseArr.push( aResponse );
-				}	
-			}*/
     }
-
-    //if( bLoadTest )
-    //	_myViewModel.debugMode( true );
 
     if (responseArr.length > 0) {
       m_resStatusToFilterOn = "";
@@ -1099,75 +903,11 @@ Audit.QAReport.NewReportPage = function () {
       _myViewModel.cntPendingReview(count);
 
       ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
-
-      //do this after push all because this takes some time
-      // var output = $("#responseTemplate").render(responseArr);
-      // $("#" + fbody).html(output);
-
-      //DoUpdateModel( responseArr, true);
+      _myViewModel.arrResponses.valueHasMutated();
     }
 
     //always do this even if 0 responses
     _myViewModel.doSort(true);
-  }
-
-  /////////OBSOLETE
-  //recursive function
-  function DoUpdateModel(arrResponsesToAdd, initialTrip) {
-    /*
-		ko.utils.arrayPushAll( _myViewModel.arrResponses, arrResponsesToAdd);
-		_myViewModel.arrResponses.valueHasMutated();
-		_myViewModel.doSort ( true );
-		return;
-		*/
-
-    var subArr = [];
-
-    var bContinue = true;
-    var batchSize = 100;
-    if (initialTrip) batchSize = 100;
-
-    if (arrResponsesToAdd.length >= batchSize) {
-      subArr = arrResponsesToAdd.slice(0, batchSize);
-      arrResponsesToAdd.splice(0, batchSize);
-    } else if (arrResponsesToAdd.length > 0) {
-      subArr = arrResponsesToAdd.slice(0, arrResponsesToAdd.length);
-      arrResponsesToAdd.splice(0, arrResponsesToAdd.length);
-    }
-
-    if (bContinue) {
-      ////////////// Not sure if I should be doing .arrResponses or .arrResponses()
-      ko.utils.arrayPushAll(_myViewModel.arrResponses(), subArr);
-
-      var updatedMutated = false;
-      if (initialTrip) {
-        //	_myViewModel.arrResponses.valueHasMutated();
-        updatedMutated = true;
-      }
-
-      _myViewModel.arrResponses.valueHasMutated();
-
-      if (arrResponsesToAdd.length == 0) {
-        //		if( !initialTrip && !updatedMutated ) //only mutate at the end after initial trip
-        //			_myViewModel.arrResponses.valueHasMutated();
-
-        _myViewModel.doSort(true);
-      }
-
-      //DoUpdateModel( arrResponsesToAdd, false );
-      if (arrResponsesToAdd.length > 0) {
-        //DoUpdateModel( arrResponsesToAdd, false);
-        setTimeout(function () {
-          DoUpdateModel(arrResponsesToAdd, false);
-        }, 100);
-
-        /*
-				if( initialTrip )
-			    	setTimeout( function(){ DoUpdateModel( arrResponsesToAdd, false); }, 100);
-			    else
-			    	DoUpdateModel( arrResponsesToAdd, false );*/
-      }
-    }
   }
 
   function LoadTabResponseInfoCoverSheets(oResponse) {
@@ -1246,7 +986,7 @@ Audit.QAReport.NewReportPage = function () {
       $("#ddlResponsesOpen").val() != ""
     ) {
       //an open response is selected and there are no documents
-      notifyId = SP.UI.Notify.addNotification(
+      notifyId = addNotification(
         "There are 0 documents to review for " + $("#ddlResponsesOpen").val(),
         false
       );
@@ -1333,7 +1073,7 @@ Audit.QAReport.NewReportPage = function () {
       ) {
         //check if all documents are complete for QA and that if the response is still open
         _myViewModel.showCloseResponse(true);
-        SP.UI.Notify.addNotification(
+        addNotification(
           "This Response did not automatically close. Please close this response.",
           false
         );
@@ -1367,40 +1107,27 @@ Audit.QAReport.NewReportPage = function () {
       "<div style='padding:20px; padding-top:10px;'><fieldset style='padding-top:10px;'><legend>Actions</legend> If the Response Status is <b>4-Approved for QA</b> or <b>6-Reposted After Rejection</b>, then the documents can be <b>Approved</b> or <b>Rejected</b><ul style='padding-top:10px;'>" +
       "<li style='padding-top:5px;'><b>Approve</b> - Submit the document to the External Auditor</li>" +
       "<li style='padding-top:5px;'><b>Reject</b> - Reject the document and return to the Internal Auditor</li>" +
-      "</ul></fieldset></div>" +
-      "<table style='padding-top:10px; width:200px; float:right'>" +
-      "<tr><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' title='Close Help' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
-      "</table></div>";
+      "</ul></fieldset></div></div>";
 
-    $("body").append(helpDlg);
-
-    var options = SP.UI.$create_DialogOptions();
+    var options = {};
     options.title = "Response Documents Help";
     options.dialogReturnValueCallback = OnCallbackForm;
-    options.html = document.getElementById("helpDlg");
+    options.html = helpDlg;
     options.height = 450;
-    SP.UI.ModalDialog.showModalDialog(options);
+    Modal.showModalDialog(options);
   }
 
-  let m_cntToApprove = 0;
-  let m_cntApproved = 0;
   function m_fnApproveAll() {
     m_bIsTransactionExecuting = true;
 
-    var approveResponseDocDlg =
-      "<div id='approveResponseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:green'>Approve</span> all remaining documents?</span></div>" +
-      "<table style='padding-top:10px; width:200px; margin:0px auto'>" +
-      "<tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Send to Auditor' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td>" +
-      "<td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
-      "</table></div>";
+    const oResponse = m_fnGetResponseByTitle($("#ddlResponsesOpen").val());
+    if (oResponse == null || oResponse.request == null) return;
 
-    $("body").append(approveResponseDocDlg);
+    const oResponseDocsForApproval = oResponse.responseDocs.filter(
+      (doc) => doc.documentStatus == AuditResponseDocStates.SentToQA
+    );
 
-    var options = SP.UI.$create_DialogOptions();
-    options.title = "Approve Response Documents";
-    options.dialogReturnValueCallback = OnCallbackApproveAllResponseDoc;
-    options.html = document.getElementById("approveResponseDocDlg");
-    SP.UI.ModalDialog.showModalDialog(options);
+    getResponseDocApproval(oResponseDocsForApproval);
   }
 
   function m_fnApproveResponseDoc(id, responseDocFileName) {
@@ -1408,105 +1135,130 @@ Audit.QAReport.NewReportPage = function () {
     //used in callback
     m_itemID = id;
     m_RejectReason = "";
+    const oResponseDocsForApproval = [
+      { ID: id, fileName: responseDocFileName },
+    ];
 
-    var approveResponseDocDlg =
-      "<div id='approveResponseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:green'>Approve</span> the Response Document? <p style='padding-top:10px; font-weight:bold; color:green'>" +
-      responseDocFileName +
-      "</p></span></div>" +
-      "<table style='padding-top:10px; width:200px; margin:0px auto'>" +
-      "<tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Send to Auditor' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td>" +
-      "<td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
-      "</table></div>";
+    getResponseDocApproval(oResponseDocsForApproval);
+  }
 
-    $("body").append(approveResponseDocDlg);
+  function getResponseDocApproval(oResponseDocsForApproval) {
+    var oResponse = m_fnGetResponseByTitle($("#ddlResponsesOpen").val());
 
-    var options = SP.UI.$create_DialogOptions();
-    options.title = "Approve Response Document";
-    options.dialogReturnValueCallback = OnCallbackApproveResponseDoc;
-    options.html = document.getElementById("approveResponseDocDlg");
-    SP.UI.ModalDialog.showModalDialog(options);
+    if (oResponse == null || oResponse.request == null) {
+      //m_waitDialog.close();
+      return;
+    }
+    const request = oResponse.request;
+
+    const sendToText = request.requestingOffice;
+
+    const onApprove = async () => {
+      await approveResponseDocsForRO(
+        request.ID,
+        oResponseDocsForApproval.map((doc) => doc.ID)
+      );
+      await closeOrReturnFinalizedResponsesQA(request.ID);
+      return true;
+    };
+
+    const newResponseDocForm = new ConfirmApproveResponseDocForm(
+      sendToText,
+      oResponseDocsForApproval,
+      onApprove
+    );
+
+    const options = {
+      form: newResponseDocForm,
+      dialogReturnValueCallback: window.location.reload,
+      title: "Approve Response Docs?",
+    };
+
+    ModalDialog.showModalDialog(options);
   }
 
   function m_fnRejectResponseDoc(id, responseDocFileName) {
-    m_bIsTransactionExecuting = true;
-    //used in callback
-    m_itemID = id;
-    m_RejectReason = "";
+    var oResponse = m_fnGetResponseByTitle($("#ddlResponsesOpen").val());
 
-    var rejectResponseDocDlg =
-      "<div id='rejectResponseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:DarkRed'>Reject</span> the Response Document? <p style='padding-top:10px; font-weight:bold; color:DarkRed'>" +
-      responseDocFileName +
-      "</p><p style='padding-top:10px'>If so, please specify the reason: </p><p><textarea id='txtRejectReason' cols='50' rows='3' onkeyup='Audit.QAReport.Report.GetCancelReason()'></textarea></p></span></div>" +
-      "<table style='padding-top:10px; width:200px; margin:0px auto'>" +
-      "<tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Yes, Reject Document' disabled='disabled' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td>" +
-      "<td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
-      "</table></div>";
+    if (oResponse == null || oResponse.request == null) {
+      return;
+    }
+    const request = oResponse.request;
 
-    $("body").append(rejectResponseDocDlg);
+    const oResponseDocsForRejection = [
+      { ID: id, fileName: responseDocFileName },
+    ];
 
-    var options = SP.UI.$create_DialogOptions();
-    options.title = "Reject Response Document";
-    options.dialogReturnValueCallback = OnCallbackRejectResponseDoc;
-    options.html = document.getElementById("rejectResponseDocDlg");
-    SP.UI.ModalDialog.showModalDialog(options);
-    $("#txtRejectReason").focus();
+    const onSubmit = async (rejectReason) => {
+      await returnResponseDocsToIA(
+        request.ID,
+        oResponseDocsForRejection.map((doc) => doc.ID),
+        rejectReason
+      );
+      await closeOrReturnFinalizedResponsesQA(request.ID);
+      return true;
+    };
+
+    const newResponseDocForm = new ConfirmRejectResponseDocForm(
+      oResponseDocsForRejection,
+      onSubmit
+    );
+
+    const options = {
+      form: newResponseDocForm,
+      dialogReturnValueCallback: window.location.reload,
+      title: "Reject Response Docs?",
+    };
+
+    ModalDialog.showModalDialog(options);
   }
 
   function m_fnCloseResponse() {
     m_bIsTransactionExecuting = true;
 
-    var responseDocDlg =
-      "<div id='responseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>All documents in this response are Approved. Are you sure you would like to <span style='font-weight:bold; color:green'>Close this Response</span>? </span></div>" +
-      "<table style='padding-top:10px; width:200px; margin:0px auto'>" +
-      "<tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Close Response' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td>" +
-      "<td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
-      "</table></div>";
+    var responseDocDlg = html`
+      <div id="responseDocDlg" style="padding:20px; height:100px">
+        <div style="padding:20px;">
+          All documents in this response are Approved. Are you sure you would
+          like to
+          <span style="font-weight:bold; color:green">Close this Response</span
+          >?
+        </div>
+      </div>
+    `;
 
-    $("body").append(responseDocDlg);
-
-    var options = SP.UI.$create_DialogOptions();
+    var options = {};
     options.title = "Close Response";
     options.dialogReturnValueCallback = OnCallbackCloseResponse;
-    options.html = document.getElementById("responseDocDlg");
-    SP.UI.ModalDialog.showModalDialog(options);
+    options.html = responseDocDlg;
+    options.showSubmit = true;
+    ModalDialog.showModalDialog(options);
   }
 
   function m_fnReturnToCGFS() {
     m_bIsTransactionExecuting = true;
 
-    var responseDocDlg =
-      "<div id='responseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:darkred'>Return this Response to CGFS</span>? <p style='padding-top:10px;'><b>Note</b>: If you return it, you will no longer be able to Approve or Reject the Remaining Response Documents</p></span></div>" +
-      "<table style='padding-top:10px; width:200px; margin:0px auto'>" +
-      "<tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Return to CGFS' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td>" +
-      "<td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
-      "</table></div>";
+    var responseDocDlg = html` <div id="responseDocDlg">
+      <div style="">
+        <p>
+          Are you sure you would like to
+          <span style="font-weight:bold; color:darkred"
+            >Return this Response to CGFS</span
+          >?
+        </p>
+        <p style="padding-top:10px;">
+          <b>Note</b>: If you return it, you will no longer be able to Approve
+          or Reject the Remaining Response Documents
+        </p>
+      </div>
+    </div>`;
 
-    $("body").append(responseDocDlg);
-
-    var options = SP.UI.$create_DialogOptions();
+    var options = {};
     options.title = "Return to CGFS";
-    options.dialogReturnValueCallback = OnCallbackReturnToCGFS;
-    options.html = document.getElementById("responseDocDlg");
-    SP.UI.ModalDialog.showModalDialog(options);
-  }
-
-  function m_fnFormatEmailBodyToIAFromQA(oRequest, responseTitle) {
-    var emailText =
-      "<div>Audit Request Reference: <b>REQUEST_NUMBER</b></div>" +
-      "<div>Audit Request Subject: <b>REQUEST_SUBJECT</b></div>" +
-      "<div>Audit Request Due Date: <b>REQUEST_DUEDATE</b></div><br/>" +
-      "<div>Below is the Response that was updated: </div>" +
-      "<div>RESPONSE_TITLE</div>";
-
-    emailText = emailText.replace("REQUEST_NUMBER", oRequest.number);
-    emailText = emailText.replace("REQUEST_SUBJECT", oRequest.subject);
-    emailText = emailText.replace("REQUEST_DUEDATE", oRequest.internalDueDate);
-    emailText = emailText.replace("REQUEST_ACTIONITEMS", oRequest.actionItems);
-
-    var responseTitleBody = "<ul><li>" + responseTitle + "</li></ul>";
-    emailText = emailText.replace("RESPONSE_TITLE", responseTitleBody);
-
-    return emailText;
+    options.dialogReturnValueCallback = OnCallbackReturnToIA;
+    options.html = responseDocDlg;
+    options.showSubmit = true;
+    ModalDialog.showModalDialog(options);
   }
 
   function m_fnGetResponseByTitle(title) {
@@ -1518,1171 +1270,33 @@ Audit.QAReport.NewReportPage = function () {
     return oResponse;
   }
 
-  function m_fnCreateEAFolder(requestNumber) {
-    var ctx2 = new SP.ClientContext.get_current();
-
-    //Check if folder exists in EA library
-    var bFolderExists = false;
-    var listItemEnumerator = eaReponseDocsFolderItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var folderItem = listItemEnumerator.get_current();
-
-      var itemName = folderItem.get_displayName();
-      if (itemName == requestNumber) {
-        bFolderExists = true;
-        break;
-      }
-    }
-
-    //If folder doesn't exist, create it in EA library
-    if (!bFolderExists) {
-      var earesponseDocLib = ctx2
-        .get_web()
-        .get_lists()
-        .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
-
-      var itemCreateInfo = new SP.ListItemCreationInformation();
-      itemCreateInfo.set_underlyingObjectType(SP.FileSystemObjectType.folder);
-      itemCreateInfo.set_leafName(requestNumber);
-
-      const oNewEAFolder = earesponseDocLib.addItem(itemCreateInfo);
-      oNewEAFolder.set_item("Title", requestNumber);
-      oNewEAFolder.update();
-
-      function OnSuccess(sender, args) {}
-      function OnFailure(sender, args) {}
-
-      ctx2.executeQueryAsync(OnSuccess, OnFailure);
-    }
-  }
-
-  function m_fnCreateEAEmailLogItem() {
-    var ctx2 = new SP.ClientContext.get_current();
-
-    //Check if an item exists in EA Email log list library
-    var bExists = false;
-    var listItemEnumerator = eaEmailLogListItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var emailLogItems = listItemEnumerator.get_current();
-
-      var bExists = true;
-      break;
-    }
-
-    //If folder doesn't exist, create it in EA library
-    if (!bExists) {
-      //this should never come here
-      var eaEmailLogList = ctx2
-        .get_web()
-        .get_lists()
-        .getByTitle("AuditEAEmailLog");
-      var date = new Date();
-      var friendlyName = date.format("MM/dd/yyyy");
-
-      var itemCreateInfo = new SP.ListItemCreationInformation();
-      const oNewEmailLogItem = eaEmailLogList.addItem(itemCreateInfo);
-      oNewEmailLogItem.set_item("Title", friendlyName);
-      oNewEmailLogItem.update();
-
-      function OnSuccess(sender, args) {}
-      function OnFailure(sender, args) {}
-
-      ctx2.executeQueryAsync(OnSuccess, OnFailure);
-    }
-  }
-
-  function m_fnGetRequestByResponseTitle(responseTitle) {
-    var oRequest = null;
-
-    try {
-      var response = m_bigMap["response-" + responseTitle];
-      if (response) oRequest = response.request;
-    } catch (err) {}
-
-    return oRequest;
-  }
-
-  function m_fnCreateEmailToIAFromQA(
-    emailList,
-    oRequest,
-    responseTitle,
-    emailSubject
-  ) {
-    if (!oRequest || !emailList) return;
-
-    var emailText = m_fnFormatEmailBodyToIAFromQA(oRequest, responseTitle);
-
-    var itemCreateInfo = new SP.ListItemCreationInformation();
-    itemCreateInfo.set_folderUrl(
-      location.protocol +
-        "//" +
-        location.host +
-        Audit.Common.Utilities.GetSiteUrl() +
-        "/Lists/" +
-        Audit.Common.Utilities.GetListNameEmailHistory() +
-        "/" +
-        oRequest.number
-    );
-    const oListItem = emailList.addItem(itemCreateInfo);
-    oListItem.set_item("Title", emailSubject);
-    oListItem.set_item("Body", emailText);
-    oListItem.set_item("To", m_IA_ActionOffice.title);
-    oListItem.set_item("ReqNum", oRequest.number);
-    oListItem.set_item("ResID", responseTitle);
-    oListItem.set_item("NotificationType", "IA Notification");
-    oListItem.update();
-  }
-
   function OnCallbackForm(result, value) {
     if (result === SP.UI.DialogResult.OK) {
     }
   }
 
-  function OnCallbackCloseResponse(result, value) {
-    if (result === SP.UI.DialogResult.OK) {
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Closing Response",
-        "Please wait... Closing Response",
-        200,
-        400
-      );
+  async function OnCallbackCloseResponse(result, value) {
+    if (!result) return;
+    var oResponse = m_fnGetResponseByTitle($("#ddlResponsesOpen").val());
 
-      var responseTitle = $("#ddlResponsesOpen").val();
+    if (oResponse == null || oResponse.request == null) {
+      return;
+    }
 
-      var ctx2 = SP.ClientContext.get_current();
-
-      var aresponseList = ctx2
-        .get_web()
-        .get_lists()
-        .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-      var aresponseQuery = new SP.CamlQuery();
-      aresponseQuery.set_viewXml(
-        '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' +
-          responseTitle +
-          "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
-      );
-      const aresponseItems = aresponseList.getItems(aresponseQuery);
-      ctx2.load(aresponseItems);
-
-      var emailList = ctx2
-        .get_web()
-        .get_lists()
-        .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
-      var emailListQuery = new SP.CamlQuery();
-      emailListQuery.set_viewXml(
-        '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-      );
-      const emailListFolderItems = emailList.getItems(emailListQuery);
-      ctx2.load(
-        emailListFolderItems,
-        "Include(ID, FSObjType, Title, DisplayName)"
-      );
-
-      function OnSuccess(sender, args) {
-        var listItemEnumerator = aresponseItems.getEnumerator();
-        while (listItemEnumerator.moveNext()) {
-          var oListItemResponse = listItemEnumerator.get_current();
-
-          var responseTitle = oListItemResponse.get_item("Title");
-
-          var curDate = new Date();
-          oListItemResponse.set_item("ResStatus", "7-Closed");
-          //oListItemResponse.set_item( "ClosedDate", Audit.Common.Utilities.GetISODateString( curDate) );
-          var newClosedTime = new Date(
-            curDate.getFullYear(),
-            curDate.getMonth(),
-            curDate.getDate(),
-            curDate.getHours(),
-            curDate.getMinutes(),
-            curDate.getSeconds(),
-            curDate.getMilliseconds()
-          );
-          oListItemResponse.set_item("ClosedDate", newClosedTime);
-          oListItemResponse.set_item("ClosedBy", _spPageContextInfo.userId);
-          oListItemResponse.update();
-
-          var oRequest = null;
-          try {
-            var mapResponse = m_bigMap["response-" + responseTitle];
-            if (mapResponse) oRequest = mapResponse.request;
-          } catch (err) {}
-
-          if (oRequest) {
-            m_fnCreateEmailToIAFromQA(
-              emailList,
-              oRequest,
-              responseTitle,
-              "An Audit Response has been Closed by the Quality Assurance Team: " +
-                responseTitle
-            );
-          } else m_waitDialog.close();
-
-          ctx2.executeQueryAsync(
-            function () {
-              m_waitDialog.close();
-
-              Audit.Common.Utilities.Refresh();
-            },
-            function () {
-              m_waitDialog.close();
-              Audit.Common.Utilities.Refresh();
-            }
-          );
-
-          break; //should only be once
-        }
-      }
-      function OnFailure(sender, args) {
-        m_waitDialog.close();
-        alert(
-          "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
-        );
-      }
-
-      ctx2.executeQueryAsync(OnSuccess, OnFailure);
-    } else m_bIsTransactionExecuting = false;
+    await closeResponseById(oResponse.ID);
+    window.location.reload();
   }
 
-  function OnCallbackReturnToCGFS(result, value) {
-    if (result === SP.UI.DialogResult.OK) {
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Returning to CGFS",
-        "Please wait... Returning to CGFS",
-        200,
-        400
-      );
-
-      var responseTitle = $("#ddlResponsesOpen").val();
-
-      var ctx2 = SP.ClientContext.get_current();
-
-      var aresponseList = ctx2
-        .get_web()
-        .get_lists()
-        .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-      var aresponseQuery = new SP.CamlQuery();
-      aresponseQuery.set_viewXml(
-        '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' +
-          responseTitle +
-          "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
-      );
-      const aresponseItems = aresponseList.getItems(aresponseQuery);
-      ctx2.load(aresponseItems);
-
-      var emailList = ctx2
-        .get_web()
-        .get_lists()
-        .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
-      var emailListQuery = new SP.CamlQuery();
-      emailListQuery.set_viewXml(
-        '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-      );
-      let emailListFolderItems = emailList.getItems(emailListQuery);
-      ctx2.load(
-        emailListFolderItems,
-        "Include(ID, FSObjType, Title, DisplayName)"
-      );
-
-      function OnSuccess(sender, args) {
-        var listItemEnumerator = aresponseItems.getEnumerator();
-        while (listItemEnumerator.moveNext()) {
-          var oListItemResponse = listItemEnumerator.get_current();
-
-          var responseTitle = oListItemResponse.get_item("Title");
-
-          var curDate = new Date();
-          oListItemResponse.set_item("ResStatus", "5-Returned to GFS");
-          oListItemResponse.update();
-
-          var oRequest = null;
-          try {
-            var mapResponse = m_bigMap["response-" + responseTitle];
-            if (mapResponse) oRequest = mapResponse.request;
-          } catch (err) {}
-
-          if (oRequest) {
-            m_fnCreateEmailToIAFromQA(
-              emailList,
-              oRequest,
-              responseTitle,
-              "An Audit Response has been Returned by the Quality Assurance Team: " +
-                responseTitle
-            );
-          } else m_waitDialog.close();
-
-          ctx2.executeQueryAsync(
-            function () {
-              m_waitDialog.close();
-
-              Audit.Common.Utilities.Refresh();
-            },
-            function () {
-              m_waitDialog.close();
-              Audit.Common.Utilities.Refresh();
-            }
-          );
-
-          break; //should only be once
-        }
-      }
-      function OnFailure(sender, args) {
-        m_waitDialog.close();
-        alert(
-          "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
-        );
-      }
-
-      ctx2.executeQueryAsync(OnSuccess, OnFailure);
-    } else m_bIsTransactionExecuting = false;
-  }
-
-  function OnCallbackApproveResponseDoc(result, value) {
-    if (result === SP.UI.DialogResult.OK) {
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Approving Response Document",
-        "Please wait... Approving Response Document",
-        200,
-        400
-      );
-
-      var clientContext = SP.ClientContext.get_current();
-      var oList = clientContext
-        .get_web()
-        .get_lists()
-        .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-
-      let oListItem = oList.getItemById(m_itemID);
-      clientContext.load(oListItem);
-
-      var eaResponseDocsLib = clientContext
-        .get_web()
-        .get_lists()
-        .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
-      var earesponseDocsQuery = new SP.CamlQuery();
-      earesponseDocsQuery.set_viewXml(
-        '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-      );
-      eaReponseDocsFolderItems =
-        eaResponseDocsLib.getItems(earesponseDocsQuery);
-      clientContext.load(
-        eaReponseDocsFolderItems,
-        "Include(ID, FSObjType, Title, DisplayName)"
-      );
-
-      //make sure ea email folder exists
-      var eaEmailLogList = clientContext
-        .get_web()
-        .get_lists()
-        .getByTitle("AuditEAEmailLog");
-      var eaEmailLogListQuery = new SP.CamlQuery();
-      eaEmailLogListQuery.set_viewXml(
-        '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="Created"/><Value IncludeTimeValue="FALSE" Type="DateTime"><Today/></Value></Eq></Where></Query></View>'
-      );
-      eaEmailLogListItems = eaEmailLogList.getItems(eaEmailLogListQuery);
-      clientContext.load(eaEmailLogListItems, "Include(ID)");
-
-      function OnSuccess(sender, args) {
-        var oResponse = m_fnGetResponseByTitle($("#ddlResponsesOpen").val());
-
-        if (oResponse == null || oResponse.request == null) {
-          m_waitDialog.close();
-          return;
-        }
-        const oRequest = oResponse.request;
-        const folderPath = oRequest.number;
-
-        m_fnCreateEAFolder(folderPath);
-        m_fnCreateEAEmailLogItem();
-
-        var requestId = oRequest.number;
-        var responseNumber = oResponse.title;
-        var fileName = oListItem.get_item("FileLeafRef");
-
-        var ctx2 = new SP.ClientContext.get_current();
-        var oList = ctx2
-          .get_web()
-          .get_lists()
-          .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-
-        //refetch to avoid version conflict
-        oListItem = oList.getItemById(m_itemID);
-
-        var file = oListItem.get_file();
-        var absoluteSiteUrl =
-          location.protocol +
-          "//" +
-          location.host +
-          _spPageContextInfo.webServerRelativeUrl +
-          "/";
-        var destinationFileNameUrl =
-          absoluteSiteUrl +
-          Audit.Common.Utilities.GetLibTitleResponseDocsEA() +
-          "/" +
-          folderPath +
-          "/" +
-          fileName;
-        file.copyTo(destinationFileNameUrl, 1);
-
-        oListItem.set_item("DocumentStatus", "Approved");
-        oListItem.set_item("RejectReason", "");
-        oListItem.update();
-
-        var siteUrl = location.protocol + "//" + location.host;
-        var urlOfNewFile = destinationFileNameUrl.replace(siteUrl, "");
-        const newFile = ctx2.get_web().getFileByServerRelativeUrl(urlOfNewFile);
-        ctx2.load(newFile, "ListItemAllFields");
-        //ctx2.load(newFile, 'Include(ID)');
-
-        //alert( "folderPath: " + folderPath );
-        var data = {
-          responseTitle: responseNumber,
-          copiedFileName: destinationFileNameUrl,
-          requestId: requestId,
-          responseNumber: responseNumber,
-        };
-        //Execute the query and pass the data with our deferred object
-
-        //Check for all response docs statuses, if there are no more pending actions, close the response and set the closed date of the response
-        function onUpdateResFolderSuccess() {
-          if (
-            this.responseTitle == null ||
-            this.responseTitle == undefined ||
-            this.responseTitle == ""
-          ) {
-            m_waitDialog.close();
-            alert("Error: empty response title ");
-            return;
-          }
-
-          var ctx3 = SP.ClientContext.get_current();
-
-          //update the file in the EA document library with the request/response properties
-          var idOfCopiedFile = newFile.get_listItemAllFields().get_id();
-          var oEADocLib = ctx3
-            .get_web()
-            .get_lists()
-            .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
-          const oListFileItem = oEADocLib.getItemById(idOfCopiedFile);
-          oListFileItem.set_item("RequestNumber", this.requestId);
-          oListFileItem.set_item("ResponseID", this.responseNumber);
-          oListFileItem.update();
-
-          var aresponseList = ctx3
-            .get_web()
-            .get_lists()
-            .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-          var aresponseQuery = new SP.CamlQuery();
-          aresponseQuery.set_viewXml(
-            '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' +
-              this.responseTitle +
-              "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
-          );
-          const aresponseItems = aresponseList.getItems(aresponseQuery);
-          ctx3.load(aresponseItems);
-
-          var folderPath =
-            Audit.Common.Utilities.GetSiteUrl() +
-            "/" +
-            Audit.Common.Utilities.GetLibNameResponseDocs() +
-            "/" +
-            this.responseTitle;
-          var aresponseDocList = ctx3
-            .get_web()
-            .get_lists()
-            .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-          var aresponseDocQuery = new SP.CamlQuery();
-          aresponseDocQuery.set_viewXml(
-            '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq><Eq><FieldRef Name="FileDirRef"/><Value Type="Text">' +
-              folderPath +
-              "</Value></Eq></And></Where></Query></View>"
-          );
-          const aresponseDocItems =
-            aresponseDocList.getItems(aresponseDocQuery);
-          ctx3.load(aresponseDocItems);
-
-          var emailList = ctx3
-            .get_web()
-            .get_lists()
-            .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
-          var emailListQuery = new SP.CamlQuery();
-          emailListQuery.set_viewXml(
-            '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-          );
-          let emailListFolderItems = emailList.getItems(emailListQuery);
-          ctx3.load(
-            emailListFolderItems,
-            "Include(ID, FSObjType, Title, DisplayName)"
-          );
-
-          function onUpdateSucceededZZ() {
-            notifyId = SP.UI.Notify.addNotification(
-              "Approved Response Document",
-              false
-            );
-
-            let bUpdateResponseStatus = true;
-            var listxItemEnumerator = aresponseDocItems.getEnumerator();
-
-            var bRejected = false;
-            while (listxItemEnumerator.moveNext()) {
-              var oListItemResponseDoc = listxItemEnumerator.get_current();
-              var oListItemResponseDocStatus =
-                oListItemResponseDoc.get_item("DocumentStatus");
-
-              if (
-                oListItemResponseDocStatus == "Open" ||
-                oListItemResponseDocStatus == "Submitted" ||
-                oListItemResponseDocStatus == "Sent to QA"
-              ) {
-                //there should never be one that's open, but checking anyway
-                bUpdateResponseStatus = false;
-              } else if (oListItemResponseDocStatus == "Rejected") {
-                bRejected = true;
-              }
-            }
-
-            //Update the Response status
-            //if all items have completed (none are open or sent to QA), then update the status
-            //If one is rejected, then returned to gfs. otherwise, close the response
-            if (bUpdateResponseStatus) {
-              var oRequest = m_fnGetRequestByResponseTitle(this.responseTitle);
-
-              var listxxItemEnumerator = aresponseItems.getEnumerator();
-              while (listxxItemEnumerator.moveNext()) {
-                var oListItemResponse = listxxItemEnumerator.get_current();
-
-                if (!bRejected) {
-                  var curDate = new Date();
-                  oListItemResponse.set_item("ResStatus", "7-Closed");
-                  //oListItemResponse.set_item( "ClosedDate", Audit.Common.Utilities.GetISODateString( curDate) );
-                  var newClosedTime = new Date(
-                    curDate.getFullYear(),
-                    curDate.getMonth(),
-                    curDate.getDate(),
-                    curDate.getHours(),
-                    curDate.getMinutes(),
-                    curDate.getSeconds(),
-                    curDate.getMilliseconds()
-                  );
-                  oListItemResponse.set_item("ClosedDate", newClosedTime);
-
-                  oListItemResponse.set_item(
-                    "ClosedBy",
-                    _spPageContextInfo.userId
-                  );
-
-                  m_fnCreateEmailToIAFromQA(
-                    emailList,
-                    oRequest,
-                    this.responseTitle,
-                    "An Audit Response has been Closed by the Quality Assurance Team: " +
-                      this.responseTitle
-                  );
-                } else {
-                  oListItemResponse.set_item("ResStatus", "5-Returned to GFS");
-
-                  m_fnCreateEmailToIAFromQA(
-                    emailList,
-                    oRequest,
-                    this.responseTitle,
-                    "An Audit Response has been Returned by the Quality Assurance Team: " +
-                      this.responseTitle
-                  );
-                }
-
-                oListItemResponse.update();
-
-                ctx3.executeQueryAsync(function () {
-                  m_waitDialog.close();
-                  Audit.Common.Utilities.Refresh();
-                });
-
-                break; //should only be once
-              }
-            } else {
-              m_waitDialog.close();
-              Audit.Common.Utilities.Refresh();
-            }
-          }
-          function onUpdateFailedZZ() {
-            m_waitDialog.close();
-          }
-
-          var data = { responseTitle: this.responseTitle };
-          ctx3.executeQueryAsync(
-            Function.createDelegate(data, onUpdateSucceededZZ),
-            Function.createDelegate(data, onUpdateFailedZZ)
-          ); //After this line "return true" in PreSaveAction() will execute and then CallBackMethods will run.
-        }
-
-        function onUpdateResFolderFail(sender, args) {
-          m_waitDialog.close();
-
-          alert(
-            "Request failed. " +
-              args.get_message() +
-              "\n" +
-              args.get_stackTrace()
-          );
-          Audit.Common.Utilities.Refresh();
-        }
-
-        ctx2.executeQueryAsync(
-          Function.createDelegate(data, onUpdateResFolderSuccess),
-          Function.createDelegate(data, onUpdateResFolderFail)
-        ); //After this line "return true" in PreSaveAction() will execute and then CallBackMethods will run.
-      }
-      function OnFailure(sender, args) {
-        m_waitDialog.close();
-        alert(
-          "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
-        );
-      }
-
-      clientContext.executeQueryAsync(OnSuccess, OnFailure);
-    } else m_bIsTransactionExecuting = false;
-  }
-
-  function OnCallbackRejectResponseDoc(result, value) {
-    if (result === SP.UI.DialogResult.OK) {
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Rejecting Response Document",
-        "Please wait... Rejecting Response Document",
-        200,
-        400
-      );
-
-      var clientContext = SP.ClientContext.get_current();
-      var oList = clientContext
-        .get_web()
-        .get_lists()
-        .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-
-      let oListItem = oList.getItemById(m_itemID);
-      clientContext.load(oListItem);
-
-      function OnSuccess(sender, args) {
-        var ctx2 = new SP.ClientContext.get_current();
-        var oList = ctx2
-          .get_web()
-          .get_lists()
-          .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-
-        //refetch to avoid version conflict
-        oListItem = oList.getItemById(m_itemID);
-        oListItem.set_item("DocumentStatus", "Rejected");
-        oListItem.set_item("RejectReason", m_RejectReason);
-
-        oListItem.update();
-
-        var siteUrl =
-          location.protocol +
-          "//" +
-          location.host +
-          _spPageContextInfo.webServerRelativeUrl +
-          "/";
-        const filePath = oListItem.get_item("FileDirRef");
-        const fileName = oListItem.get_item("FileLeafRef");
-        var lastInd = filePath.lastIndexOf("/");
-        var urlpath = filePath.substring(0, lastInd + 1);
-        var responseTitle = filePath.replace(urlpath, "");
-
-        var folderPath =
-          Audit.Common.Utilities.GetSiteUrl() +
-          "/" +
-          Audit.Common.Utilities.GetLibNameResponseDocs() +
-          "/" +
-          responseTitle;
-        var aresponseDocList = ctx2
-          .get_web()
-          .get_lists()
-          .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-        var aresponseDocQuery = new SP.CamlQuery();
-        aresponseDocQuery.set_viewXml(
-          '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq><Eq><FieldRef Name="FileDirRef"/><Value Type="Text">' +
-            folderPath +
-            "</Value></Eq></And></Where></Query></View>"
-        );
-        const aresponseDocItems = aresponseDocList.getItems(aresponseDocQuery);
-        ctx2.load(aresponseDocItems);
-
-        var aresponseList = ctx2
-          .get_web()
-          .get_lists()
-          .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-        var aresponseQuery = new SP.CamlQuery();
-        aresponseQuery.set_viewXml(
-          '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' +
-            responseTitle +
-            "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
-        );
-        const aresponseItems = aresponseList.getItems(aresponseQuery);
-        ctx2.load(aresponseItems);
-
-        var emailList = ctx2
-          .get_web()
-          .get_lists()
-          .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
-        var emailListQuery = new SP.CamlQuery();
-        emailListQuery.set_viewXml(
-          '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-        );
-        const emailListFolderItems = emailList.getItems(emailListQuery);
-        ctx2.load(
-          emailListFolderItems,
-          "Include(ID, FSObjType, Title, DisplayName)"
-        );
-
-        function onUpdateSucceededZZ() {
-          notifyId = SP.UI.Notify.addNotification(
-            "Rejected Response Document",
-            false
-          );
-
-          let bUpdateResponseStatus = true;
-          var listxItemEnumerator = aresponseDocItems.getEnumerator();
-
-          while (listxItemEnumerator.moveNext()) {
-            var oListItemResponseDoc = listxItemEnumerator.get_current();
-            var oListItemResponseDocStatus =
-              oListItemResponseDoc.get_item("DocumentStatus");
-
-            if (
-              oListItemResponseDocStatus == "Open" ||
-              oListItemResponseDocStatus == "Submitted" ||
-              oListItemResponseDocStatus == "Sent to QA"
-            ) {
-              //there should never be one that's open, but checking anyway
-              bUpdateResponseStatus = false;
-            }
-          }
-
-          //Update the Response status
-          //if all items have completed (none are open or sent to QA), then update the status to returned to gfs because we know
-          //at least 1 was rejected
-          if (bUpdateResponseStatus) {
-            var oRequest = m_fnGetRequestByResponseTitle(this.responseTitle);
-
-            var listxxItemEnumerator = aresponseItems.getEnumerator();
-            while (listxxItemEnumerator.moveNext()) {
-              var oListItemResponse = listxxItemEnumerator.get_current();
-
-              var curDate = new Date();
-              oListItemResponse.set_item("ResStatus", "5-Returned to GFS");
-              oListItemResponse.update();
-
-              m_fnCreateEmailToIAFromQA(
-                emailList,
-                oRequest,
-                this.responseTitle,
-                "An Audit Response has been Returned by the Quality Assurance Team: " +
-                  this.responseTitle
-              );
-
-              ctx2.executeQueryAsync(function () {
-                m_waitDialog.close();
-                Audit.Common.Utilities.Refresh();
-              });
-
-              break; //should only be once
-            }
-          } else {
-            m_waitDialog.close();
-            Audit.Common.Utilities.Refresh();
-          }
-        }
-        function onUpdateFailedZZ() {
-          m_waitDialog.close();
-        }
-
-        var data = { responseTitle: responseTitle };
-        ctx2.executeQueryAsync(
-          Function.createDelegate(data, onUpdateSucceededZZ),
-          Function.createDelegate(data, onUpdateFailedZZ)
-        ); //After this line "return true" in PreSaveAction() will execute and then CallBackMethods will run.
-      }
-      function OnFailure(sender, args) {
-        m_waitDialog.close();
-        alert(
-          "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
-        );
-      }
-
-      clientContext.executeQueryAsync(OnSuccess, OnFailure);
-    } else m_bIsTransactionExecuting = false;
-  }
-
-  function OnCallbackApproveAllResponseDoc(result, value) {
-    if (result === SP.UI.DialogResult.OK) {
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Approving Response Documents",
-        "Please wait... Approving Response Documents",
-        200,
-        400
-      );
-
-      var responseTitle = $("#ddlResponsesOpen").val();
-
-      var clientContext = SP.ClientContext.get_current();
-
-      //make sure ea folder exists
-      var eaResponseDocsLib = clientContext
-        .get_web()
-        .get_lists()
-        .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
-      var earesponseDocsQuery = new SP.CamlQuery();
-      earesponseDocsQuery.set_viewXml(
-        '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-      );
-      eaReponseDocsFolderItems =
-        eaResponseDocsLib.getItems(earesponseDocsQuery);
-      clientContext.load(
-        eaReponseDocsFolderItems,
-        "Include(ID, FSObjType, Title, DisplayName)"
-      );
-
-      //make sure ea email folder exists
-      var eaEmailLogList = clientContext
-        .get_web()
-        .get_lists()
-        .getByTitle("AuditEAEmailLog");
-      var eaEmailLogListQuery = new SP.CamlQuery();
-      eaEmailLogListQuery.set_viewXml(
-        '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="Created"/><Value IncludeTimeValue="FALSE" Type="DateTime"><Today/></Value></Eq></Where></Query></View>'
-      );
-      eaEmailLogListItems = eaEmailLogList.getItems(eaEmailLogListQuery);
-      clientContext.load(eaEmailLogListItems, "Include(ID)");
-
-      function OnSuccess(sender, args) {
-        var oRequest = null;
-        var oResponse = null;
-        oResponse = m_fnGetResponseByTitle($("#ddlResponsesOpen").val());
-
-        if (oResponse == null || oResponse.request == null) return;
-
-        oRequest = oResponse.request;
-        const folderPath = oRequest.number;
-
-        m_fnCreateEAFolder(oRequest.number);
-        m_fnCreateEAEmailLogItem();
-
-        var requestId = oRequest.number;
-        var responseNumber = oResponse.title;
-
-        m_cntToApprove = 0;
-        m_cntApproved = 0;
-
-        for (var x = 0; x < oResponse.responseDocs.length; x++) {
-          if (oResponse.responseDocs[x].documentStatus != "Sent to QA")
-            continue;
-
-          m_cntToApprove++;
-
-          var ctx2 = new SP.ClientContext.get_current();
-          var oList = ctx2
-            .get_web()
-            .get_lists()
-            .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-
-          //refetch to avoid version conflict
-          let oListItem = oResponse.responseDocs[x].item;
-          const fileName = oListItem.get_item("FileLeafRef");
-          oListItem = oList.getItemById(oListItem.get_item("ID"));
-
-          //copy the file to the EA library
-          var file = oListItem.get_file();
-          var absoluteSiteUrl =
-            location.protocol +
-            "//" +
-            location.host +
-            _spPageContextInfo.webServerRelativeUrl +
-            "/";
-          var destinationFileNameUrl =
-            absoluteSiteUrl +
-            Audit.Common.Utilities.GetLibTitleResponseDocsEA() +
-            "/" +
-            folderPath +
-            "/" +
-            fileName;
-          file.copyTo(destinationFileNameUrl, 1);
-
-          //update the reponse
-          oListItem.set_item("DocumentStatus", "Approved");
-          oListItem.set_item("RejectReason", "");
-          oListItem.update();
-
-          //load the file
-          var siteUrl = location.protocol + "//" + location.host;
-          var urlOfNewFile = destinationFileNameUrl.replace(siteUrl, "");
-          const newFile = ctx2
-            .get_web()
-            .getFileByServerRelativeUrl(urlOfNewFile);
-          ctx2.load(newFile, "ListItemAllFields");
-
-          var data = {
-            responseTitle: responseNumber,
-            copiedFileName: destinationFileNameUrl,
-            requestId: requestId,
-            responseNumber: responseNumber,
-            newFile: newFile,
-          };
-
-          function onUpdateResFolderSuccess() {
-            if (
-              this.responseTitle == null ||
-              this.responseTitle == undefined ||
-              this.responseTitle == ""
-            ) {
-              document.body.style.cursor = "default";
-              //alert( "Error: empty response title ");
-              notifyId = SP.UI.Notify.addNotification(
-                "Error: empty response title ",
-                false
-              );
-
-              m_waitDialog.close();
-              return;
-            }
-
-            var ctx3 = SP.ClientContext.get_current();
-
-            //update the file in the EA document library with the request/response properties
-            var idOfCopiedFile = this.newFile.get_listItemAllFields().get_id();
-            var oEADocLib = ctx3
-              .get_web()
-              .get_lists()
-              .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
-            const oListFileItem = oEADocLib.getItemById(idOfCopiedFile);
-            oListFileItem.set_item("RequestNumber", this.requestId);
-            oListFileItem.set_item("ResponseID", this.responseNumber);
-            oListFileItem.update();
-
-            var aresponseList = ctx3
-              .get_web()
-              .get_lists()
-              .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-            var aresponseQuery = new SP.CamlQuery();
-            aresponseQuery.set_viewXml(
-              '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' +
-                this.responseTitle +
-                "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
-            );
-            const aresponseItems = aresponseList.getItems(aresponseQuery);
-            ctx3.load(aresponseItems);
-
-            var folderPath =
-              Audit.Common.Utilities.GetSiteUrl() +
-              "/" +
-              Audit.Common.Utilities.GetLibNameResponseDocs() +
-              "/" +
-              this.responseTitle;
-            var aresponseDocList = ctx3
-              .get_web()
-              .get_lists()
-              .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-            var aresponseDocQuery = new SP.CamlQuery();
-            aresponseDocQuery.set_viewXml(
-              '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq><Eq><FieldRef Name="FileDirRef"/><Value Type="Text">' +
-                folderPath +
-                "</Value></Eq></And></Where></Query></View>"
-            );
-            const aresponseDocItems =
-              aresponseDocList.getItems(aresponseDocQuery);
-            ctx3.load(aresponseDocItems);
-
-            var emailList = ctx3
-              .get_web()
-              .get_lists()
-              .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
-            var emailListQuery = new SP.CamlQuery();
-            emailListQuery.set_viewXml(
-              '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-            );
-            const emailListFolderItems = emailList.getItems(emailListQuery);
-            ctx3.load(
-              emailListFolderItems,
-              "Include(ID, FSObjType, Title, DisplayName)"
-            );
-
-            function onUpdateSucceededZZ() {
-              m_cntApproved++;
-
-              if (m_cntApproved != m_cntToApprove) {
-                //skip the code below if all of the expected documents that were to be approved haven't yet approved
-                return;
-              }
-
-              notifyId = SP.UI.Notify.addNotification(
-                "Approved Response Documents",
-                false
-              );
-
-              let bUpdateResponseStatus = true;
-              var listxItemEnumerator = this.aresponseDocItems.getEnumerator();
-
-              var bRejected = false;
-              while (listxItemEnumerator.moveNext()) {
-                var oListItemResponseDoc = listxItemEnumerator.get_current();
-                var oListItemResponseDocStatus =
-                  oListItemResponseDoc.get_item("DocumentStatus");
-
-                if (
-                  oListItemResponseDocStatus == "Open" ||
-                  oListItemResponseDocStatus == "Submitted" ||
-                  oListItemResponseDocStatus == "Sent to QA"
-                ) {
-                  //there should never be one that's open, but checking anyway
-                  bUpdateResponseStatus = false;
-                } else if (oListItemResponseDocStatus == "Rejected") {
-                  bRejected = true;
-                }
-              }
-
-              //Update the Response status
-              //if all items have completed (none are open or sent to QA), then update the status
-              //If one is rejected, then returned to gfs. otherwise, close the response
-              if (bUpdateResponseStatus) {
-                var oRequest = m_fnGetRequestByResponseTitle(
-                  this.responseTitle
-                );
-
-                var listxxItemEnumerator = this.aresponseItems.getEnumerator();
-                while (listxxItemEnumerator.moveNext()) {
-                  var oListItemResponse = listxxItemEnumerator.get_current();
-
-                  if (!bRejected) {
-                    var curDate = new Date();
-                    oListItemResponse.set_item("ResStatus", "7-Closed");
-                    //oListItemResponse.set_item( "ClosedDate", Audit.Common.Utilities.GetISODateString( curDate) );
-                    var newClosedTime = new Date(
-                      curDate.getFullYear(),
-                      curDate.getMonth(),
-                      curDate.getDate(),
-                      curDate.getHours(),
-                      curDate.getMinutes(),
-                      curDate.getSeconds(),
-                      curDate.getMilliseconds()
-                    );
-                    oListItemResponse.set_item("ClosedDate", newClosedTime);
-
-                    oListItemResponse.set_item(
-                      "ClosedBy",
-                      _spPageContextInfo.userId
-                    );
-
-                    m_fnCreateEmailToIAFromQA(
-                      this.emailList,
-                      oRequest,
-                      this.responseTitle,
-                      "An Audit Response has been Closed by the Quality Assurance Team: " +
-                        this.responseTitle
-                    );
-                  } else {
-                    oListItemResponse.set_item(
-                      "ResStatus",
-                      "5-Returned to GFS"
-                    );
-
-                    m_fnCreateEmailToIAFromQA(
-                      this.emailList,
-                      oRequest,
-                      this.responseTitle,
-                      "An Audit Response has been Returned by the Quality Assurance Team: " +
-                        this.responseTitle
-                    );
-                  }
-
-                  oListItemResponse.update();
-
-                  ctx3.executeQueryAsync(function () {
-                    m_waitDialog.close();
-                    Audit.Common.Utilities.Refresh();
-                  });
-
-                  break; //should only be once
-                }
-              } else {
-                m_waitDialog.close();
-                Audit.Common.Utilities.Refresh();
-              }
-            }
-            function onUpdateFailedZZ() {
-              m_waitDialog.close();
-            }
-
-            var data = {
-              responseTitle: this.responseTitle,
-              emailList: emailList,
-              aresponseItems: aresponseItems,
-              aresponseDocItems: aresponseDocItems,
-              emailListFolderItems: emailListFolderItems,
-            };
-            ctx3.executeQueryAsync(
-              Function.createDelegate(data, onUpdateSucceededZZ),
-              Function.createDelegate(data, onUpdateFailedZZ)
-            ); //After this line "return true" in PreSaveAction() will execute and then CallBackMethods will run.
-          }
-          function onUpdateResFolderFail(sender, args) {
-            m_waitDialog.close();
-
-            notifyId = SP.UI.Notify.addNotification(
-              "Request failed. " +
-                args.get_message() +
-                "\n" +
-                args.get_stackTrace(),
-              false
-            );
-
-            alert(
-              "Request failed. " +
-                args.get_message() +
-                "\n" +
-                args.get_stackTrace()
-            );
-            Audit.Common.Utilities.Refresh();
-          }
-          ctx2.executeQueryAsync(
-            Function.createDelegate(data, onUpdateResFolderSuccess),
-            Function.createDelegate(data, onUpdateResFolderFail)
-          ); //After this line "return true" in PreSaveAction() will execute and then CallBackMethods will run.
-        }
-      }
-      function OnFailure(sender, args) {
-        m_waitDialog.close();
-        alert(
-          "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
-        );
-      }
-
-      clientContext.executeQueryAsync(OnSuccess, OnFailure);
-    } else m_bIsTransactionExecuting = false;
-  }
-
-  function BindHandlersOnLoad() {
-    BindPrintButton(
-      "#btnPrint1",
-      "#divStatusReportRespones",
-      "QA Response Status Report"
-    );
-    //////////Note: for the export to work, make sure this is added to the html: <iframe id="CsvExpFrame" style="display: none"></iframe>
-    BindExportButton(
-      ".export1",
-      "QAResponseStatusReport_",
-      "tblStatusReportResponses"
-    );
-  }
-
-  function BindPrintButton(btnPrint, divTbl, pageTitle) {
-    $(btnPrint).on("click", function () {
-      Audit.Common.Utilities.PrintStatusReport(pageTitle, divTbl);
-    });
-  }
-
-  function BindExportButton(btnExport, fileNamePrefix, tbl) {
-    $(btnExport).on("click", function (event) {
-      var curDate = new Date().format("yyyyMMdd_hhmmtt");
-      Audit.Common.Utilities.ExportToCsv(fileNamePrefix + curDate, tbl);
-    });
+  async function OnCallbackReturnToIA(result, value) {
+    if (!result) return;
+    var oResponse = m_fnGetResponseByTitle($("#ddlResponsesOpen").val());
+
+    if (oResponse == null || oResponse.request == null) {
+      return;
+    }
+
+    await returnResponseToIAById(oResponse.ID);
+    window.location.reload();
   }
 
   function GoToResponse(response) {

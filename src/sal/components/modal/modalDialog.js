@@ -43,7 +43,8 @@ class ModalDialogModule {
       this.html = dialogOpts.html;
     }
 
-    toggle = this.toggle;
+    this.showSubmit = dialogOpts.url || dialogOpts.showSubmit;
+    // toggle = this.toggle;
   }
 
   url = null;

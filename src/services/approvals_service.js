@@ -7,6 +7,9 @@ import {
   getNewResponseDocTitle,
   ensureRequestAuditResponseDocsROFolder,
   ensureRequestROEmailLogItem,
+  notifyQAApprovalPending,
+  closeResponse,
+  returnResponseToIA,
 } from "./index.js";
 
 import {
@@ -14,13 +17,13 @@ import {
   AuditResponseStates,
   AuditResponseDocStates,
   AuditResponseDocRO,
+  AuditResponse,
 } from "../entities/index.js";
 
 import { appContext } from "../infrastructure/application_db_context.js";
 
 export async function approveResponseDocsForQA(
   requestId,
-  responseId = null,
   responseDocsToApproveIds
 ) {
   const request = await getRequestById(requestId);
@@ -40,12 +43,14 @@ export async function approveResponseDocsForQA(
       return accumulator;
     }, []);
 
-  await Promise.all(
-    responseDocsToApproveIds.map(async (responseDocId) => {
-      const responseDoc = allRequestResponseDocs.find(
-        (responseDoc) => responseDoc.ID == responseDocId
-      );
+  const responseDocsToApprove = responseDocsToApproveIds.map((responseDocId) =>
+    allRequestResponseDocs.find(
+      (responseDoc) => responseDoc.ID == responseDocId
+    )
+  );
 
+  await Promise.all(
+    responseDocsToApprove.map(async (responseDoc) => {
       // TODO: this should just be an ensure on our AppDbContext
       const response = allRequestResponses.find(
         (response) => response.ID == responseDoc.ResID.Value().ID
@@ -94,6 +99,9 @@ export async function approveResponseDocsForQA(
     await breakRequestPermissions(request, AuditResponseStates.ApprovedForQA);
     await breakRequestCoversheetPerms(request, true);
   }
+
+  await notifyQAApprovalPending(request, responseDocsToApprove);
+  return true;
 }
 
 export async function approveResponseDocsForRO(
@@ -143,7 +151,7 @@ export async function approveResponseDocsForRO(
       );
 
       // 1. Check that the status isn't already approved
-      if (responseDoc.DocumentStatus.Value() == AuditResponseDocStates.SentToQA)
+      if (responseDoc.DocumentStatus.Value() == AuditResponseDocStates.Approved)
         return;
 
       cntApprovedResponseDocs++;
@@ -203,6 +211,59 @@ export async function approveResponseDocsForRO(
     "Responses",
     "ResponseCount",
   ]);
+
+  return true;
+}
+
+export async function returnResponseDocsToIA(
+  requestId,
+  responseDocsToReturnIds,
+  rejectReason
+) {
+  const request = await getRequestById(requestId);
+
+  const allRequestResponseDocs = await getRequestResponseDocs(request);
+
+  const allRequestResponses = await getRequestResponses(request);
+
+  const updatedResponses = allRequestResponseDocs
+    .filter((responseDoc) => responseDocsToReturnIds.includes(responseDoc.ID))
+    .map((responseDoc) => responseDoc.ResID.Value())
+    .reduce((accumulator, responseDocResponse) => {
+      if (
+        !accumulator.find((response) => response?.ID == responseDocResponse.ID)
+      )
+        accumulator.push(responseDocResponse);
+      return accumulator;
+    }, []);
+
+  if (!updatedResponses.length) return;
+
+  await Promise.all(
+    responseDocsToReturnIds.map(async (responseDocId) => {
+      const responseDoc = allRequestResponseDocs.find(
+        (responseDoc) => responseDoc.ID == responseDocId
+      );
+
+      // 1. Check that the status isn't already rejected
+      if (responseDoc.DocumentStatus.Value() == AuditResponseDocStates.Rejected)
+        return;
+
+      const response = allRequestResponses.find(
+        (response) => response.ID == responseDoc.ResID.Value().ID
+      );
+
+      // 2. Update ResponseDoc Status
+      responseDoc.markReturnedToIA(rejectReason);
+      await appContext.AuditResponseDocs.UpdateEntity(responseDoc, [
+        "DocumentStatus",
+        "RejectReason",
+        "FileLeafRef",
+      ]);
+    })
+  );
+
+  // await returnResponseToIA(request, updatedResponses);
 
   return true;
 }
