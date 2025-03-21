@@ -64,7 +64,13 @@ git push origin main
 
 # Update the develop branch with the latest changes
 git checkout develop
-git merge --no-ff $currentBranch
+if ($currentBranch -like "release/*" ) {
+    git merge --no-ff $currentBranch
+}
+else {
+    git merge --no-ff main
+}
+
 
 Write-Output "Collect the version number from package.json"
 $releaseVersionNum = dotnet-gitversion /showvariable FullSemVer
