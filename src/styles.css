@@ -1170,6 +1170,14 @@ TABLE.tablesorter THEAD TR .header {
   justify-content: center;
 }
 
+.items-center {
+  align-items: center;
+}
+
+.gap-2 {
+  gap: 0.3rem;
+}
+
 /* Position */
 .position-fixed {
   position: fixed;

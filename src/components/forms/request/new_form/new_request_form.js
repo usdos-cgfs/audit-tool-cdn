@@ -10,7 +10,7 @@ import { addNewRequest } from "../../../../services/index.js";
 import { configurationsStore } from "../../../../infrastructure/store.js";
 import { BaseForm } from "../../../../sal/components/forms/index.js";
 import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
-import { newRequestFormTemplate } from "./NewRequestFormTemplate.js";
+import newRequestFormTemplate from "./NewRequestFormTemplate.html";
 
 export const newRequestFormComponentName = "newRequestForm";
 
