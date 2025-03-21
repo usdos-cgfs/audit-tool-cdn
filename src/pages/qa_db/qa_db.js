@@ -1133,8 +1133,6 @@ Audit.QAReport.NewReportPage = function () {
   function m_fnApproveResponseDoc(id, responseDocFileName) {
     m_bIsTransactionExecuting = true;
     //used in callback
-    m_itemID = id;
-    m_RejectReason = "";
     const oResponseDocsForApproval = [
       { ID: id, fileName: responseDocFileName },
     ];
@@ -1170,11 +1168,15 @@ Audit.QAReport.NewReportPage = function () {
 
     const options = {
       form: newResponseDocForm,
-      dialogReturnValueCallback: window.location.reload,
+      dialogReturnValueCallback: onCallbackReload,
       title: "Approve Response Docs?",
     };
 
     ModalDialog.showModalDialog(options);
+  }
+
+  function onCallbackReload(result) {
+    if (result) window.location.reload();
   }
 
   function m_fnRejectResponseDoc(id, responseDocFileName) {
@@ -1206,7 +1208,7 @@ Audit.QAReport.NewReportPage = function () {
 
     const options = {
       form: newResponseDocForm,
-      dialogReturnValueCallback: window.location.reload,
+      dialogReturnValueCallback: onCallbackReload,
       title: "Reject Response Docs?",
     };
 
