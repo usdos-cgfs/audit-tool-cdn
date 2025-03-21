@@ -2,6 +2,7 @@
   "version": "0.3.0-alpha.2",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "esbuild": "0.24.0",
     "esbuild-plugin-html-modules": "^0.8.0",

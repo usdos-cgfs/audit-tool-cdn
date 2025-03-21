@@ -1,4 +1,5 @@
-﻿import * as ko from "knockout";
+﻿import { version } from "../../../package.json";
+import * as ko from "knockout";
 import iaDbTemplate from "./ia_db.html";
 // import "../../common/utilities.js";
 import "../../../lib/webcomponents/searchselect/searchselect.js";
@@ -211,6 +212,8 @@ var _myViewModel = null;
 
 function ViewModel() {
   var self = this;
+
+  self.appVersion = version;
 
   self.testPeople = new PeopleField({
     displayName: "TEST PEOPLE",

@@ -1,6 +1,7 @@
 import serve from "rollup-plugin-serve";
 import css from "rollup-plugin-import-css";
 import html from "rollup-plugin-html";
+import json from "@rollup/plugin-json";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 
@@ -18,6 +19,7 @@ export default [
         include: "**/*.html",
       }),
       css(), // Import CSS files as part of the bundle
+      json(),
       serve({
         contentBase: "./",
         port: 5500,
@@ -39,6 +41,7 @@ export default [
         include: "**/*.html",
       }),
       css(), // Import CSS files as part of the bundle
+      json(),
       // serve({
       //   contentBase: "./",
       //   port: 5500,
@@ -60,6 +63,7 @@ export default [
         include: "**/*.html",
       }),
       css(),
+      json(),
       nodeResolve(),
       commonjs(),
     ],
@@ -77,6 +81,7 @@ export default [
         include: "**/*.html",
       }),
       css(),
+      json(),
       nodeResolve(),
       commonjs(),
     ],
@@ -94,6 +99,7 @@ export default [
         include: "**/*.html",
       }),
       css(),
+      json(),
       nodeResolve(),
       commonjs(),
     ],
@@ -111,6 +117,7 @@ export default [
         include: "**/*.html",
       }),
       css(),
+      json(),
       nodeResolve(),
       commonjs(),
     ],

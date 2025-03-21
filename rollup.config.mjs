@@ -18,6 +18,7 @@ export default [
         include: "**/*.html",
       }),
       css(), // Import CSS files as part of the bundle
+      json(),
       nodeResolve(),
       commonjs(),
     ],
@@ -35,10 +36,7 @@ export default [
         include: "**/*.html",
       }),
       css(), // Import CSS files as part of the bundle
-      // serve({
-      //   contentBase: "./",
-      //   port: 5500,
-      // }),
+      json(),
       nodeResolve(),
       commonjs(),
     ],
@@ -56,6 +54,7 @@ export default [
         include: "**/*.html",
       }),
       css(),
+      json(),
       nodeResolve(),
       commonjs(),
     ],
@@ -73,6 +72,7 @@ export default [
         include: "**/*.html",
       }),
       css(),
+      json(),
       nodeResolve(),
       commonjs(),
     ],
@@ -90,10 +90,7 @@ export default [
         include: "**/*.html",
       }),
       css(), // Import CSS files as part of the bundle
-      // serve({
-      //   contentBase: "./",
-      //   port: 5500,
-      // }),
+      json(),
       nodeResolve(),
       commonjs(),
     ],
@@ -111,6 +108,7 @@ export default [
         include: "**/*.html",
       }),
       css(),
+      json(),
       nodeResolve(),
       commonjs(),
     ],
