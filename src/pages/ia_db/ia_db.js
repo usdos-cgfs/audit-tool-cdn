@@ -3003,7 +3003,6 @@ export async function m_fnRejectResponseDoc(
   const notifyId = addNotification("Rejected Response Document", false);
 
   //added
-  // m_waitDialog.close();
 }
 function m_fnCheckInResponseDoc(folder, fileName) {
   if (!m_bIsSiteOwner) {
@@ -5703,7 +5702,6 @@ function m_fnGrantSpecialPermissions(requestNumber) {
                             false
                           );
                           setTimeout(function () {
-                            m_waitDialog.close();
                             m_fnRefreshData();
                           }, 200);
                         } else {
@@ -6367,7 +6365,6 @@ async function OnCallbackFormEditRequest(result, value) {
           break;
         }
       }
-      // m_waitDialog.close();
     } //if request number changed, update responses; otherwise it will refresh and not hit this
     else {
       const renameResponseTask = addTask({
@@ -6460,7 +6457,6 @@ function OnCallbackFormCoverSheet(result, value) {
               return;
             });
           }
-          m_waitDialog.close();
           m_fnRefreshData();
         }
       },
