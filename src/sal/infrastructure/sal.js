@@ -1071,6 +1071,23 @@ export function SPList(listDef) {
     return result.d;
   }
 
+  async function getFolderByPath(path, fields) {
+    const [queryFields, expandFields] = await getQueryFields(fields);
+
+    const include = "$select=" + queryFields;
+    const expand = `$expand=` + expandFields;
+
+    const relFolderPath = getServerRelativeFolderPath(path);
+
+    const url =
+      `/web/getFolderByServerRelativeUrl(@folder)/ListItemAllFields?` +
+      `&@folder='${relFolderPath}'` +
+      `&${include}&${expand}`;
+
+    const result = await fetchSharePointData(url);
+    return result?.d;
+  }
+
   async function getListFields() {
     if (!self.config.fieldSchema) {
       const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/Fields`;
@@ -1313,8 +1330,8 @@ export function SPList(listDef) {
   }
 
   async function deleteListItemAsync(id) {
-    const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items(${id})`;
-    return await fetchSharePointData(apiEndpoint, "DELETE", {
+    const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items(${id})/recycle()`;
+    return await fetchSharePointData(apiEndpoint, "POST", {
       "If-Match": "*",
     });
     // return new Promise((resolve, reject) => deleteListItem(id, resolve));
@@ -2501,6 +2518,7 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
   const publicMembers = {
     findByIdAsync,
     getById,
+    getFolderByPath,
     findByColumnValueAsync,
     loadNextPage,
     getListItemsAsync,
