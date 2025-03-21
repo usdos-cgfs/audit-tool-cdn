@@ -267,17 +267,9 @@ export class EntitySet {
   };
 
   RemoveFolderByPath = async function (folderPath) {
-    const itemResults = await this.FindByColumnValue(
-      [{ column: "FileLeafRef", value: folderPath }],
-      {},
-      {},
-      ["ID", "Title", "FileLeafRef"],
-      true
-    );
-    const entities = itemResults.results ?? [];
-    for (const entity of entities) {
-      await this.RemoveEntityById(entity.ID);
-    }
+    const folder = await this.ListRef.getFolderByPath(folderPath, ["ID"]);
+    if (!folder) return;
+    return this.RemoveEntityById(folder.ID);
   };
 
   // Permissions
