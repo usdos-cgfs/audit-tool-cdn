@@ -4,7 +4,7 @@ git pull
 
 # Collect the version number
 Write-Output "Collect the version number from package.json"
-$releaseVersionNum = node -e "let package = require('./package.json'); console.log(package.version)"
+$releaseVersionNum = dotnet-gitversion /showvariable FullSemVer
 $releaseVersion = "v$releaseVersionNum"
 Write-Output "Release: $releaseVersion"
 
@@ -13,6 +13,7 @@ Write-Output "Checking for existing tags"
 $existingTags = git tag
 if ($existingTags -contains $releaseVersion) {
     Write-Output "Version conflict detected: $releaseVersion already exists."
+    Exit
 
     # Increment patch version
     $versionParts = $releaseVersionNum -split '\.'
@@ -56,7 +57,10 @@ npm run build # && git add -A docs
 $newIgnore = Get-Content .gitignore | ForEach-Object { $_ -replace '/dist', '' }
 $newIgnore | Set-Content .gitignore
 
-git add -A && git commit -m "[BUILD] $releaseVersion"
+node -e "let package = require('./package.json'); package.version = '$releaseVersionNum'; require('fs').writeFileSync('./package.json', JSON.stringify(package, null, 2));"
+
+git add -A
+git commit -m "[BUILD] $releaseVersion"
 
 # Make a new tag off of the latest build
 git checkout main
