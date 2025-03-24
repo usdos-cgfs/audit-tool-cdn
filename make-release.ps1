@@ -64,13 +64,12 @@ git push origin main
 
 # Update the develop branch with the latest changes
 git checkout develop
-if ($currentBranch -like "release/*" ) {
-    git merge --no-ff $currentBranch
-}
-else {
+if ($currentBranch -like "hotfix/*" ) {
     git merge --no-ff main
+    Exit
 }
 
+git merge --no-ff $currentBranch
 
 Write-Output "Collect the version number from package.json"
 $releaseVersionNum = dotnet-gitversion /showvariable FullSemVer
@@ -83,7 +82,7 @@ node -e "let package = require('./package.json'); package.version = '$releaseVer
 
 # Commit version bump
 git add package.json
-git commit -m "[VERSION BUMP] Increment version to $releaseVersionNum"
+git commit -m "[MINOR VERSION BUMP] Increment version to $releaseVersionNum"
 
 git push origin develop
 

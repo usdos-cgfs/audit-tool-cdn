@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
   "version": "0.3.0-alpha.7",
-=======
-  "version": "0.2.2-beta.1+133",
->>>>>>> main
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-json": "^6.1.0",
