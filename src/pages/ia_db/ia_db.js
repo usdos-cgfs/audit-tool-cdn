@@ -225,6 +225,10 @@ function ViewModel() {
   self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
 
   self.showQuickInfo = ko.observable(false);
+  self.showQuickInfo.subscribe((show) => {
+    // Store boolean in localstorage
+    localStorage.setItem("showQuickInfo", show);
+  });
 
   //cant add rate limit because it'll affect the refresh
   //self.arrResponses = ko.observableArray( null ).extend({ rateLimit: 500 });
@@ -246,7 +250,7 @@ function ViewModel() {
   self.arrResponsesReadyToClose = ko.observableArray();
 
   self.alertQuickInfo = ko.pureComputed(() => {
-    return (
+    const hasAlerts =
       self.arrRequestsThatNeedClosing().length ||
       self.arrResponseDocsCheckedOut().length ||
       self.arrResponsesWithUnsubmittedResponseDocs().length ||
@@ -257,8 +261,9 @@ function ViewModel() {
       self.arrRequestsWithNoResponses().length ||
       self.arrRequestsWithNoEmailSent().length ||
       self.arrResponsesSubmittedByAO().length ||
-      self.arrResponsesReadyToClose().length
-    );
+      self.arrResponsesReadyToClose().length;
+
+    return hasAlerts;
   });
 
   /* request tab */
@@ -2423,7 +2428,7 @@ function LoadTabStatusReport2() {
   );
 
   _myViewModel.filterStatusTables(true);
-  _myViewModel.showQuickInfo(_myViewModel.alertQuickInfo());
+  _myViewModel.showQuickInfo(localStorage.getItem("showQuickInfo") == "true");
 }
 
 function m_fnViewLateRequests() {
