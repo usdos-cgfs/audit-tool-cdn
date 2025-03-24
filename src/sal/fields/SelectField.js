@@ -10,13 +10,15 @@ export class SelectField extends BaseField {
     displayName,
     isRequired = false,
     Visible,
-    options,
+    options = [],
+    optionsFilter = (val) => val,
     multiple = false,
     optionsText,
     instructions,
   }) {
     super({ Visible, displayName, isRequired, instructions });
-    this.Options(options);
+    this.allOpts = options;
+    this.optionsFilter = optionsFilter;
     this.multiple = multiple;
     this.Value = multiple ? ko.observableArray() : ko.observable();
     this.optionsText = optionsText;
@@ -42,5 +44,12 @@ export class SelectField extends BaseField {
     this.Value(val);
   };
 
-  Options = ko.observableArray();
+  allOpts = [];
+  optionsFilter = (val) => val;
+
+  Options = ko.pureComputed(() => {
+    const optsFilter = ko.unwrap(this.optionsFilter);
+    const allOpts = ko.unwrap(this.allOpts);
+    return allOpts.filter(optsFilter);
+  });
 }

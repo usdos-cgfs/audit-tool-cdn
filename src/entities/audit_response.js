@@ -33,6 +33,13 @@ export const AuditResponseStates = {
   Closed: "7-Closed",
 };
 
+const TaskerResponseStates = {
+  Open: AuditResponseStates.Open,
+  Submitted: AuditResponseStates.Submitted,
+  ReturnedToAO: AuditResponseStates.ReturnedToAO,
+  Closed: AuditResponseStates.Closed,
+};
+
 export class AuditResponse extends ConstrainedEntity {
   constructor(params) {
     super(params);
@@ -56,6 +63,12 @@ export class AuditResponse extends ConstrainedEntity {
   ResStatus = new SelectField({
     displayName: "Response Status",
     options: Object.values(AuditResponseStates),
+    optionsFilter: ko.pureComputed(() => {
+      const isTasker = this.ReqNum.Value()?.isTasker();
+
+      return (opt) =>
+        isTasker ? Object.values(TaskerResponseStates).includes(opt) : true;
+    }),
   });
 
   ReturnReason = new TextField({
