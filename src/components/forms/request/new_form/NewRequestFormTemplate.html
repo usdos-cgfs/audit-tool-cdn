@@ -72,6 +72,12 @@
     <div
       class="form-field-component"
       data-bind="component: 
+        {name: RelatedRequest.components.edit, params: RelatedRequest}, 
+        class: RelatedRequest.classList"
+    ></div>
+    <div
+      class="form-field-component"
+      data-bind="component: 
         {name: RequestingOffice.components.edit, params: RequestingOffice}, 
         class: RequestingOffice.classList"
     ></div>

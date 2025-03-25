@@ -4,6 +4,7 @@ export * from "./CheckboxModule.js";
 export * from "./DateModule.js";
 export * from "./LookupModule.js";
 export * from "./people/PeopleModule.js";
+export * from "./QuerySelectModule.js";
 export * from "./SearchSelectModule.js";
 export * from "./SelectModule.js";
 export * from "./TextAreaModule.js";

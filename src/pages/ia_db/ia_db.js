@@ -2,6 +2,7 @@
 import * as ko from "knockout";
 import iaDbTemplate from "./ia_db.html";
 // import "../../common/utilities.js";
+import "../../../lib/webcomponents/searchselect/query-select.js";
 import "../../../lib/webcomponents/searchselect/searchselect.js";
 import "../../../lib/webcomponents/data-table/data-table.js";
 
@@ -74,6 +75,7 @@ import {
 import { updateRequestSensitivityTaskDef } from "../../tasks/request_tasks.js";
 
 import { PeopleField } from "../../sal/fields/PeopleField.js";
+import { searchRequestsByTitle } from "../../services/audit_request_service.js";
 var Audit = window.Audit || {
   Common: {},
   IAReport: {},
@@ -119,6 +121,18 @@ export async function load(element, context) {
 
   Audit.IAReport.Report = new Audit.IAReport.NewReportPage(element);
   Audit.IAReport.Init();
+
+  // Test query Select
+  const querySelect = document.getElementById("querySelect");
+
+  querySelect.setSearchFunction(async (query) => {
+    // if (query.length < 3) return [];
+    const results = await searchRequestsByTitle(query);
+    return results.map((result) => ({
+      value: result.ID,
+      label: result.Title,
+    }));
+  });
 }
 
 Audit.IAReport.Init = function () {

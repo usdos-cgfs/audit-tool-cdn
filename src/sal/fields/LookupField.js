@@ -3,6 +3,7 @@ import {
   LookupModule,
   SearchSelectModule,
   SelectModule,
+  QuerySelectModule,
 } from "../components/fields/index.js";
 import { BaseField } from "./BaseField.js";
 
@@ -13,7 +14,7 @@ export class LookupField extends BaseField {
     isRequired = false,
     Visible,
     entitySet,
-    options = ko.observableArray(),
+    options = null,
     optionsFilter = null,
     optionsText = null,
     multiple = false,
@@ -29,7 +30,7 @@ export class LookupField extends BaseField {
       this.isSearch = false;
       this.allOpts = options;
     }
-    this.isSearch = !options;
+    // this.isSearch = !options;
     this.multiple = multiple;
     this.Value = multiple ? ko.observableArray() : ko.observable();
 
@@ -39,7 +40,12 @@ export class LookupField extends BaseField {
     this.optionsText = optionsText ?? ((item) => item[this.lookupCol]);
     if (optionsFilter) this.optionsFilter = optionsFilter;
 
-    this.components = multiple ? SearchSelectModule : LookupModule;
+    // This is getting out of hand
+    this.components = this.isSearch
+      ? QuerySelectModule
+      : multiple
+      ? SearchSelectModule
+      : LookupModule;
   }
 
   isSearch = false;
@@ -111,9 +117,10 @@ export class LookupField extends BaseField {
   });
 
   get = () => {
-    if (!this.Value()) return;
+    const val = ko.unwrap(this.Value);
+    if (!val) return;
     if (this.multiple) {
-      return this.Value().map((entity) => {
+      return val.map((entity) => {
         return {
           ID: entity.ID,
           LookupValue: entity.LookupValue,
@@ -121,7 +128,7 @@ export class LookupField extends BaseField {
         };
       });
     }
-    const entity = this.Value();
+    const entity = Array.isArray(val) ? val[0] : val;
     return {
       ID: entity.ID,
       LookupValue: entity.LookupValue,
@@ -148,6 +155,7 @@ export class LookupField extends BaseField {
   };
 
   findOrCreateNewEntity = (val) => {
+    // If the entity has a FindInStore method, use it
     if (this.entityType.FindInStore) {
       const foundEntity = this.entityType.FindInStore(val);
       if (foundEntity) return foundEntity;
@@ -157,7 +165,10 @@ export class LookupField extends BaseField {
       );
     }
 
-    const optionEntity = this.allOpts().find((entity) => entity.ID == val.ID);
+    // Else if we have a list of options, search for our entity there
+    const optionEntity = ko
+      .unwrap(this.allOpts)
+      ?.find((entity) => entity.ID == val.ID);
     if (optionEntity) return optionEntity;
 
     if (this.entityType.Create) {
@@ -166,6 +177,9 @@ export class LookupField extends BaseField {
 
     const newEntity = new this.entityType();
     newEntity.ID = val.ID;
+    if (newEntity.fromJSON) {
+      newEntity.fromJSON(val);
+    }
     // Kick off the load process in the background
     this.entitySet.LoadEntity(newEntity);
 

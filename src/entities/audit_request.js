@@ -164,6 +164,14 @@ export class AuditRequest extends ConstrainedEntity {
       "The Audit Request number of the similar audit performed in the previous FY",
   });
 
+  RelatedRequest = new LookupField({
+    displayName: "Related Request",
+    type: AuditRequest,
+    entitySet: appContext.AuditRequests,
+    lookupCol: "Title",
+    optionsText: (val) => val.ReqNum.Value() ?? val.Title,
+  });
+
   ActionItems = new TextAreaField({
     displayName: "Action Items",
     instructions: "Items that have been requested by the Auditor",
@@ -244,6 +252,7 @@ export class AuditRequest extends ConstrainedEntity {
       "IsSample",
       "ReceiptDate",
       "RelatedAudit",
+      "RelatedRequest",
       "ActionItems",
       "Comments",
       "Reminders",
@@ -267,6 +276,7 @@ export class AuditRequest extends ConstrainedEntity {
       "IsSample",
       "ReceiptDate",
       "RelatedAudit",
+      "RelatedRequest",
       "ActionItems",
       "Comments",
       "Reminders",
@@ -284,6 +294,7 @@ export class AuditRequest extends ConstrainedEntity {
       "IsSample",
       "ReceiptDate",
       "RelatedAudit",
+      "RelatedRequest",
       "ActionItems",
       "Comments",
       "Reminders",

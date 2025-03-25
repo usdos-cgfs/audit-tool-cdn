@@ -102,6 +102,82 @@ ko.bindingHandlers.searchSelect = {
   },
 };
 
+ko.bindingHandlers.querySelect = {
+  init: function (element, valueAccessor, allBindingsAccessor) {
+    const {
+      searchFunction,
+      selectedOptions,
+      optionsText,
+      onSearchInput,
+      setValueFromOpts,
+    } = valueAccessor();
+
+    function mapValToOpt(result) {
+      const optionElement = document.createElement("option");
+      ko.selectExtensions.writeValue(optionElement, ko.unwrap(result));
+
+      optionElement.innerText = optionsText(result);
+      optionElement.value = result.ID;
+      return optionElement;
+    }
+
+    element.setSearchFunction(async (searchTerm) => {
+      const results = await searchFunction(searchTerm);
+      return results.map(mapValToOpt);
+    });
+
+    function populateSelectedOpts() {
+      // Validate that our ko selectedOptions are in the element.selectedOptions
+
+      let selectedOpts = ko.unwrap(selectedOptions) ?? [];
+
+      if (!Array.isArray(selectedOpts)) selectedOpts = [selectedOpts];
+      const optionElements = selectedOpts
+        .filter(
+          (option) =>
+            !element.selectedOptions.find((opt) => opt.value == option.ID)
+        )
+        .map((option) => {
+          const optionElement = mapValToOpt(option);
+          optionElement.setAttribute("selected", "");
+          element.appendChild(optionElement);
+          element.selectedOptions.push(optionElement);
+          return optionElement;
+        });
+      if (optionElements.length) {
+        // suppress onchange
+        element.updateItems(true);
+      }
+      // element.replaceChildren(...optionElements);
+    }
+
+    populateSelectedOpts();
+
+    if (ko.isObservable(selectedOptions)) {
+      selectedOptions.subscribe(() => populateSelectedOpts(), this);
+    }
+
+    ko.utils.registerEventHandler(element, "change", (e) => {
+      selectedOptions(
+        element.selectedOptions.map((opt) => ko.selectExtensions.readValue(opt))
+      );
+    });
+
+    if (onSearchInput) {
+      ko.utils.registerEventHandler(element, "input", (e) => {
+        onSearchInput(e.originalEvent.target.searchInputElement.value);
+      });
+    }
+  },
+  update: function (
+    element,
+    valueAccessor,
+    allBindings,
+    viewModel,
+    bindingContext
+  ) {},
+};
+
 ko.bindingHandlers.people = {
   init: function (element, valueAccessor, allBindingsAccessor) {
     var schema = {};
