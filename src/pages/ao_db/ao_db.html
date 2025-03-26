@@ -101,40 +101,12 @@
       >There are <span data-bind="text: cntPendingReview"></span> Responses
       pending your review
     </div>
-    <div
-      id="divButtons"
-      style="padding-top: 3px"
-      data-bind="visible: arrResponses().length > 0"
-    >
-      <a
-        id="btnPrint1"
-        title="Click here to Print"
-        href="javascript:void(0)"
-        class="hideOnPrint btn btn-link"
-        title="Print"
-        ><span class="fa-solid fa-print"></span
-      ></a>
-      <a
-        class="export1 hideOnPrint btn btn-link"
-        title="Export to CSV"
-        href="#"
-        title="Export to CSV"
-        ><span class="fa-solid fa-file-csv"></span
-      ></a>
-      <a
-        id="btnViewAll"
-        title="View All"
-        href="javascript:void(0)"
-        title="View All Responses"
-        class="btn btn-link"
-        data-bind="visible: arrFilteredResponsesCount() < arrResponses().length && doSort, click: ClearFiltersResponseTab"
-        ><span class="fa-solid fa-magnifying-glass"></span
-      ></a>
-    </div>
-
     <div id="divStatusReportRespones">
       <table
         id="tblStatusReportResponses"
+        is="data-table"
+        data-title="Response Status Report"
+        data-file-prefix="ResponseStatusReport_"
         class="tablesorter report"
         data-bind="visible: arrResponses().length > 0"
       >
@@ -144,25 +116,22 @@
             class="rowFilters"
             data-bind="visible: arrResponses().length > 0"
           >
-            <th class="sorter-false filter" nowrap="nowrap">
-              <select
-                id="ddlResponseName"
-                data-bind="options: $root.ddOptionsResponseTabResponseTitle, value: filterResponseTabResponseName, optionsCaption: '-Select-'"
-              ></select>
-            </th>
-            <th class="sorter-false" nowrap="nowrap"></th>
-            <th class="sorter-false filter" nowrap="nowrap">
-              <select
-                id="ddlResponseRequestInternalDueDate"
-                data-bind="options: $root.ddOptionsResponseTabRequestInternalDueDate, value: filterResponseTabRequestIntDueDate, optionsCaption: '-Select-'"
-              ></select>
-            </th>
-            <th class="sorter-false filter" nowrap="nowrap">
-              <select
-                id="ddlResponseStatus"
-                data-bind="options: $root.ddOptionsResponseTabResponseStatus, value: filterResponseTabResponseStatus, optionsCaption: '-Select-'"
-              ></select>
-            </th>
+            <th
+              class="sorter-false filter"
+              data-filter="search"
+              nowrap="nowrap"
+            ></th>
+            <th class="sorter-false" data-filter="search" nowrap="nowrap"></th>
+            <th
+              class="sorter-false filter"
+              data-filter="daterange"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false filter"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
             <th class="sorter-false"></th>
             <th class="sorter-false"></th>
           </tr>
@@ -204,27 +173,6 @@
           </tr>
           <!-- /ko -->
         </tbody>
-        <tfoot class="footer">
-          <tr>
-            <th colspan="6">
-              Displaying
-              <span
-                id="spanResponsesDisplayedTotal"
-                style="color: green"
-                data-bind="text: arrFilteredResponsesCount()"
-                >0</span
-              >
-              out of
-              <span
-                id="spanResponsesTotal"
-                style="color: green"
-                data-bind="text: arrResponses().length"
-                >0</span
-              >
-              Responses
-            </th>
-          </tr>
-        </tfoot>
       </table>
     </div>
   </div>
@@ -316,7 +264,7 @@
             <dd>
               <span
                 id="requestInfoRelatedAudit"
-                data-bind="text: request.relatedAudit"
+                data-bind="html: $root.relatedRequestLink"
               ></span>
             </dd>
           </dl>

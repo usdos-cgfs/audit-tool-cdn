@@ -1,6 +1,10 @@
 import * as ko from "knockout";
 import { NewUtilities, getUrlParam } from "../../common/index.js";
 import aoDbTemplate from "./ao_db.html";
+import "../../../lib/webcomponents/searchselect/query-select.js";
+import "../../../lib/webcomponents/searchselect/searchselect.js";
+import "../../../lib/webcomponents/data-table/data-table.js";
+
 import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 import { setUrlParam } from "../../common/index.js";
 import {
@@ -15,7 +19,6 @@ import {
   blockingTasks,
   finishTask,
   runningTasks,
-  taskDefs,
 } from "../../services/tasks.js";
 
 import "../../sal/infrastructure/knockout_extensions.js";
@@ -85,7 +88,6 @@ Audit.AOReport.NewReportPage = function () {
   var m_bigMap = new Object();
   var m_arrRequests = new Array();
   var m_arrResponses = new Array();
-  var m_arrPermissions = new Array();
   var m_IA_SPGroupName = null;
   var m_IA_ActionOffice = null;
 
@@ -139,18 +141,12 @@ Audit.AOReport.NewReportPage = function () {
     //cant add rate limit because it'll affect the refresh
     //self.arrResponses = ko.observableArray( null ).extend({ rateLimit: 500 });
     self.arrResponses = ko.observableArray(null);
-    self.arrFilteredResponsesCount = ko.observable(0);
+    self.arrResponses.subscribe(() => {
+      document.getElementById("tblStatusReportResponses")?.update();
+    }, "arrayChange");
+
     self.cntPendingReview = ko.observable(0);
 
-    self.ddOptionsResponseTabRequestID = ko.observableArray();
-    self.ddOptionsResponseTabRequestStatus = ko.observableArray();
-    self.ddOptionsResponseTabRequestInternalDueDate = ko.observableArray();
-    self.ddOptionsResponseTabRequestSample = ko.observableArray();
-    self.ddOptionsResponseTabResponseTitle = ko.observableArray();
-    self.ddOptionsResponseTabResponseStatus = ko.observableArray();
-    self.filterResponseTabRequestIntDueDate = ko.observable();
-    self.filterResponseTabResponseName = ko.observable();
-    self.filterResponseTabResponseStatus = ko.observable();
     self.doSort = ko.observable(false);
 
     self.ddOptionsResponseInfoTabResponseNameOpen2 = ko.observableArray();
@@ -187,76 +183,18 @@ Audit.AOReport.NewReportPage = function () {
       if (!newResponse) return;
       setUrlParam(responseParam, newResponse.title);
     });
-    self.selectedFiltersResponseTab = ko.computed(function () {
-      var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
-      var responseName = self.filterResponseTabResponseName();
-      var responseStatus = self.filterResponseTabResponseStatus();
 
-      return requestIntDueDate + " " + responseName + " " + responseStatus;
+    self.relatedRequestLink = ko.pureComputed(() => {
+      const res = ko.unwrap(this.currentResponse);
+      const relReq = ko.unwrap(res?.request?.relatedRequest?.title);
+      if (!relReq) return "<span>Not Provided</span>";
+      let loc =
+        window.location.pathname +
+        `?&Tab=${self.tabOpts.Responses.id}&ResNum=${relReq}`;
+      return `<a target='_blank' href=${loc}>${relReq}</a>`;
     });
 
     /** Behaviors **/
-
-    self.ClearFiltersResponseTab = function () {
-      self.filterResponseTabRequestIntDueDate("");
-      self.filterResponseTabResponseName("");
-      self.filterResponseTabResponseStatus("");
-    };
-
-    self.FilterChangedResponseTab = function () {
-      document.body.style.cursor = "wait";
-      setTimeout(function () {
-        var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
-        var responseName = self.filterResponseTabResponseName();
-        var responseStatus = self.filterResponseTabResponseStatus();
-
-        if (!requestIntDueDate && !responseName && !responseStatus) {
-          $(".sr-response-item").show();
-          self.arrFilteredResponsesCount(self.arrResponses().length);
-          document.body.style.cursor = "default";
-          return;
-        }
-
-        requestIntDueDate = !requestIntDueDate ? "" : requestIntDueDate;
-        responseName = !responseName ? "" : responseName;
-        responseStatus = !responseStatus ? "" : responseStatus;
-
-        var count = 0;
-        var eacher = $(".sr-response-item");
-        eacher.each(function () {
-          var hide = false;
-
-          if (
-            !hide &&
-            requestIntDueDate != "" &&
-            $.trim($(this).find(".sr-response-internalDueDate").text()) !=
-              requestIntDueDate
-          )
-            hide = true;
-          if (
-            !hide &&
-            responseName != "" &&
-            $.trim($(this).find(".sr-response-title").text()) != responseName
-          )
-            hide = true;
-          if (
-            !hide &&
-            responseStatus != "" &&
-            $.trim($(this).find(".sr-response-status").text()) != responseStatus
-          )
-            hide = true;
-
-          if (hide) $(this).hide();
-          else {
-            $(this).show();
-            count++;
-          }
-        });
-
-        self.arrFilteredResponsesCount(count);
-        document.body.style.cursor = "default";
-      }, 100);
-    };
 
     self.ClickGoToResponse = function (response) {
       GoToResponse(response);
@@ -273,23 +211,11 @@ Audit.AOReport.NewReportPage = function () {
 
     /** Subscriptions **/
 
-    self.selectedFiltersResponseTab.subscribe(function (value) {
-      self.FilterChangedResponseTab();
-    });
-
     self.doSort.subscribe(function (newValue) {
       Audit.Common.Utilities.OnLoadDisplayTimeStamp();
 
       if (self.arrResponses().length > 0 && newValue) {
         //should trigger only once
-        self.arrFilteredResponsesCount(self.arrResponses().length);
-
-        //draw these first
-        ko.utils.arrayPushAll(
-          self.ddOptionsResponseTabResponseStatus(),
-          self.GetDDVals("status")
-        );
-        self.ddOptionsResponseTabResponseStatus.valueHasMutated();
 
         ko.utils.arrayPushAll(
           self.ddOptionsResponseInfoTabResponseNameOpen2(),
@@ -302,19 +228,6 @@ Audit.AOReport.NewReportPage = function () {
           self.GetDDVals2("0", true)
         );
         self.ddOptionsResponseInfoTabResponseNameProcessed2.valueHasMutated();
-
-        //draw these next
-        ko.utils.arrayPushAll(
-          self.ddOptionsResponseTabRequestInternalDueDate(),
-          self.GetDDVals("internalDueDate")
-        );
-        self.ddOptionsResponseTabRequestInternalDueDate.valueHasMutated();
-
-        ko.utils.arrayPushAll(
-          self.ddOptionsResponseTabResponseTitle(),
-          self.GetDDVals("title", true)
-        );
-        self.ddOptionsResponseTabResponseTitle.valueHasMutated();
 
         setTimeout(function () {
           var paramTabIndex = getUrlParam("Tab");
@@ -339,14 +252,14 @@ Audit.AOReport.NewReportPage = function () {
             }
           }
 
+          const tblResponses = document.getElementById(
+            "tblStatusReportResponses"
+          );
+
           var paramResponseNum = getUrlParam("ResNum");
           if (paramResponseNum != null && paramResponseNum != "") {
-            if (paramTabIndex == 0) {
-              if (
-                $("#ddlResponseName option[value='" + paramResponseNum + "']")
-                  .length > 0
-              )
-                _myViewModel.filterResponseTabResponseName(paramResponseNum);
+            if (paramTabIndex == self.tabOpts.Responses.id) {
+              tblResponses.filterByColIndex(0, paramResponseNum);
             } else {
               if (
                 $("#ddlResponsesOpen option[value='" + paramResponseNum + "']")
@@ -368,15 +281,7 @@ Audit.AOReport.NewReportPage = function () {
             }
           }
 
-          BindHandlersOnLoad();
-
-          self.filterResponseTabResponseStatus(m_statusToFilterOn);
-
-          //$( "#tblStatusReportResponses" ).trigger("update");
-          // $("#tblStatusReportResponses").tablesorter({
-          //   sortList: [[2, 0]],
-          //   selectorHeaders: ".sorter-true",
-          // });
+          tblResponses.filterByColIndex(3, m_statusToFilterOn);
         }, 200);
       }
     });
@@ -424,14 +329,12 @@ Audit.AOReport.NewReportPage = function () {
       const resId = self.currentResponse()?.ID;
       if (!resId) return;
       // const request = await getRequestByTitle(this.number);
-      const response = await appContext.AuditResponses.FindById(resId);
 
       const promises = [];
 
-      for (let file of files) {
+      for (let {} of files) {
         promises.push(
           new Promise(async (resolve) => {
-            const newSheet = await uploadResponseDocFile(response, file);
             resolve();
           })
         );
@@ -514,7 +417,7 @@ Audit.AOReport.NewReportPage = function () {
     m_requestItems = requestList.getItems(requestQuery);
     currCtx.load(
       m_requestItems,
-      "Include(ID, Title, ReqSubject, ReqStatus, InternalDueDate, ActionOffice, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate)"
+      "Include(ID, Title, ReqSubject, ReqStatus, InternalDueDate, ActionOffice, RelatedAudit, RelatedRequest, ActionItems, Comments, EmailSent, ClosedDate)"
     );
 
     await Promise.all([
@@ -615,7 +518,7 @@ Audit.AOReport.NewReportPage = function () {
     LoadResponses();
     LoadResponseDocs();
 
-    LoadTabStatusReport(m_arrResponses, "fbody");
+    LoadTabStatusReport(m_arrResponses);
 
     finishTask(loadDataTask);
   }
@@ -654,6 +557,14 @@ Audit.AOReport.NewReportPage = function () {
 
       var comments = oListItem.get_item("Comments");
       var relatedAudit = oListItem.get_item("RelatedAudit");
+      var oRelatedRequest = oListItem.get_item("RelatedRequest");
+      const relatedRequest = oRelatedRequest
+        ? {
+            id: oRelatedRequest.get_lookupId(),
+            title: oRelatedRequest.get_lookupValue(),
+          }
+        : null;
+
       var actionItems = oListItem.get_item("ActionItems");
 
       if (comments == null) comments = "";
@@ -679,6 +590,7 @@ Audit.AOReport.NewReportPage = function () {
       requestObject["actionOffice"] = actionOffice;
       requestObject["comments"] = comments;
       requestObject["relatedAudit"] = relatedAudit;
+      requestObject["relatedRequest"] = relatedRequest;
       requestObject["actionItems"] = actionItems;
       requestObject["emailSent"] = emailSent;
       requestObject["closedDate"] = closedDate;
@@ -697,11 +609,7 @@ Audit.AOReport.NewReportPage = function () {
     m_arrResponses = new Array();
     var cnt = 0;
 
-    // var listItemEnumerator = m_responseItems.getEnumerator();
-    // while (listItemEnumerator.moveNext()) {
     for (const oListItem of m_responseItems) {
-      // var oListItem = listItemEnumerator.get_current();
-
       var number = oListItem.get_item("ReqNum");
       if (number != null) {
         number = number.get_lookupValue();
@@ -777,13 +685,7 @@ Audit.AOReport.NewReportPage = function () {
   }
 
   function LoadResponseDocs() {
-    // var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
-    // while (listItemEnumerator.moveNext()) {
     for (var oListItem of m_ResponseDocsItems) {
-      // var oListItem = listItemEnumerator.get_current();
-
-      const responseDocID = oListItem.get_item("ID");
-
       var requestNumber = oListItem.get_item("ReqNum");
       if (requestNumber != null)
         requestNumber = requestNumber.get_lookupValue();
@@ -850,16 +752,10 @@ Audit.AOReport.NewReportPage = function () {
     }
   }
 
-  function LoadTabStatusReport(arr, fbody) {
+  function LoadTabStatusReport(arr) {
     if (arr == null) return;
 
-    //var bLoadTest = getUrlParam("LoadTest");
-
     var responseArr = new Array();
-
-    var arrResponseTitle = new Array();
-    var arrResponseInternalDueDate = new Array();
-    var arrResponseStatus = new Array();
 
     var count = 0;
     var resStatus1 = 0;
@@ -897,18 +793,7 @@ Audit.AOReport.NewReportPage = function () {
       };
 
       responseArr.push(aResponse);
-
-      /*if( bLoadTest )
-			{
-				for( var z = 0; z < 99; z++ )
-				{
-					responseArr.push( aResponse );
-				}	
-			}*/
     }
-
-    //if( bLoadTest )
-    //	_myViewModel.debugMode( true );
 
     if (responseArr.length > 0) {
       m_statusToFilterOn = "";
@@ -918,13 +803,9 @@ Audit.AOReport.NewReportPage = function () {
         m_statusToFilterOn = m_responseStatus2;
 
       _myViewModel.cntPendingReview(count);
-      // $("#tabs").tabs(); //.show();
 
       ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
-
-      //do this after push all because this takes some time
-      // var output = $("#responseTemplate").render(responseArr);
-      // $("#" + fbody).html(output);
+      _myViewModel.arrResponses.valueHasMutated();
     }
 
     //aleways calls this even if 0 responses
@@ -1031,7 +912,6 @@ Audit.AOReport.NewReportPage = function () {
     currCtx.executeQueryAsync(OnSuccess, OnFailure);
 
     function RenderResponses(oResponse) {
-      var rowCount = 0;
       var cntAddedByAO = 0;
 
       var arrResponseDocs = new Array();
@@ -1119,12 +999,6 @@ Audit.AOReport.NewReportPage = function () {
     emailText = emailText.replace("{RESPONSE_TITLE}", responseTitleBody);
 
     return emailText;
-  }
-
-  function OnCallbackForm(result, value) {
-    if (result === true) {
-      Audit.Common.Utilities.Refresh();
-    } else m_bIsTransactionExecuting = false;
   }
 
   function m_fnSubmitPackage() {
@@ -1311,33 +1185,6 @@ Audit.AOReport.NewReportPage = function () {
       }
       currCtx.executeQueryAsync(OnSuccess, OnFailure);
     }
-  }
-
-  function BindHandlersOnLoad() {
-    BindPrintButton(
-      "#btnPrint1",
-      "#divStatusReportRespones",
-      "Action Office Response Status Report"
-    );
-    //////////Note: for the export to work, make sure this is added to the html: <iframe id="CsvExpFrame" style="display: none"></iframe>
-    BindExportButton(
-      ".export1",
-      "AOResponseStatusReport_",
-      "tblStatusReportResponses"
-    );
-  }
-
-  function BindPrintButton(btnPrint, divTbl, pageTitle) {
-    $(btnPrint).on("click", function () {
-      Audit.Common.Utilities.PrintStatusReport(pageTitle, divTbl);
-    });
-  }
-
-  function BindExportButton(btnExport, fileNamePrefix, tbl) {
-    $(btnExport).on("click", function (event) {
-      var curDate = new Date().format("yyyyMMdd_hhmmtt");
-      Audit.Common.Utilities.ExportToCsv(fileNamePrefix + curDate, tbl);
-    });
   }
 
   function GoToResponse(response) {
