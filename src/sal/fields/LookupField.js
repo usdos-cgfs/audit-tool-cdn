@@ -123,7 +123,7 @@ export class LookupField extends BaseField {
       return val.map((entity) => {
         return {
           ID: entity.ID,
-          LookupValue: entity.LookupValue,
+          LookupValue: entity.LookupValue ?? this.optionsText(entity),
           Title: entity.Title,
         };
       });
@@ -131,7 +131,7 @@ export class LookupField extends BaseField {
     const entity = Array.isArray(val) ? val[0] : val;
     return {
       ID: entity.ID,
-      LookupValue: entity.LookupValue,
+      LookupValue: entity.LookupValue ?? this.optionsText(entity),
       Title: entity.Title,
     };
   };

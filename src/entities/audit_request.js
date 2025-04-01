@@ -166,15 +166,16 @@ export class AuditRequest extends ConstrainedEntity {
       "The Audit Request number of the similar audit performed in the previous FY",
   });
 
-  RelatedRequest = new LookupField({
-    displayName: "Related Request",
-    type: AuditRequest,
-    entitySet: appContext.AuditRequests,
-    lookupCol: "Title",
-    optionsText: (val) => val.ReqNum.Value() ?? val.Title,
-    instructions:
-      "The Audit Request number of the similar audit performed in the previous FY",
-  });
+  // Implement for FY 2026
+  // RelatedRequest = new LookupField({
+  //   displayName: "Related Request",
+  //   type: AuditRequest,
+  //   entitySet: appContext.AuditRequests,
+  //   lookupCol: "Title",
+  //   optionsText: (val) => val.ReqNum.Value() ?? val.Title,
+  //   instructions:
+  //     "The Audit Request number of the similar audit performed in the previous FY",
+  // });
 
   ActionItems = new TextAreaField({
     displayName: "Action Items",
@@ -256,7 +257,6 @@ export class AuditRequest extends ConstrainedEntity {
       "IsSample",
       "ReceiptDate",
       "RelatedAudit",
-      "RelatedRequest",
       "ActionItems",
       "Comments",
       "Reminders",
@@ -280,7 +280,6 @@ export class AuditRequest extends ConstrainedEntity {
       "IsSample",
       "ReceiptDate",
       "RelatedAudit",
-      "RelatedRequest",
       "ActionItems",
       "Comments",
       "Reminders",
@@ -298,7 +297,6 @@ export class AuditRequest extends ConstrainedEntity {
       "IsSample",
       "ReceiptDate",
       "RelatedAudit",
-      "RelatedRequest",
       "ActionItems",
       "Comments",
       "Reminders",

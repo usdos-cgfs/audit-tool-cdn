@@ -186,12 +186,14 @@ Audit.AOReport.NewReportPage = function () {
 
     self.relatedRequestLink = ko.pureComputed(() => {
       const res = ko.unwrap(this.currentResponse);
-      const relReq = ko.unwrap(res?.request?.relatedRequest?.title);
+      const relReq = ko.unwrap(res?.request?.relatedAudit);
+      // const relReq = ko.unwrap(res?.request?.relatedRequest?.title);
       if (!relReq) return "<span>Not Provided</span>";
       let loc =
         window.location.pathname +
         `?&Tab=${self.tabOpts.Responses.id}&ResNum=${relReq}`;
-      return `<a target='_blank' href=${loc}>${relReq}</a>`;
+      // return `<a target='_blank' href=${loc}>${relReq}</a>`;
+      return relReq;
     });
 
     /** Behaviors **/
@@ -417,7 +419,7 @@ Audit.AOReport.NewReportPage = function () {
     m_requestItems = requestList.getItems(requestQuery);
     currCtx.load(
       m_requestItems,
-      "Include(ID, Title, ReqSubject, ReqStatus, InternalDueDate, ActionOffice, RelatedAudit, RelatedRequest, ActionItems, Comments, EmailSent, ClosedDate)"
+      "Include(ID, Title, ReqSubject, ReqStatus, InternalDueDate, ActionOffice, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate)"
     );
 
     await Promise.all([
@@ -557,13 +559,13 @@ Audit.AOReport.NewReportPage = function () {
 
       var comments = oListItem.get_item("Comments");
       var relatedAudit = oListItem.get_item("RelatedAudit");
-      var oRelatedRequest = oListItem.get_item("RelatedRequest");
-      const relatedRequest = oRelatedRequest
-        ? {
-            id: oRelatedRequest.get_lookupId(),
-            title: oRelatedRequest.get_lookupValue(),
-          }
-        : null;
+      // var oRelatedRequest = oListItem.get_item("RelatedRequest");
+      // const relatedRequest = oRelatedRequest
+      //   ? {
+      //       id: oRelatedRequest.get_lookupId(),
+      //       title: oRelatedRequest.get_lookupValue(),
+      //     }
+      //   : null;
 
       var actionItems = oListItem.get_item("ActionItems");
 
@@ -590,7 +592,7 @@ Audit.AOReport.NewReportPage = function () {
       requestObject["actionOffice"] = actionOffice;
       requestObject["comments"] = comments;
       requestObject["relatedAudit"] = relatedAudit;
-      requestObject["relatedRequest"] = relatedRequest;
+      // requestObject["relatedRequest"] = relatedRequest;
       requestObject["actionItems"] = actionItems;
       requestObject["emailSent"] = emailSent;
       requestObject["closedDate"] = closedDate;

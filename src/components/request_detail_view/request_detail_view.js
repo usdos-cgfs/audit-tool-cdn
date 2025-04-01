@@ -124,12 +124,12 @@ export class RequestDetailView {
   // Computed Observables
   relatedRequestLink = ko.pureComputed(() => {
     const req = ko.unwrap(this.request);
-    const relReq = ko.unwrap(req?.RelatedRequest.Value);
-    if (!relReq?.ID) return "<span>Not Provided</span>";
+    const relReq = ko.unwrap(req?.RelatedAudit.Value);
+    if (!relReq) return "<span>Not Provided</span>";
     let loc =
-      window.location.pathname +
-      `?&Tab=request-detail&ReqNum=${relReq.ReqNum.Value()}`;
-    return `<a target='_blank' href=${loc}>${relReq.ReqNum.Value()}</a>`;
+      window.location.pathname + `?&Tab=request-detail&ReqNum=${relReq}`;
+    // return `<a target='_blank' href=${loc}>${relReq}</a>`;
+    return relReq;
   });
   currentRequestResponseItems = ko.pureComputed(() => {
     const request = ko.unwrap(this.currentRequest);

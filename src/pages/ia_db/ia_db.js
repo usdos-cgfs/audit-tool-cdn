@@ -121,18 +121,6 @@ export async function load(element, context) {
 
   Audit.IAReport.Report = new Audit.IAReport.NewReportPage(element);
   Audit.IAReport.Init();
-
-  // Test query Select
-  const querySelect = document.getElementById("querySelect");
-
-  querySelect.setSearchFunction(async (query) => {
-    // if (query.length < 3) return [];
-    const results = await searchRequestsByTitle(query);
-    return results.map((result) => ({
-      value: result.ID,
-      label: result.Title,
-    }));
-  });
 }
 
 Audit.IAReport.Init = function () {
@@ -656,7 +644,7 @@ async function LoadInfo() {
   //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
   currCtx.load(
     m_requestItems,
-    "Include(ID, Title, ReqType, ReqSubject, ReqStatus, RequestingOffice, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, ReceiptDate, RelatedAudit, RelatedRequest, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+    "Include(ID, Title, ReqType, ReqSubject, ReqStatus, RequestingOffice, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
   );
 
   var requestInternalList = web
@@ -905,12 +893,12 @@ export async function m_fnRequeryRequest(requestId = null) {
       .forEach((n) => (n.style.display = "none")); //resets this in case it was toggled to show
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqType, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, ReceiptDate, RelatedAudit, RelatedRequest, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+      "Include(ID, Title, ReqType, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
     );
   } else {
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqType, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, ReceiptDate, RelatedAudit, RelatedRequest, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+      "Include(ID, Title, ReqType, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
     );
   }
 
