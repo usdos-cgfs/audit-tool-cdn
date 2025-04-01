@@ -1,6 +1,6 @@
-import serve from "rollup-plugin-serve";
 import css from "rollup-plugin-import-css";
 import html from "rollup-plugin-html";
+import json from "@rollup/plugin-json";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 
