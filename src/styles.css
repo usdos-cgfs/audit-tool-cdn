@@ -86,6 +86,7 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  background-color: var(--bg-dark-color);
   /* height: calc(100vh - 96px); */
   position: sticky;
   top: 0;
@@ -114,7 +115,6 @@
 }
 
 .audit-body .quick-info {
-  background-color: var(--bg-dark-color);
   display: none;
   flex-direction: column;
   align-items: stretch;
@@ -123,7 +123,7 @@
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   gap: 0.75rem;
-  padding: 0 0.5rem 0 0.5rem;
+  padding: 0.5rem 0.5rem 0 0.5rem;
 }
 
 .audit-body .quick-info-container.active .quick-info {
@@ -157,6 +157,15 @@
 .audit-body .quick-info a {
   /* text-decoration: none; */
   color: var(--primary-muted-color);
+}
+
+.audit-body .quick-info-container .app-info {
+  padding: 0.5rem;
+  display: none;
+}
+
+.audit-body .quick-info-container.active .app-info {
+  display: block;
 }
 
 .audit-body .reports-container {
@@ -1168,6 +1177,14 @@ TABLE.tablesorter THEAD TR .header {
 
 .justify-center {
   justify-content: center;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.gap-2 {
+  gap: 0.3rem;
 }
 
 /* Position */

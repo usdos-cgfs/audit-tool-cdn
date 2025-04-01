@@ -7,10 +7,14 @@ import {
 
 import { addNewRequest } from "../../../../services/index.js";
 
-import { configurationsStore } from "../../../../infrastructure/store.js";
+import {
+  auditOrganizationStore,
+  configurationsStore,
+} from "../../../../infrastructure/store.js";
 import { BaseForm } from "../../../../sal/components/forms/index.js";
 import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
-import { newRequestFormTemplate } from "./NewRequestFormTemplate.js";
+import newRequestFormTemplate from "./NewRequestFormTemplate.html";
+import { CONFIGKEY } from "../../../../env.js";
 
 export const newRequestFormComponentName = "newRequestForm";
 
@@ -49,16 +53,28 @@ export default class NewRequestFormModule extends BaseForm {
 
     if (!request) return;
 
-    const fy = configurationsStore["current-fy"];
+    const fy = configurationsStore[CONFIGKEY.CURRENTFY];
     request.FiscalYear.Value(fy);
 
-    const reqType = configurationsStore["default-req-type"];
+    const reqType = configurationsStore[CONFIGKEY.DEFAULTREQTYPE];
     request.ReqType.Value(reqType);
 
     const defaultReminders = getRequestDefaultReminders();
     request.Reminders.Value(defaultReminders);
 
     request.ReqStatus.Value(AUDITREQUESTSTATES.OPEN);
+
+    const defaultROTitle = configurationsStore[CONFIGKEY.DEFAULTRO];
+    if (defaultROTitle) {
+      const defaultRO = auditOrganizationStore().find(
+        (org) => org.Title === defaultROTitle
+      );
+      request.RequestingOffice.Value(defaultRO);
+    }
+
+    request.ReqDueDate.Value(new Date());
+    request.InternalDueDate.Value(new Date());
+    request.ReceiptDate.Value(new Date());
   }
 
   async clickSubmit() {

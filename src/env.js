@@ -3,4 +3,7 @@ export const assetsPath = () =>
 
 export const CONFIGKEY = {
   SUPPORTEMAILAO: "support-email-ao",
+  DEFAULTREQTYPE: "default-req-type",
+  CURRENTFY: "current-fy",
+  DEFAULTRO: "default-ro",
 };

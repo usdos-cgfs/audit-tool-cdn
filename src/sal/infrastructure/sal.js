@@ -1159,9 +1159,11 @@ export function SPList(listDef) {
     // TODO: fieldfilter should use 'lookupcolumnId' e.g. ServiceTypeId eq 1
     const colFilterArr = [];
     columnFilters.forEach((colFilter) =>
-      colFilterArr.push(
-        `${colFilter.column} ${colFilter.op ?? "eq"} '${colFilter.value}'`
-      )
+      typeof colFilter === "string"
+        ? colFilterArr.push(colFilter)
+        : colFilterArr.push(
+            `${colFilter.column} ${colFilter.op ?? "eq"} '${colFilter.value}'`
+          )
     );
     if (!includeFolders) colFilterArr.push(`FSObjType eq '0'`);
 

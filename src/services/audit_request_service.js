@@ -31,8 +31,25 @@ export async function getRequestByTitle(title) {
   return requestResults.results[0] ?? null;
 }
 
+export async function searchRequestsByTitle(title) {
+  const results = await appContext.AuditRequests.FindByColumnValue(
+    [`startswith(Title,'${title}')`],
+    {},
+    { count: 10 },
+    ["ID", "Title"]
+  );
+  return results.results ?? [];
+}
+
 export async function addNewRequest(request) {
   const fields = request.FieldMap;
+
+  // Ensure ReqNum is formatted correctly
+  const curReqnum = fields.Title.Value();
+  const fy = fields.FiscalYear.Value();
+  if (!curReqnum.endsWith("-" + fy)) {
+    fields.Title.Value(curReqnum + "-" + fy);
+  }
 
   // See if we have a request with this title already
   const existingRequests = await appContext.AuditRequests.FindByColumnValue(

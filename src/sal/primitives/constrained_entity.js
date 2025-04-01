@@ -21,6 +21,7 @@ export class ConstrainedEntity extends Entity {
   };
 
   fromJSON(inputObj) {
+    if (!inputObj) return;
     if (window.DEBUG)
       console.log("Setting constrained entity from JSON", inputObj);
     Object.keys(inputObj).map((key) => this.FieldMap[key]?.set(inputObj[key]));

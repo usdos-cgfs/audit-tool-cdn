@@ -133,12 +133,14 @@ export class AuditRequest extends ConstrainedEntity {
     displayName: "Internal Due Date",
     type: dateFieldTypes.date,
     isRequired: true,
+    instructions: "The date the request is due to the internal audit team",
   });
 
   ReqDueDate = new DateField({
     displayName: "Request Due Date",
     type: dateFieldTypes.date,
     isRequired: true,
+    instructions: "The date the request is due to the requesting office",
   });
 
   ReqStatus = new SelectField({
@@ -163,6 +165,17 @@ export class AuditRequest extends ConstrainedEntity {
     instructions:
       "The Audit Request number of the similar audit performed in the previous FY",
   });
+
+  // Implement for FY 2026
+  // RelatedRequest = new LookupField({
+  //   displayName: "Related Request",
+  //   type: AuditRequest,
+  //   entitySet: appContext.AuditRequests,
+  //   lookupCol: "Title",
+  //   optionsText: (val) => val.ReqNum.Value() ?? val.Title,
+  //   instructions:
+  //     "The Audit Request number of the similar audit performed in the previous FY",
+  // });
 
   ActionItems = new TextAreaField({
     displayName: "Action Items",

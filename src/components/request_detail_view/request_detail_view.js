@@ -122,6 +122,15 @@ export class RequestDetailView {
   showCollapsed = ko.observable(false);
 
   // Computed Observables
+  relatedRequestLink = ko.pureComputed(() => {
+    const req = ko.unwrap(this.request);
+    const relReq = ko.unwrap(req?.RelatedAudit.Value);
+    if (!relReq) return "<span>Not Provided</span>";
+    let loc =
+      window.location.pathname + `?&Tab=request-detail&ReqNum=${relReq}`;
+    // return `<a target='_blank' href=${loc}>${relReq}</a>`;
+    return relReq;
+  });
   currentRequestResponseItems = ko.pureComputed(() => {
     const request = ko.unwrap(this.currentRequest);
     return (
