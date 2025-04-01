@@ -94,10 +94,10 @@ export function setSitePermissions(itemPermissions, reset) {
   return setResourcePermissionsAsync(web, itemPermissions, reset);
 }
 
-async function setResourcePermissionsAsync(oListItem, itemPermissions, reset) {
+async function setResourcePermissionsAsync(oResource, itemPermissions, reset) {
   if (reset) {
-    oListItem.resetRoleInheritance();
-    oListItem.breakRoleInheritance(false, false);
+    oResource.resetRoleInheritance();
+    oResource.breakRoleInheritance(false, false);
   }
 
   // const result = await new Promise((resolve, reject) => {
@@ -134,13 +134,13 @@ async function setResourcePermissionsAsync(oListItem, itemPermissions, reset) {
       const roleDefBindingColl =
         SP.RoleDefinitionBindingCollection.newObject(currCtx2);
       roleDefBindingColl.add(web.get_roleDefinitions().getByName(roleDef.name));
-      oListItem.get_roleAssignments().add(oPrincipal, roleDefBindingColl);
+      oResource.get_roleAssignments().add(oPrincipal, roleDefBindingColl);
     });
 
     const data = {};
     await executeQuery(currCtx2).catch(({ sender, args }) => {
       console.error(
-        `Failed to set role permissions on item id ${id} for principal ${role.principal.Title} ` +
+        `Failed to set role permissions for principal ${role.principal.Title} ` +
           args.get_message(),
         args
       );
@@ -150,14 +150,14 @@ async function setResourcePermissionsAsync(oListItem, itemPermissions, reset) {
   if (reset) {
     const currCtx = new SP.ClientContext.get_current();
 
-    oListItem
+    oResource
       .get_roleAssignments()
       .getByPrincipal(sal.globalConfig.currentUser)
       .deleteObject();
 
     await executeQuery(currCtx).catch(({ sender, args }) => {
       console.error(
-        `Failed to remove role permissions on item id ${id} for Current User ` +
+        `Failed to remove role permissions on item for Current User ` +
           args.get_message(),
         args
       );
