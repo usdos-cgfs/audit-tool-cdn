@@ -18,9 +18,9 @@ export const roleNames = {
   InitialCreate: "Initial Create",
 };
 
-export function ensureAllAppPerms() {
+export async function ensureAllAppPerms() {
+  await ensureAllListPermissions();
   ensureAllPagePerms();
-  ensureAllListPermissions();
 }
 
 function ensureAllPagePerms() {
@@ -44,15 +44,15 @@ export function ensureDBPermissions() {
   );
   ensurePagePerms("AO_DB.aspx", aos);
 
-  const ros = auditOrganizationStore().filter(
-    (ao) => ao.Role == ORGROLES.REQUESTINGOFFICE
-  );
-  ensurePagePerms("RO_DB.aspx", ros);
-
   const qas = auditOrganizationStore().filter(
     (ao) => ao.Role == ORGROLES.QUALITYASSURANCE
   );
   ensurePagePerms("QA_DB.aspx", qas);
+
+  const ros = auditOrganizationStore().filter(
+    (ao) => ao.Role == ORGROLES.REQUESTINGOFFICE
+  );
+  ensurePagePerms("RO_DB.aspx", [...ros, ...qas]);
 
   const sps = auditOrganizationStore().filter(
     (ao) => ao.Role == ORGROLES.SPECIALPERMISSIONS
@@ -144,7 +144,7 @@ function getPeopleByOrgRole(orgType) {
     .map((ao) => new People(ao.UserGroup));
 }
 
-function ensureAllListPermissions() {
+async function ensureAllListPermissions() {
   const { owners, members, visitors } = getSiteGroups();
 
   const baseRoles = [
@@ -191,6 +191,26 @@ function ensureAllListPermissions() {
         roleDefs: [new RoleDef({ name: roleNames.RestrictedRead })],
       })
   );
+
+  const aoRestrictedReadRoles = getPeopleByOrgRole(ORGROLES.ACTIONOFFICE).map(
+    (principal) =>
+      new Role({
+        principal,
+        roleDefs: [new RoleDef({ name: roleNames.RestrictedRead })],
+      })
+  );
+
+  const basePerms = new ItemPermissions({
+    hasUniqueRoleAssignments: true,
+    roles: [
+      ...baseRoles,
+      ...qaRestrictedReadRoles,
+      ...roRestrictedReadRoles,
+      ...aoRestrictedReadRoles,
+    ],
+  });
+
+  await ensureBasePermissions(basePerms);
 
   const setPerms = [
     {
@@ -244,6 +264,10 @@ function ensureAllListPermissions() {
     await ensureEntitySetPerms(setPerm);
     finishTask(ensureListTask);
   });
+}
+
+async function ensureBasePermissions(permissions) {
+  await appContext.utilities.setBasePermissions(permissions, true);
 }
 
 async function ensureEntitySetPerms({ entitySet, permissions }) {
