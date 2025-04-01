@@ -331,12 +331,14 @@ Audit.AOReport.NewReportPage = function () {
       const resId = self.currentResponse()?.ID;
       if (!resId) return;
       // const request = await getRequestByTitle(this.number);
+      const response = await appContext.AuditResponses.FindById(resId);
 
       const promises = [];
 
-      for (let {} of files) {
+      for (let file of files) {
         promises.push(
           new Promise(async (resolve) => {
+            const newSheet = await uploadResponseDocFile(response, file);
             resolve();
           })
         );
