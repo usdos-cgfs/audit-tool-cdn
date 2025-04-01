@@ -1,6 +1,11 @@
 import * as ko from "knockout";
 import { SitePage } from "./entities/index.js";
-import { SPList, copyFileAsync } from "./infrastructure/index.js";
+import {
+  SPList,
+  copyFileAsync,
+  getSitePermissions,
+  setSitePermissions,
+} from "./infrastructure/index.js";
 
 const DEBUG = false;
 
@@ -11,6 +16,8 @@ export class DbContext {
 
   utilities = {
     copyFileAsync,
+    getBasePermissions: getSitePermissions,
+    setBasePermissions: setSitePermissions,
   };
   virtualSets = new Map();
 

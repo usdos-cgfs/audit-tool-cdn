@@ -72,6 +72,99 @@ export function getDefaultGroups() {
   return result;
 }
 
+export async function getSitePermissions() {
+  const url =
+    `/web/` +
+    `?$select=HasUniqueRoleAssignments,RoleAssignments` +
+    `&$expand=RoleAssignments/Member,RoleAssignments/RoleDefinitionBindings`;
+
+  const headers = {
+    "Cache-Control": "no-cache",
+  };
+  const result = await fetchSharePointData(url, "GET", headers);
+
+  if (!result) return;
+
+  return ItemPermissions.fromRestResult(result.d);
+}
+
+export function setSitePermissions(itemPermissions, reset) {
+  const currCtx = new SP.ClientContext.get_current();
+  const web = currCtx.get_web();
+  return setResourcePermissionsAsync(web, itemPermissions, reset);
+}
+
+async function setResourcePermissionsAsync(oListItem, itemPermissions, reset) {
+  if (reset) {
+    oListItem.resetRoleInheritance();
+    oListItem.breakRoleInheritance(false, false);
+  }
+
+  // const result = await new Promise((resolve, reject) => {
+  //   currCtx.executeQueryAsync(
+  //     () => {
+  //       resolve();
+  //     },
+  //     (sender, args) => {
+  //       console.error(
+  //         "Failed to break permissions on item: " +
+  //           this.oListItem.get_lookupValue() +
+  //           args.get_message(),
+  //         args
+  //       );
+  //       reject();
+  //     }
+  //   );
+  // });
+
+  for (const role of itemPermissions.roles) {
+    const ensuredPrincipalResult = await ensureUserByKeyAsync(
+      role.principal.Title
+    );
+    if (!ensuredPrincipalResult) return;
+
+    const currCtx2 = new SP.ClientContext.get_current();
+    const web = currCtx2.get_web();
+
+    const oPrincipal = ensuredPrincipalResult.oPrincipal;
+
+    currCtx2.load(oPrincipal);
+
+    role.roleDefs.map((roleDef) => {
+      const roleDefBindingColl =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+      roleDefBindingColl.add(web.get_roleDefinitions().getByName(roleDef.name));
+      oListItem.get_roleAssignments().add(oPrincipal, roleDefBindingColl);
+    });
+
+    const data = {};
+    await executeQuery(currCtx2).catch(({ sender, args }) => {
+      console.error(
+        `Failed to set role permissions on item id ${id} for principal ${role.principal.Title} ` +
+          args.get_message(),
+        args
+      );
+    });
+  }
+
+  if (reset) {
+    const currCtx = new SP.ClientContext.get_current();
+
+    oListItem
+      .get_roleAssignments()
+      .getByPrincipal(sal.globalConfig.currentUser)
+      .deleteObject();
+
+    await executeQuery(currCtx).catch(({ sender, args }) => {
+      console.error(
+        `Failed to remove role permissions on item id ${id} for Current User ` +
+          args.get_message(),
+        args
+      );
+    });
+  }
+}
+
 const siteGroups = {};
 
 export async function getGroupUsers(groupName) {
@@ -1354,83 +1447,6 @@ export function SPList(listDef) {
     const oListItem = await getoListItemByIdAsync(id);
 
     return setResourcePermissionsAsync(oListItem, itemPermissions, reset);
-  }
-
-  async function setResourcePermissionsAsync(
-    oListItem,
-    itemPermissions,
-    reset
-  ) {
-    if (reset) {
-      oListItem.resetRoleInheritance();
-      oListItem.breakRoleInheritance(false, false);
-    }
-
-    // const result = await new Promise((resolve, reject) => {
-    //   currCtx.executeQueryAsync(
-    //     () => {
-    //       resolve();
-    //     },
-    //     (sender, args) => {
-    //       console.error(
-    //         "Failed to break permissions on item: " +
-    //           this.oListItem.get_lookupValue() +
-    //           args.get_message(),
-    //         args
-    //       );
-    //       reject();
-    //     }
-    //   );
-    // });
-
-    for (const role of itemPermissions.roles) {
-      const ensuredPrincipalResult = await ensureUserByKeyAsync(
-        role.principal.Title
-      );
-      if (!ensuredPrincipalResult) return;
-
-      const currCtx2 = new SP.ClientContext.get_current();
-      const web = currCtx2.get_web();
-
-      const oPrincipal = ensuredPrincipalResult.oPrincipal;
-
-      currCtx2.load(oPrincipal);
-
-      role.roleDefs.map((roleDef) => {
-        const roleDefBindingColl =
-          SP.RoleDefinitionBindingCollection.newObject(currCtx2);
-        roleDefBindingColl.add(
-          web.get_roleDefinitions().getByName(roleDef.name)
-        );
-        oListItem.get_roleAssignments().add(oPrincipal, roleDefBindingColl);
-      });
-
-      const data = {};
-      await executeQuery(currCtx2).catch(({ sender, args }) => {
-        console.error(
-          `Failed to set role permissions on item id ${id} for principal ${role.principal.Title} ` +
-            args.get_message(),
-          args
-        );
-      });
-    }
-
-    if (reset) {
-      const currCtx = new SP.ClientContext.get_current();
-
-      oListItem
-        .get_roleAssignments()
-        .getByPrincipal(sal.globalConfig.currentUser)
-        .deleteObject();
-
-      await executeQuery(currCtx).catch(({ sender, args }) => {
-        console.error(
-          `Failed to remove role permissions on item id ${id} for Current User ` +
-            args.get_message(),
-          args
-        );
-      });
-    }
   }
 
   function getoListItemByIdAsync(id) {
