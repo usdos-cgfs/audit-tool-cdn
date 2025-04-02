@@ -16,6 +16,7 @@ import { People } from "../sal/entities/index.js";
 import { addTask, finishTask, taskDefs } from "./tasks.js";
 import { deleteRequestCoversheet } from "./coversheet_manager.js";
 import { auditOrganizationStore } from "../infrastructure/store.js";
+import { updateRequestPermissionsTaskDef } from "../tasks/request_tasks.js";
 
 export async function getRequestById(id) {
   return await appContext.AuditRequests.FindById(id);
@@ -252,6 +253,7 @@ async function ensureRequestInternalItem(request) {
 }
 
 export async function breakRequestPermissions(request, responseStatus) {
+  const task = addTask(updateRequestPermissionsTaskDef(request));
   const curPerms = await appContext.AuditRequests.GetItemPermissions(request);
 
   const defaultGroups = await getSiteGroups();
@@ -331,6 +333,7 @@ export async function breakRequestPermissions(request, responseStatus) {
     newRequestPermissions,
     true
   );
+  finishTask(task);
 }
 
 export async function requestHasSpecialPerms(request) {
