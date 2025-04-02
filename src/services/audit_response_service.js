@@ -9,6 +9,9 @@ import { appContext } from "../infrastructure/application_db_context.js";
 import { showModal } from "../sal/components/modal/index.js";
 import { ItemPermissions } from "../sal/infrastructure/sal.js";
 import { Result } from "../sal/shared/index.js";
+import { closeOrFinalizeResponsesTaskDef } from "../tasks/request_tasks.js";
+import { archivingResponseDocTaskDef } from "../tasks/response_doc_tasks.js";
+import { sendResponseToIATaskDef } from "../tasks/response_tasks.js";
 import {
   notifyIAResponsesClosed,
   notifyIAResponsesReturned,
@@ -311,10 +314,14 @@ export async function closeResponse(request, response, notifyIA = true) {
   const responseDocs = await getResponseResponseDocs(response);
   for (const responseDoc of responseDocs) {
     if (responseDoc.DocumentStatus.Value() != AuditResponseDocStates.Approved) {
+      const archiveTask = addTask(
+        archivingResponseDocTaskDef(responseDoc.Title?.toString())
+      );
       responseDoc.DocumentStatus.Value(AuditResponseDocStates.Archived);
       await appContext.AuditResponseDocs.UpdateEntity(responseDoc, [
         "DocumentStatus",
       ]);
+      finishTask(archiveTask);
     }
   }
 
@@ -336,15 +343,18 @@ export async function returnResponseToIAById(responseId) {
 }
 
 export async function returnResponseToIA(request, response, notifyIA = true) {
+  const task = addTask(sendResponseToIATaskDef(response.ResNum?.toString()));
   response.ResStatus.Value(AuditResponseStates.ReturnedToGFS);
   await appContext.AuditResponses.UpdateEntity(response, ["ResStatus"]);
 
   if (notifyIA) await notifyIAResponsesReturned(request, [response]);
+  finishTask(task);
 }
 
 export async function closeOrReturnFinalizedResponsesQA(requestId) {
   // For each Response in the Request, if all response docs are Approved, then close the response
   // If all docs are processed and any response doc is rejected, then return the the response to IA
+  const task = addTask(closeOrFinalizeResponsesTaskDef());
   const request = await getRequestById(requestId);
 
   const requestingOffice = request.RequestingOffice.Value();
@@ -391,6 +401,8 @@ export async function closeOrReturnFinalizedResponsesQA(requestId) {
       await returnResponseToIA(request, response);
     }
   }
+
+  finishTask(task);
 }
 
 export async function uploadResponseDocFile(response, file) {

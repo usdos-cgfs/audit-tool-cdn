@@ -38,6 +38,7 @@ import {
 } from "../../services/audit_response_service.js";
 import { sortByTitle } from "../../sal/infrastructure/entity_utilities.js";
 import { ConfirmRejectResponseDocForm } from "../../components/forms/response_doc/confirm_reject/confirm_reject_response_doc_form.js";
+import { blockingTasks, runningTasks } from "../../services/tasks.js";
 
 const html = String.raw;
 var Audit = { ...window.Audit, Common: {}, QAReport: {} };
@@ -205,6 +206,8 @@ Audit.QAReport.NewReportPage = function () {
     self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
 
     self.currentDialogs = ModalDialog.currentDialogs;
+    self.runningTasks = runningTasks;
+    self.blockingTasks = blockingTasks;
 
     self.arrResponses = ko.observableArray(null);
 

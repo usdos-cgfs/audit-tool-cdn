@@ -10,6 +10,8 @@ import {
   notifyQAApprovalPending,
   closeResponse,
   returnResponseToIA,
+  addTask,
+  finishTask,
 } from "./index.js";
 
 import {
@@ -21,6 +23,12 @@ import {
 } from "../entities/index.js";
 
 import { appContext } from "../infrastructure/application_db_context.js";
+import {
+  sendResponseDocToIATaskDef,
+  sendResponseDocToQATaskDef,
+  sendResponseDocToROTaskDef,
+} from "../tasks/response_doc_tasks.js";
+import { sendResponseToQATaskDef } from "../tasks/response_tasks.js";
 
 export async function approveResponseDocsForQA(
   requestId,
@@ -51,6 +59,7 @@ export async function approveResponseDocsForQA(
 
   await Promise.all(
     responseDocsToApprove.map(async (responseDoc) => {
+      const task = addTask(sendResponseDocToQATaskDef(responseDoc.FileName));
       // TODO: this should just be an ensure on our AppDbContext
       const response = allRequestResponses.find(
         (response) => response.ID == responseDoc.ResID.Value().ID
@@ -60,6 +69,7 @@ export async function approveResponseDocsForQA(
         responseDoc.DocumentStatus.Value() != AuditResponseDocStates.Submitted
       ) {
         console.error("Document status is not valid for approval");
+        finishTask(task);
         return;
       }
 
@@ -79,6 +89,7 @@ export async function approveResponseDocsForQA(
         responseDoc,
         AuditResponseDoc.Views.UpdateDocStatus
       );
+      finishTask(task);
     })
   );
 
@@ -90,8 +101,10 @@ export async function approveResponseDocsForQA(
   if (responsesToSubmitToQA.length) {
     await Promise.all(
       responsesToSubmitToQA.map(async (response) => {
+        const rTask = addTask(sendResponseToQATaskDef(response.Title));
         response.ResStatus.Value(AuditResponseStates.ApprovedForQA);
         await appContext.AuditResponses.UpdateEntity(response, ["ResStatus"]);
+        finishTask(rTask);
       })
     );
 
@@ -149,10 +162,15 @@ export async function approveResponseDocsForRO(
       const responseDoc = allRequestResponseDocs.find(
         (responseDoc) => responseDoc.ID == responseDocId
       );
+      const task = addTask(sendResponseDocToROTaskDef(responseDoc.FileName));
 
       // 1. Check that the status isn't already approved
-      if (responseDoc.DocumentStatus.Value() == AuditResponseDocStates.Approved)
+      if (
+        responseDoc.DocumentStatus.Value() == AuditResponseDocStates.Approved
+      ) {
+        finishTask(task);
         return;
+      }
 
       cntApprovedResponseDocs++;
 
@@ -181,7 +199,10 @@ export async function approveResponseDocsForRO(
         );
       const newRoFile = newRoFileResults.results[0] ?? null;
 
-      if (!newRoFile) return;
+      if (!newRoFile) {
+        finishTask(task);
+        return;
+      }
 
       // 4. Update ResponseDocRo
       newRoFile.markApprovedForRO(request, response);
@@ -201,6 +222,8 @@ export async function approveResponseDocsForRO(
       responseLogBody += `<li><a href="${
         window.location.origin + newRoFile.FileRef
       }" target="_blank">${newResponseDocFileName}</a></li>`;
+
+      finishTask(task);
     })
   );
 
@@ -245,6 +268,8 @@ export async function returnResponseDocsToIA(
         (responseDoc) => responseDoc.ID == responseDocId
       );
 
+      const task = addTask(sendResponseDocToIATaskDef(responseDoc.FileName));
+
       // 1. Check that the status isn't already rejected
       if (responseDoc.DocumentStatus.Value() == AuditResponseDocStates.Rejected)
         return;
@@ -260,6 +285,7 @@ export async function returnResponseDocsToIA(
         "RejectReason",
         "FileLeafRef",
       ]);
+      finishTask(task);
     })
   );
 
