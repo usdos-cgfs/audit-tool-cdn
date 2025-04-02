@@ -272,6 +272,10 @@ ko.bindingHandlers.downloadLink = {
       return ko.unwrap(viewModel[token]);
     });
     element.href = replaced;
+    const fileName = viewModel["fileName"];
+    if (fileName) {
+      element.setAttribute("download", fileName);
+    }
   },
 };
 
