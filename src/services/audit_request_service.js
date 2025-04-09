@@ -15,8 +15,12 @@ import {
 import { People } from "../sal/entities/index.js";
 import { addTask, finishTask, taskDefs } from "./tasks.js";
 import { deleteRequestCoversheet } from "./coversheet_manager.js";
-import { auditOrganizationStore } from "../infrastructure/store.js";
+import {
+  auditOrganizationStore,
+  configurationsStore,
+} from "../infrastructure/store.js";
 import { updateRequestPermissionsTaskDef } from "../tasks/request_tasks.js";
+import { CONFIGKEY } from "../env.js";
 
 export async function getRequestById(id) {
   return await appContext.AuditRequests.FindById(id);
@@ -42,15 +46,32 @@ export async function searchRequestsByTitle(title) {
   return results.results ?? [];
 }
 
+export function calculateNewReqNum(reqNum) {
+  let newReqNum = reqNum?.trim();
+  if (!newReqNum) return "";
+  // Checks the provided reqNum string against our configuration values
+  // and returns a new string in prefix-reqnum-suffix format, without
+  // duplicate prefix and suffix values
+  const prefix = configurationsStore[CONFIGKEY.REQNUMPREFIX]?.trim();
+  const suffix = configurationsStore[CONFIGKEY.REQNUMSUFFIX]?.trim();
+
+  if (prefix && !reqNum.startsWith(prefix)) {
+    newReqNum = `${prefix}${newReqNum}`;
+  }
+
+  if (suffix && !reqNum.endsWith(suffix)) {
+    newReqNum = `${newReqNum}${suffix}`;
+  }
+
+  return newReqNum;
+}
+
 export async function addNewRequest(request) {
   const fields = request.FieldMap;
 
   // Ensure ReqNum is formatted correctly
-  const curReqnum = fields.Title.Value();
-  const fy = fields.FiscalYear.Value();
-  if (!curReqnum.endsWith("-" + fy)) {
-    fields.Title.Value(curReqnum + "-" + fy);
-  }
+  const curReqNum = fields.Title.Value();
+  fields.Title.Value(calculateNewReqNum(curReqNum));
 
   // See if we have a request with this title already
   const existingRequests = await appContext.AuditRequests.FindByColumnValue(
