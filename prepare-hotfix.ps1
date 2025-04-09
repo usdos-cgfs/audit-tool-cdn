@@ -26,4 +26,4 @@ node -e "let package = require('./package.json'); package.version = '$releaseVer
 
 # Commit version bump
 git add package.json
-git commit -m "[PREPARE RELEASE] Increment version to $releaseVersionNum"
+git commit -m "[PREPARE HOTFIX] Increment version to $releaseVersionNum"
