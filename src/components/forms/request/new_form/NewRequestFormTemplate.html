@@ -22,6 +22,12 @@
             data-bind="textInput: FiscalYear.Value, class: FiscalYear.ValidationClass, attr: FiscalYear.attr"
         /></span>
       </label>
+      <!-- ko if: $parent.computedReqNum -->
+      <div class="fw-lighter fst-italic text-secondary">
+        New Request Number:
+        <span data-bind="text: $parent.computedReqNum"></span>
+      </div>
+      <!-- /ko -->
       <!-- ko if: ReqNum.ShowErrors -->
       <!-- ko foreach: ReqNum.Errors -->
       <div class="fw-semibold text-danger" data-bind="text: description"></div>

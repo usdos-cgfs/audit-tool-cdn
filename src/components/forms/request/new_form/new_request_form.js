@@ -5,7 +5,10 @@ import {
   getRequestDefaultReminders,
 } from "../../../../entities/index.js";
 
-import { addNewRequest } from "../../../../services/index.js";
+import {
+  addNewRequest,
+  calculateNewReqNum,
+} from "../../../../services/index.js";
 
 import {
   auditOrganizationStore,
@@ -45,6 +48,18 @@ export default class NewRequestFormModule extends BaseForm {
     this.onComplete = onComplete;
     this.prepopulateRequestFields();
   }
+
+  computedReqNum = ko.pureComputed(() => {
+    const request = ko.unwrap(this.entity);
+    return calculateNewReqNum(request?.ReqNum.Value());
+    // if (!request?.ReqNum.Value()) return null;
+    // const prefix = configurationsStore[CONFIGKEY.REQNUMPREFIX];
+    // const suffix = configurationsStore[CONFIGKEY.REQNUMSUFFIX];
+    // let reqNum = prefix || "";
+    // reqNum += request.ReqNum.Value();
+    // reqNum += suffix || "";
+    // return reqNum;
+  });
 
   saving = ko.observable(false);
 

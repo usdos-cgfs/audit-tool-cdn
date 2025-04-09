@@ -6,4 +6,6 @@ export const CONFIGKEY = {
   DEFAULTREQTYPE: "default-req-type",
   CURRENTFY: "current-fy",
   DEFAULTRO: "default-ro",
+  REQNUMPREFIX: "reqnum-prefix",
+  REQNUMSUFFIX: "reqnum-suffix",
 };
