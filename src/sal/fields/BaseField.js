@@ -74,7 +74,7 @@ function isRequiredValidationRequirement(field) {
 
       const value = ko.unwrap(field.Value);
       if (value?.constructor == Array) return !value.length;
-      return value === null || value === undefined;
+      return value === null || value === undefined || value === "";
     }),
     error: new ValidationError(
       "text-field",
