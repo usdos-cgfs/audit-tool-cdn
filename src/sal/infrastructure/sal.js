@@ -19,6 +19,7 @@
   - remove unused functions
   - Combine functions 
 */
+import * as ModalDialog from "../components/modal/index.js";
 
 window.console = window.console || { log: function () {} };
 
@@ -2213,14 +2214,14 @@ export function SPList(listDef) {
 
   function showVersionHistoryModal(itemId) {
     return new Promise((resolve) => {
-      var options = SP.UI.$create_DialogOptions();
+      var options = {};
       options.title = "Version History";
       options.height = "600";
       options.dialogReturnValueCallback = resolve;
 
       options.url = getVersionHistoryUrl(itemId);
 
-      SP.UI.ModalDialog.showModalDialog(options);
+      ModalDialog.showModalDialog(options);
     });
   }
 
@@ -2230,7 +2231,8 @@ export function SPList(listDef) {
       "/_layouts/15/versions.aspx?List={" +
       self.config.guid +
       "}&ID=" +
-      itemId
+      itemId +
+      "&env=WebView&isDlg=1"
     );
   }
 
