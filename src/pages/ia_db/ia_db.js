@@ -36,6 +36,7 @@ import {
   configurationsStore,
 } from "../../infrastructure/store.js";
 import {
+  AUDITREQUESTSTATES,
   AUDITREQUESTTYPES,
   AuditResponseDocStates,
 } from "../../entities/index.js";
@@ -76,6 +77,7 @@ import { updateRequestSensitivityTaskDef } from "../../tasks/request_tasks.js";
 
 import { PeopleField } from "../../sal/fields/PeopleField.js";
 import { searchRequestsByTitle } from "../../services/audit_request_service.js";
+import { ResponseDocsReturnedToday } from "../../components/response_docs_returned_today/response_docs_returned_today.js";
 var Audit = window.Audit || {
   Common: {},
   IAReport: {},
@@ -338,6 +340,24 @@ function ViewModel() {
 
   self.ClickBulkAddRequest = () => {
     m_fnBulkAddRequest();
+  };
+
+  self.ClickViewSubmittedResponses = () => {
+    document
+      .getElementById("tblStatusReportResponses")
+      .filterByColIndex(4, AuditResponseStates.Submitted);
+    self.tabs.selectTab(self.tabOpts.Responses);
+  };
+
+  self.ClickViewReturnedResponses = () => {
+    const form = new ResponseDocsReturnedToday();
+    const options = {
+      title: "Returned Response Docs",
+      form,
+      autoSize: true,
+    };
+
+    ModalDialog.showModalDialog(options);
   };
 
   self.ClickGoToRequest = function (oRequest) {

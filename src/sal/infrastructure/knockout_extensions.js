@@ -259,6 +259,27 @@ ko.bindingHandlers.dateField = {
   ) {},
 };
 
+ko.bindingHandlers.dataTable = {
+  init: function (element, valueAccessor, allBindingsAccessor) {
+    const obsArr = valueAccessor();
+    if (ko.isObservable(obsArr)) {
+      obsArr.subscribe((arrayChanges) => {
+        // Add timeout so html can render
+        setTimeout(() => {
+          if (element.update) element.update();
+        }, 5);
+      }, "arrayChange");
+    }
+  },
+  update: function (
+    element,
+    valueAccessor,
+    allBindings,
+    viewModel,
+    bindingContext
+  ) {},
+};
+
 ko.bindingHandlers.downloadLink = {
   update: function (
     element,

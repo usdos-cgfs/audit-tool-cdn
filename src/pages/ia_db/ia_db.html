@@ -467,7 +467,7 @@
             ><span class="fa-solid fa-question"></span>User Manuals</a
           >
         </div> -->
-        <div>
+        <!-- <div>
           <a
             title="View Response Documents Uploaded by Action Offices Today but not yet Submitted"
             href="javascript:void(0)"
@@ -475,15 +475,28 @@
             ><span class="fa-solid fa-magnifying-glass"></span>View Today's
             Un-submitted Response Documents</a
           >
+        </div> -->
+        <div>
+          <button
+            type="button"
+            class="btn btn-link"
+            title="View Returned Responses"
+            data-bind="click: ClickViewReturnedResponses"
+          >
+            <span class="fa-solid fa-magnifying-glass"></span>View Returned
+            Responses
+          </button>
         </div>
         <div>
-          <a
-            title="View Returned Response Documents"
-            href="javascript:void(0)"
-            onclick="Audit.IAReport.Report.ViewReturnedDocs()"
-            ><span class="fa-solid fa-magnifying-glass"></span>View Returned
-            Response Documents</a
+          <button
+            type="button"
+            class="btn btn-link"
+            title="View Submitted Responses"
+            data-bind="click: ClickViewSubmittedResponses"
           >
+            <span class="fa-solid fa-magnifying-glass"></span>View Submitted
+            Responses
+          </button>
         </div>
         <div>
           <a

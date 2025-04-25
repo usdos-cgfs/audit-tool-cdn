@@ -185,11 +185,12 @@
   align-items: start;
   padding: 0.75rem;
   border: 1px solid var(--secondary-color);
+  font-weight: bold;
 }
 
-.audit-body .quick-links a {
+.audit-body .quick-links a,
+.audit-body .quick-links button {
   /* text-decoration: none; */
-  font-weight: bold;
   color: var(--text-primary);
 }
 .audit-body .quick-links a:hover {
@@ -853,7 +854,13 @@ label.file-upload-field.dragging .dropzone {
   border: 1px DarkGray solid;
   border-left: none;
   border-right: none;
-  background-color: Gainsboro;
+  /* background-color: Gainsboro; */
+}
+
+.tablesorter tfoot {
+  background-color: var(--bg-dark-secondary-color);
+  --text-primary: white;
+  color: var(--text-primary);
 }
 
 table.tablesorter td {
@@ -1132,6 +1139,7 @@ TABLE.tablesorter THEAD TR .header {
 .bg-dark {
   background-color: var(--bg-dark-color);
   color: white;
+  --text-primary: white;
 }
 
 .bg-dark-secondary {

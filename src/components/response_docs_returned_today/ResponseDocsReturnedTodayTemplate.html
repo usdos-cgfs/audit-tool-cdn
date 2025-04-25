@@ -1,0 +1,57 @@
+﻿<div class="audit-body">
+  <div>
+    <div id="divMsgEmptyDocs" style="padding-top: 10px; font-style: italic">
+      <span class="ui-icon ui-icon-info"></span>Found
+      <span data-bind="text: responseDocs().length"></span> Documents that were
+      returned
+    </div>
+
+    <div id="divOutput">
+      <table
+        id="tblOutput"
+        is="data-table"
+        data-title="Returned Response Report"
+        data-file-prefix="ReturnedResponseReport_"
+        class="tablesorter report"
+        data-bind="dataTable: responseDocs"
+      >
+        <thead>
+          <tr>
+            <th class="sorter-true" nowrap="nowrap">Response ID</th>
+            <th class="sorter-true" nowrap="nowrap">Title</th>
+            <th class="sorter-true" nowrap="nowrap">Modified</th>
+          </tr>
+        </thead>
+        <tbody id="fbody" class="white" data-bind="foreach: responseDocs">
+          <tr class="sr-responsedoc-item">
+            <td class="sr-responsedoc-responseTitle" title="Go to Response">
+              <a
+                class="btn btn-link white"
+                target="_blank"
+                data-bind="text: ResID.Value()?.Title.toString,
+              attr: { href: $parent.goToResponseLink($data) }"
+              ></a>
+            </td>
+            <td
+              class="sr-response-downloadlink"
+              title="Click to Download"
+              nowrap
+            >
+              <a
+                class="btn btn-link white"
+                target="_blank"
+                data-bind="text: FileName.toString,
+              attr: { href: DownloadLink, download: FileName.toString() }"
+              ></a>
+            </td>
+            <td
+              class="sr-response-modified"
+              nowrap
+              data-bind="text: Modified.toString"
+            ></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
