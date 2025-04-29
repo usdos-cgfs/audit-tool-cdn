@@ -196,10 +196,12 @@
 
 .audit-body .quick-links a,
 .audit-body .quick-links button {
-  /* text-decoration: none; */
+  text-decoration: none;
   color: var(--text-primary);
 }
-.audit-body .quick-links a:hover {
+.audit-body .quick-links a:hover,
+.audit-body .quick-links button:hover {
+  text-decoration: underline;
   color: var(--primary-color);
 }
 
