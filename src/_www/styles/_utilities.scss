@@ -1,0 +1,51 @@
+.pointer {
+  cursor: pointer;
+}
+
+/* Colors */
+.white {
+  color: white !important;
+}
+
+.primary {
+  color: var(--primary-color) !important;
+}
+
+.primary-muted {
+  color: var(--primary-muted-color) !important;
+}
+
+.secondary {
+  color: var(--secondary-color) !important;
+}
+
+.success {
+  color: var(--success-color) !important;
+}
+
+.warn {
+  color: var(--warn-color) !important;
+}
+
+.danger {
+  color: var(--danger-color) !important;
+}
+
+.text-danger {
+  color: var(--primary-color) !important;
+}
+
+.bg-dark {
+  background-color: var(--bg-dark-color);
+  color: white;
+  --text-primary: white;
+}
+
+.bg-dark-secondary {
+  background-color: var(--bg-dark-secondary-color);
+  color: white;
+}
+
+.bg-danger {
+  background-color: color-mix(in srgb, var(--danger-color) 25%, transparent);
+}

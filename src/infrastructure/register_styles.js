@@ -1,13 +1,13 @@
-import appStyles from "../styles.css";
+import appStyles from "../styles.scss";
 import quillStyles from "quill/dist/quill.snow.css";
 
 export function registerStyles(element) {
-  [appStyles, quillStyles].forEach((stylesheet) => {
-    const styles = document.createElement("style");
-    styles.innerHTML = stylesheet;
-    // element.append(styles);
-    document.head.append(styles);
-  });
+  // [appStyles, quillStyles].forEach((stylesheet) => {
+  //   const styles = document.createElement("style");
+  //   styles.innerHTML = stylesheet;
+  //   // element.append(styles);
+  //   document.head.append(styles);
+  // });
 
   // Set width and height of our window
   // const contentWindow = document.querySelector(".audit");
