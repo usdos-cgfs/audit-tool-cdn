@@ -1,3 +1,9 @@
+// @layer reset, theme, defaults, components, utils;
+
+// @import url("../lib/styles/utilities.css") layer(utils);
+@use "_www/styles/utilities";
+@use "_www/styles/components";
+
 /* Properties */
 .audit {
   /* --bg-very-light-color: #edf1f2;
@@ -185,14 +191,17 @@
   align-items: start;
   padding: 0.75rem;
   border: 1px solid var(--secondary-color);
+  font-weight: bold;
 }
 
-.audit-body .quick-links a {
-  /* text-decoration: none; */
-  font-weight: bold;
+.audit-body .quick-links a,
+.audit-body .quick-links button {
+  text-decoration: none;
   color: var(--text-primary);
 }
-.audit-body .quick-links a:hover {
+.audit-body .quick-links a:hover,
+.audit-body .quick-links button:hover {
+  text-decoration: underline;
   color: var(--primary-color);
 }
 
@@ -853,7 +862,13 @@ label.file-upload-field.dragging .dropzone {
   border: 1px DarkGray solid;
   border-left: none;
   border-right: none;
-  background-color: Gainsboro;
+  /* background-color: Gainsboro; */
+}
+
+.tablesorter tfoot {
+  background-color: var(--bg-dark-secondary-color);
+  --text-primary: white;
+  color: var(--text-primary);
 }
 
 table.tablesorter td {
@@ -958,122 +973,6 @@ TABLE.tablesorter THEAD TR .header {
   display: none !important;
 }
 
-.button {
-  color: white !important;
-  display: inline-block;
-  zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
-  /* display: inline; */
-  vertical-align: baseline;
-  margin: 0 2px;
-  outline: none;
-  cursor: pointer;
-  text-align: center;
-  text-decoration: none;
-  font: 14px/100% Arial, Helvetica, sans-serif;
-  padding: 0.5em 2em 0.55em;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-  -webkit-border-radius: 0.5em;
-  -moz-border-radius: 0.5em;
-  border-radius: 0.5em;
-  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-.button:hover {
-  text-decoration: none;
-}
-.button:active {
-  position: relative;
-  top: 1px;
-}
-
-/* input styles */
-
-.btn {
-  color: white;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0.25rem 1rem;
-  border-radius: 4px;
-  /* text-transform: uppercase; */
-  font-weight: 500;
-  border: none;
-  margin-left: 0;
-}
-
-.btn[disabled] {
-  cursor: not-allowed;
-  color: white;
-}
-
-.btn.btn-toolbar {
-  min-width: 4rem;
-  height: 4rem;
-  border-radius: 0;
-  background-color: var(--bg-dark-color);
-  padding: 0;
-}
-
-.btn.btn-toolbar:hover {
-  background-color: var(--bg-dark-secondary-color);
-}
-
-.btn.btn-link {
-  color: var(--text-primary);
-  border: none;
-  font-weight: inherit;
-  background-color: inherit;
-  padding: 0;
-  min-width: 0;
-  vertical-align: inherit;
-  font-size: inherit;
-}
-
-.btn.btn-link:hover {
-  color: var(--primary-color);
-  text-decoration: underline;
-}
-
-.btn.btn-success {
-  background-color: var(--success-color);
-}
-.btn.btn-success:hover {
-  background-color: var(--success-hover-color);
-}
-.btn.btn-success[disabled] {
-  background-color: var(--success-hover-color);
-}
-
-.btn.btn-primary {
-  background-color: var(--primary-color);
-}
-.btn.btn-primary:hover {
-  background-color: var(--primary-muted-color);
-}
-.btn.btn-primary[disabled] {
-  background-color: var(--primary-muted-color);
-}
-
-.btn.btn-warn {
-  background-color: var(--warn-color);
-}
-.btn.btn-warn:hover {
-  background-color: var(--warn-hover-color);
-}
-.btn.btn-warn[disabled] {
-  background-color: var(--warn-hover-color);
-}
-
-.btn.btn-danger {
-  background-color: var(--danger-color);
-}
-.btn.btn-danger:hover {
-  background-color: var(--danger-hover-color);
-}
-.btn.btn-danger[disabled] {
-  background-color: var(--danger-disabled-color);
-}
-
 .form-control,
 .form-check-input,
 .form-control,
@@ -1090,58 +989,7 @@ TABLE.tablesorter THEAD TR .header {
 
 /*
 * UTILITIES
-*/
 
-.pointer {
-  cursor: pointer;
-}
-
-/* Colors */
-.white {
-  color: white !important;
-}
-
-.primary {
-  color: var(--primary-color) !important;
-}
-
-.primary-muted {
-  color: var(--primary-muted-color) !important;
-}
-
-.secondary {
-  color: var(--secondary-color) !important;
-}
-
-.success {
-  color: var(--success-color) !important;
-}
-
-.warn {
-  color: var(--warn-color) !important;
-}
-
-.danger {
-  color: var(--danger-color) !important;
-}
-
-.text-danger {
-  color: var(--primary-color) !important;
-}
-
-.bg-dark {
-  background-color: var(--bg-dark-color);
-  color: white;
-}
-
-.bg-dark-secondary {
-  background-color: var(--bg-dark-secondary-color);
-  color: white;
-}
-
-.bg-danger {
-  background-color: color-mix(in srgb, var(--danger-color) 25%, transparent);
-}
 
 /* EFFECTS */
 .bg-flash {

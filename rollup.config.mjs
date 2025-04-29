@@ -1,4 +1,4 @@
-import css from "rollup-plugin-import-css";
+import postcss from "rollup-plugin-postcss";
 import html from "rollup-plugin-html";
 import json from "@rollup/plugin-json";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
@@ -17,7 +17,7 @@ export default [
       html({
         include: "**/*.html",
       }),
-      css(), // Import CSS files as part of the bundle
+      postcss(), // Import CSS files as part of the bundle
       json(),
       nodeResolve(),
       commonjs(),
@@ -35,7 +35,7 @@ export default [
       html({
         include: "**/*.html",
       }),
-      css(), // Import CSS files as part of the bundle
+      postcss(), // Import CSS files as part of the bundle
       json(),
       nodeResolve(),
       commonjs(),
@@ -53,7 +53,7 @@ export default [
       html({
         include: "**/*.html",
       }),
-      css(),
+      postcss(),
       json(),
       nodeResolve(),
       commonjs(),
@@ -71,7 +71,7 @@ export default [
       html({
         include: "**/*.html",
       }),
-      css(),
+      postcss(),
       json(),
       nodeResolve(),
       commonjs(),
@@ -89,7 +89,7 @@ export default [
       html({
         include: "**/*.html",
       }),
-      css(), // Import CSS files as part of the bundle
+      postcss(), // Import CSS files as part of the bundle
       json(),
       nodeResolve(),
       commonjs(),
@@ -107,7 +107,7 @@ export default [
       html({
         include: "**/*.html",
       }),
-      css(),
+      postcss(),
       json(),
       nodeResolve(),
       commonjs(),

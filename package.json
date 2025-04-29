@@ -1,5 +1,5 @@
 {
-  "version": "0.4.1",
+  "version": "0.5.0-beta.1+190",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-json": "^6.1.0",
@@ -7,8 +7,9 @@
     "google-charts": "^2.0.0",
     "rollup": "^4.39.0",
     "rollup-plugin-html": "^0.2.1",
-    "rollup-plugin-import-css": "^3.5.8",
-    "rollup-plugin-serve": "^3.0.0"
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-serve": "^3.0.0",
+    "sass": "^1.87.0"
   },
   "scripts": {
     "dev": "npx rollup -c rollup.config.dev.mjs --watch",

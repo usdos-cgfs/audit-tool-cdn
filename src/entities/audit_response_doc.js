@@ -1,3 +1,5 @@
+import * as ko from "knockout";
+
 import { ConstrainedEntity } from "../sal/primitives/index.js";
 import {
   LookupField,
@@ -93,6 +95,10 @@ export class AuditResponseDoc extends ConstrainedEntity {
 
   CheckoutUser = new PeopleField({
     displayName: "Checked Out To",
+  });
+
+  DownloadLink = ko.pureComputed(() => {
+    return `../_layouts/download.aspx?SourceUrl=${this.FileRef.toString()}`;
   });
 
   markApprovedForRO(newFileName) {
