@@ -13,6 +13,7 @@ import {
 import {
   auditOrganizationStore,
   configurationsStore,
+  m_getArrRequests,
 } from "../../../../infrastructure/store.js";
 import { BaseForm } from "../../../../sal/components/forms/index.js";
 import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
@@ -91,6 +92,16 @@ export default class NewRequestFormModule extends BaseForm {
     request.InternalDueDate.Value(new Date());
     request.ReceiptDate.Value(new Date());
   }
+
+  clickFindSimilarRequests = () => {
+    const reqSubject = ko.unwrap(this.entity)?.ReqSubject.toString();
+
+    if (!reqSubject) return;
+
+    const requestSubjectOpts = m_getArrRequests();
+
+    return;
+  };
 
   async clickSubmit() {
     this.saving(true);

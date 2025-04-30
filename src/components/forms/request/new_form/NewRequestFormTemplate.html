@@ -39,12 +39,24 @@
       <!-- /ko -->
       <!-- /ko -->
     </div>
-    <div
-      class="form-field-component min-w-full"
-      data-bind="component: 
+    <div class="flex items-start min-w-full">
+      <div
+        class="form-field-component max-w-full"
+        data-bind="component: 
         {name: ReqSubject.components.edit, params: ReqSubject}, 
         class: ReqSubject.classList"
-    ></div>
+      ></div>
+      <div class="m-2">
+        <button
+          type="button"
+          class="btn btn-link"
+          title="Find similar requests"
+          data-bind="click: $parent.clickFindSimilarRequests"
+        >
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </button>
+      </div>
+    </div>
     <div
       class="form-field-component"
       data-bind="component: 

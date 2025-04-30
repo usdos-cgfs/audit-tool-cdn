@@ -34,6 +34,8 @@ import { EditResponseDocForm } from "../../components/forms/response_doc/edit_fo
 import {
   auditOrganizationStore,
   configurationsStore,
+  m_bigMap,
+  m_getArrRequests,
 } from "../../infrastructure/store.js";
 import {
   AUDITREQUESTSTATES,
@@ -181,14 +183,7 @@ var m_requestDocsLibrary = null;
 var m_responseDocsLibrary = null;
 
 // var m_bigMap = new Object();
-const m_bigMap = {};
-function m_getArrRequests() {
-  return Object.entries(m_bigMap)
-    .filter(([key, value]) => {
-      return key.startsWith("request-");
-    })
-    .map(([key, value]) => value);
-}
+
 var m_arrRequestsToClose = new Array();
 var m_arrPermissionsResponseFolders = new Array();
 
