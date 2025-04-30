@@ -19,6 +19,7 @@ import { BaseForm } from "../../../../sal/components/forms/index.js";
 import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
 import newRequestFormTemplate from "./NewRequestFormTemplate.html";
 import { CONFIGKEY } from "../../../../env.js";
+import { sentenceSimilarity } from "../../../../infrastructure/ai.js";
 
 export const newRequestFormComponentName = "newRequestForm";
 
@@ -93,13 +94,19 @@ export default class NewRequestFormModule extends BaseForm {
     request.ReceiptDate.Value(new Date());
   }
 
-  clickFindSimilarRequests = () => {
+  clickFindSimilarRequests = async () => {
     const reqSubject = ko.unwrap(this.entity)?.ReqSubject.toString();
 
     if (!reqSubject) return;
 
-    const requestSubjectOpts = m_getArrRequests();
+    const reqs = m_getArrRequests();
+    const requestSubjectOpts = reqs.map((r) => {
+      return { id: r.number, sentence: r.subject };
+    });
 
+    const closest = await sentenceSimilarity(reqSubject, requestSubjectOpts);
+
+    console.log(closest);
     return;
   };
 
