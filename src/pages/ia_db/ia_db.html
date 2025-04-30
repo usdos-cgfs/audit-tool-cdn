@@ -58,7 +58,10 @@
   </div>
 
   <div id="divIA" class="audit-body" style="display: none">
-    <div class="quick-info-container" data-bind="css: {active: showQuickInfo}">
+    <div
+      class="quick-info-container bg-dark"
+      data-bind="css: {active: showQuickInfo}"
+    >
       <div class="quick-info-toolbar">
         <button
           type="button"
@@ -391,7 +394,7 @@
                     <td colspan="2">
                       <span
                         title="Go to Response Details"
-                        class="btn btn-link fw-semibold primary"
+                        class="btn btn-link fw-semibold"
                         data-bind="text: title + ' (' + unsubmittedDocs.length + ' documents)', 
                         click: $root.ClickGoToRequest"
                       ></span>
@@ -402,6 +405,7 @@
                     <td>
                       <a
                         title="Click to Download"
+                        class="btn btn-link"
                         data-bind="text: fileName, downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
                       ></a>
                     </td>
