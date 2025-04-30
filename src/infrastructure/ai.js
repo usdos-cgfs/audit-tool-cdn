@@ -33,7 +33,7 @@ export async function sentenceSimilarity(inputSentence, targets, count = 5) {
       inputEmbedding.data,
       embeddings[index + 1]?.data
     );
-    return { id: target.id, sentence: target.sentence, score };
+    return { score, item: target };
   });
 
   // Sort and return top `count`

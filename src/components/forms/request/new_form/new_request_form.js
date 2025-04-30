@@ -94,6 +94,8 @@ export default class NewRequestFormModule extends BaseForm {
     request.ReceiptDate.Value(new Date());
   }
 
+  SimilarRequests = ko.observableArray();
+
   clickFindSimilarRequests = async () => {
     const reqSubject = ko.unwrap(this.entity)?.ReqSubject.toString();
 
@@ -101,13 +103,22 @@ export default class NewRequestFormModule extends BaseForm {
 
     const reqs = m_getArrRequests();
     const requestSubjectOpts = reqs.map((r) => {
-      return { id: r.number, sentence: r.subject };
+      return { item: r, sentence: r.subject };
     });
 
     const closest = await sentenceSimilarity(reqSubject, requestSubjectOpts);
 
-    console.log(closest);
+    const similarRequests = closest.map((r) => {
+      return { ...r.item.item, apply: this.clickApplySimilarRequest };
+    });
+
+    this.SimilarRequests(similarRequests);
+
     return;
+  };
+
+  clickApplySimilarRequest = (req) => {
+    console.log(req);
   };
 
   async clickSubmit() {
