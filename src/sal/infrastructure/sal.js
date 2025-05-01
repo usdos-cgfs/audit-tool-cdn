@@ -1388,6 +1388,70 @@ export function SPList(listDef) {
     });
   }
 
+  async function touchItemAsync(entity) {
+    if (!entity?.ID) {
+      return false;
+    }
+
+    return new Promise((resolve, reject) => {
+      const currCtx = new SP.ClientContext.get_current();
+      const web = currCtx.get_web();
+      const oList = web.get_lists().getByTitle(self.config.def.title);
+
+      const oListItem = oList.getItemById(entity.ID);
+
+      oListItem.set_item("Modified", new Date().toISOString());
+
+      oListItem.update();
+
+      function onUpdateListItemsSucceeded() {
+        //alert('Item updated!');
+        console.log("Successfully updated " + this.oListItem.get_item("Title"));
+        resolve();
+      }
+
+      function onUpdateListItemFailed(sender, args) {
+        console.error("Update Failed - List: " + self.config.def.name);
+        console.error("Item Id", this.oListItem.get_id() ?? "N/A");
+        console.error(entity);
+        console.error(sender, args);
+        reject(args);
+      }
+
+      const data = { oListItem, entity, resolve, reject };
+
+      currCtx.load(oListItem);
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data, onUpdateListItemsSucceeded),
+        Function.createDelegate(data, onUpdateListItemFailed)
+      );
+    });
+
+    var itemUrl =
+      `/web/Lists/GetByTitle('${self.config.def.title}')/items(${entity.Id})` +
+      "/ListItemAllFields";
+    const item = await fetchSharePointData(itemUrl);
+
+    if (!item) return;
+
+    var touchUrl = itemUrl; // + `/ValidateUpdateListItem()`;
+
+    // Prepare payload to update Author or Editor field in SharePoint Using REST API as below
+    var payload = {
+      __metadata: { type: item.d.__metadata.type },
+      Modified: new Date().toISOString(),
+    };
+
+    return fetchSharePointData(
+      touchUrl,
+      "POST",
+      {
+        "X-HTTP-Method": "MERGE",
+        "If-Match": "*",
+      },
+      { body: JSON.stringify(payload) }
+    );
+  }
   /*****************************************************************
                             deleteListItem      
     ******************************************************************/
@@ -2544,6 +2608,7 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     getListItemsAsync,
     createListItemAsync,
     updateListItemAsync,
+    touchItemAsync,
     deleteListItemAsync,
     setItemPermissionsAsync,
     getItemPermissionsAsync,

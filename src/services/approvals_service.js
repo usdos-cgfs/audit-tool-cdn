@@ -144,11 +144,12 @@ export async function approveResponseDocsForRO(
 
   if (!updatedResponses.length) return;
 
-  const roResponseDocROFolderPath =
-    await ensureRequestAuditResponseDocsROFolder(
-      request.Title,
-      requestingOffice.ID
-    );
+  const roResponseDocROFolder = await ensureRequestAuditResponseDocsROFolder(
+    request.Title,
+    requestingOffice.ID
+  );
+  await appContext.AuditResponseDocsRO.TouchEntity(roResponseDocROFolder);
+  const roResponseDocROFolderPath = roResponseDocROFolder.FileRef;
 
   const roEmailLogItem = await ensureRequestROEmailLogItem(requestingOffice);
 
