@@ -171,7 +171,7 @@ export async function ensureRequestAuditResponseDocsROFolder(
 
   const roFolder = roFolderResults.results[0] ?? null;
 
-  if (roFolder) return roFolder.FileRef;
+  if (roFolder) return roFolder;
 
   const requestingOffice = auditOrganizationStore().find(
     (ao) => ao.ID == requestingOfficeId
@@ -206,7 +206,7 @@ export async function ensureRequestAuditResponseDocsROFolder(
     newRoFolderId
   );
 
-  return newFolderEntity.FileRef;
+  return newFolderEntity;
 }
 
 /* Begin Unreferenced Service Rewrites */

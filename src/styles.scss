@@ -92,7 +92,7 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  background-color: var(--bg-dark-color);
+  // background-color: var(--bg-dark-color);
   /* height: calc(100vh - 96px); */
   position: sticky;
   top: 0;
@@ -319,7 +319,7 @@
 }
 
 .audit-form.bg-dark .btn-link {
-  color: var(--primary-muted-color);
+  // color: var(--primary-muted-color);
 }
 
 .audit-form dl {
@@ -979,7 +979,7 @@ TABLE.tablesorter THEAD TR .header {
 .form-select {
   display: block;
   background-color: white;
-  color: var(--text-primary);
+  color: black;
   border: none;
   border-radius: 4px;
   padding: 4px;

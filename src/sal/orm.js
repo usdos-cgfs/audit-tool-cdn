@@ -217,6 +217,10 @@ export class EntitySet {
     return this.ListRef.updateListItemAsync(writeableEntity);
   };
 
+  TouchEntity = async function (entity) {
+    return this.ListRef.touchItemAsync(entity);
+  };
+
   RemoveEntity = async function (entity) {
     if (!entity.ID) return false;
     await this.ListRef.deleteListItemAsync(entity.ID);

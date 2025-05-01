@@ -113,3 +113,23 @@
 .btn.btn-danger[disabled] {
   background-color: var(--danger-disabled-color);
 }
+
+.form-control,
+.form-check-input,
+.form-control,
+.form-select {
+  display: block;
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  padding: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-control-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
