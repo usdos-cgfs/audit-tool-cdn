@@ -77,8 +77,10 @@
       <!-- /ko -->
       <!-- /ko -->
     </div>
-    <div class="min-w-full emphasized-section">
-      <table>
+    <!-- ko if: $parent.showSimilarRequests -->
+    <div class="min-w-full emphasized-section white">
+      <!-- ko if: $parent.similarRequests().length -->
+      <table class="w-full">
         <thead>
           <tr>
             <th>ReqNum</th>
@@ -86,7 +88,7 @@
             <th></th>
           </tr>
         </thead>
-        <tbody data-bind="foreach: $parent.SimilarRequests">
+        <tbody data-bind="foreach: $parent.similarRequests">
           <tr>
             <td data-bind="text: number"></td>
             <td data-bind="text: subject"></td>
@@ -94,6 +96,7 @@
               <button
                 type="button"
                 class="btn btn-link"
+                title="Apply to current request"
                 data-bind="click: apply"
               >
                 Apply
@@ -102,7 +105,14 @@
           </tr>
         </tbody>
       </table>
+      <!-- /ko -->
+      <div class="fst-italic">
+        Found
+        <span data-bind="text: $parent.similarRequests().length"></span> similar
+        requests
+      </div>
     </div>
+    <!-- /ko -->
     <div
       class="form-field-component"
       data-bind="component: 

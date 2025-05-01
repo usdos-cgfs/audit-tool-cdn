@@ -20,6 +20,7 @@ import { directRegisterComponent } from "../../../../sal/infrastructure/index.js
 import newRequestFormTemplate from "./NewRequestFormTemplate.html";
 import { CONFIGKEY } from "../../../../env.js";
 import { sentenceSimilarity } from "../../../../infrastructure/ai.js";
+import { appContext } from "../../../../infrastructure/application_db_context.js";
 
 export const newRequestFormComponentName = "newRequestForm";
 
@@ -65,6 +66,9 @@ export default class NewRequestFormModule extends BaseForm {
 
   saving = ko.observable(false);
 
+  showSimilarRequests = ko.observable(false);
+  similarRequests = ko.observableArray();
+
   prepopulateRequestFields() {
     const request = ko.unwrap(this.entity);
 
@@ -94,9 +98,8 @@ export default class NewRequestFormModule extends BaseForm {
     request.ReceiptDate.Value(new Date());
   }
 
-  SimilarRequests = ko.observableArray();
-
   clickFindSimilarRequests = async () => {
+    this.saving(true);
     const reqSubject = ko.unwrap(this.entity)?.ReqSubject.toString();
 
     if (!reqSubject) return;
@@ -112,13 +115,23 @@ export default class NewRequestFormModule extends BaseForm {
       return { ...r.item.item, apply: this.clickApplySimilarRequest };
     });
 
-    this.SimilarRequests(similarRequests);
-
-    return;
+    this.similarRequests(similarRequests);
+    this.showSimilarRequests(true);
+    this.saving(false);
   };
 
-  clickApplySimilarRequest = (req) => {
-    console.log(req);
+  clickApplySimilarRequest = async (req) => {
+    const request = await appContext.AuditRequests.FindById(req.ID);
+
+    const entity = ko.unwrap(this.entity);
+
+    entity.ActionItems.set(req.actionItems);
+    entity.Comments.set(req.comments);
+
+    entity.RelatedAudit.set(req.number);
+
+    entity.ActionOffices.set(request.ActionItems.get());
+    entity.Sensitivity.set(request.Sensitivity.get());
   };
 
   async clickSubmit() {
