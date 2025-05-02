@@ -130,7 +130,7 @@ export default class NewRequestFormModule extends BaseForm {
 
     entity.RelatedAudit.set(req.number);
 
-    entity.ActionOffices.set(request.ActionItems.get());
+    entity.ActionOffice.set(request.ActionOffice.get());
     entity.Sensitivity.set(request.Sensitivity.get());
   };
 
