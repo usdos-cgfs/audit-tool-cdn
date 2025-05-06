@@ -86,7 +86,12 @@
 
 #divLoading {
   color: var(--primary-muted-color);
-  padding: 0.2rem 0;
+  padding: 1rem;
+  width: fit-content;
+
+  &:hover {
+    color: var(--primary-color);
+  }
 }
 
 .audit-body .quick-info-container {

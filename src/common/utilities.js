@@ -1,4 +1,5 @@
-﻿import { getUrlParam } from "./router.js";
+﻿import { version } from "../../package.json";
+import { getUrlParam } from "./router.js";
 
 export function NewUtilities() {
   const commonUtilities = this;
@@ -93,7 +94,8 @@ export function NewUtilities() {
     document.getElementById(
       "divLoading"
     ).innerHTML = `Loaded at ${curDate.format("MM/dd/yyyy hh:mm tt")}<br/>
-    Load time: ${loadTime + "s"}
+    Load time: ${loadTime + "s"}<br/>
+    v${version}
     `;
   }
 

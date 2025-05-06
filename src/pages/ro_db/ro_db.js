@@ -9,13 +9,12 @@ function load(element, context) {
   InitReport();
 }
 
-var ro_db = { load };
-window.ro_db = ro_db;
-
-window.Audit = window.Audit || {
+const Audit = window.Audit || {
   Common: {},
+  EAReport: {},
 };
-Audit.EAReport = Audit.EAReport || {};
+
+window.Audit = Audit;
 
 var paramShowSiteActionsToAnyone = getUrlParam("ShowSiteActions");
 if (paramShowSiteActionsToAnyone != true) {

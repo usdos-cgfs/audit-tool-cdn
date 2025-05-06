@@ -45,7 +45,7 @@
     data-bind="component: { name: 'modal-dialog-component', params: $data }"
   ></div>
   <!-- /ko -->
-  <div id="divLoading" style="color: green; padding-bottom: 10px">
+  <div id="divLoading">
     Please Wait... Loading
     <span
       data-bind="visible: arrResponses().length > 0 && debugMode, text: arrResponses().length"
@@ -99,10 +99,7 @@
 
 <script id="responseStatusReportTemplate" type="text/html">
   <div id="tabs-0">
-    <div
-      id="lblStatusReportResponsesMsg"
-      style="padding-top: 5px; color: green"
-    >
+    <div id="lblStatusReportResponsesMsg" class="primary fw-semibold">
       <span
         data-bind="css: (cntPendingReview() > 0 ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check')"
       ></span
