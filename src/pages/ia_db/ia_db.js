@@ -19,7 +19,7 @@ import { ActiveViewersModuleLegacy } from "../../components/active_viewers/activ
 import * as ModalDialog from "../../sal/components/modal/index.js";
 import * as FormManager from "../../sal/infrastructure/form_manager.js";
 
-import { NewRequestFormComponent } from "../../components/forms/request/new_form/new_request_form.js";
+import { NewRequestForm } from "../../components/forms/request/new_form/new_request_form.js";
 import { RequestDetailView } from "../../components/request_detail_view/request_detail_view.js";
 import { EditRequestForm } from "../../components/forms/request/edit_form/edit_request_form.js";
 import { EditCoverSheetForm } from "../../components/forms/cover_sheet/edit_form/edit_cover_sheet_form.js";
@@ -34,6 +34,8 @@ import { EditResponseDocForm } from "../../components/forms/response_doc/edit_fo
 import {
   auditOrganizationStore,
   configurationsStore,
+  m_bigMap,
+  m_getArrRequests,
 } from "../../infrastructure/store.js";
 import {
   AUDITREQUESTSTATES,
@@ -181,14 +183,7 @@ var m_requestDocsLibrary = null;
 var m_responseDocsLibrary = null;
 
 // var m_bigMap = new Object();
-const m_bigMap = {};
-function m_getArrRequests() {
-  return Object.entries(m_bigMap)
-    .filter(([key, value]) => {
-      return key.startsWith("request-");
-    })
-    .map(([key, value]) => value);
-}
+
 var m_arrRequestsToClose = new Array();
 var m_arrPermissionsResponseFolders = new Array();
 
@@ -2529,7 +2524,7 @@ function m_fnCreateRequest() {
     return;
   }
 
-  const newRequestForm = new NewRequestFormComponent();
+  const newRequestForm = new NewRequestForm();
   const options = {
     title: "Create a New Request",
     form: newRequestForm,

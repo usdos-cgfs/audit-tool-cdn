@@ -41,10 +41,91 @@
     </div>
     <div
       class="form-field-component min-w-full"
-      data-bind="component: 
-        {name: ReqSubject.components.edit, params: ReqSubject}, 
-        class: ReqSubject.classList"
-    ></div>
+      data-bind="class: ReqSubject.classList"
+    >
+      <label class="fw-semibold"
+        ><span data-bind="text: ReqSubject.displayName"></span
+        ><span data-bind="if: ReqSubject.isRequired" class="fw-bold text-danger"
+          >*</span
+        >:
+        <div class="relative">
+          <input
+            class="form-control pr-6"
+            data-bind="textInput: ReqSubject.Value, class: ReqSubject.ValidationClass, attr: ReqSubject.attr"
+          />
+          <!-- ko if: ReqSubject.Value -->
+          <div class="form-control-actions">
+            <button
+              type="button"
+              class="btn btn-link glow"
+              title="Find similar requests"
+              data-bind="click: $parent.clickFindSimilarRequests"
+            >
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
+          </div>
+          <!-- /ko -->
+        </div>
+        <!-- ko if: ReqSubject.instructions -->
+        <div
+          class="fw-lighter fst-italic text-secondary"
+          data-bind="html: ReqSubject.instructions"
+        ></div>
+        <!-- /ko -->
+      </label>
+      <!-- ko if: ReqSubject.ShowErrors -->
+      <!-- ko foreach: ReqSubject.Errors -->
+      <div class="fw-semibold text-danger" data-bind="text: description"></div>
+      <!-- /ko -->
+      <!-- /ko -->
+    </div>
+    <!-- ko if: $parent.showSimilarRequests -->
+    <div class="min-w-full emphasized-section white overflow-auto">
+      <!-- ko if: $parent.similarRequests().length -->
+      <table class="table table-bordered w-full">
+        <thead>
+          <tr>
+            <th>ReqNum</th>
+            <th>Subject</th>
+            <th class="text-center">Action Offices</th>
+            <th class="text-center">Similarity Score</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody data-bind="foreach: $parent.similarRequests">
+          <tr>
+            <td
+              class="whitespace-nowrap content-start"
+              data-bind="text: number"
+            ></td>
+            <td class="content-start" data-bind="text: subject"></td>
+            <td class="content-start">
+              <ul class="list-none p-0 m-0" data-bind="foreach: actionOffices">
+                <li data-bind="text: ao"></li>
+              </ul>
+            </td>
+            <td class="content-start text-center" data-bind="text: score"></td>
+            <td class="content-start">
+              <button
+                type="button"
+                class="btn btn-link"
+                title="Apply to current request"
+                data-bind="click: apply"
+              >
+                Apply
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- /ko -->
+      <div class="fst-italic">
+        Found
+        <span data-bind="text: $parent.similarRequests().length"></span> similar
+        requests
+      </div>
+    </div>
+    <!-- /ko -->
     <div
       class="form-field-component"
       data-bind="component: 

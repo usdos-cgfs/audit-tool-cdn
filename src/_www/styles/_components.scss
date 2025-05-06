@@ -39,6 +39,8 @@
   font-weight: 500;
   border: none;
   margin-left: 0;
+
+  outline-color: var(--primary-color) !important;
 }
 
 .btn[disabled] {
@@ -67,11 +69,12 @@
   min-width: 0;
   vertical-align: inherit;
   font-size: inherit;
-}
 
-.btn.btn-link:hover {
-  color: var(--primary-color);
-  text-decoration: underline;
+  &:focus-visible,
+  &:hover {
+    --text-primary: var(--primary-color);
+    text-decoration: underline;
+  }
 }
 
 .btn.btn-success {
@@ -126,10 +129,35 @@
   padding: 4px;
   font-size: 1rem;
   box-sizing: border-box;
+  outline-color: var(--primary-color) !important;
 }
 
 .form-control-actions {
   position: absolute;
   top: 0;
   right: 0;
+  display: flex;
+  align-items: stretch;
+  height: calc(100% - 0.5rem);
+  margin: 0.25rem;
+
+  & .btn {
+  }
+}
+
+.table {
+  &.table-bordered {
+    border: 1px solid var(--primary-color);
+    border-collapse: collapse;
+
+    & th,
+    & td {
+      border: 1px solid var(--primary-color);
+    }
+  }
+
+  & th,
+  & td {
+    padding: 0.25rem 0.5rem;
+  }
 }

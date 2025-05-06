@@ -14,3 +14,12 @@ export const allRequestingOfficesFilter = (org) =>
 export const getOrgByRole = (role) => {
   return auditOrganizationStore().find((org) => org.Role == role);
 };
+
+export const m_bigMap = {};
+export function m_getArrRequests() {
+  return Object.entries(m_bigMap)
+    .filter(([key, value]) => {
+      return key.startsWith("request-");
+    })
+    .map(([key, value]) => value);
+}

@@ -27,6 +27,7 @@
   /* --primary-muted-color: #b9dfe2; */
 
   /* --secondary-color: #3c474d; */
+  outline-color: var(--primary-color) !important;
 }
 
 .colors {
@@ -969,10 +970,6 @@ TABLE.tablesorter THEAD TR .header {
   background-color: Gainsboro;
 }
 
-.hidden {
-  display: none !important;
-}
-
 .form-control,
 .form-check-input,
 .form-control,
@@ -1008,98 +1005,6 @@ TABLE.tablesorter THEAD TR .header {
   100% {
     opacity: 0; /* Fade to transparent */
   }
-}
-
-/* Display */
-.audit .flex {
-  display: flex;
-}
-
-.vertical {
-  flex-direction: column;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.gap-2 {
-  gap: 0.3rem;
-}
-
-/* Position */
-.position-fixed {
-  position: fixed;
-}
-
-.bigrounded {
-  -webkit-border-radius: 2em;
-  -moz-border-radius: 2em;
-  border-radius: 2em;
-}
-.medium {
-  font-size: 12px;
-  padding: 0.4em 1.5em 0.42em;
-}
-.small {
-  font-size: 0.75rem;
-  padding: 0.1rem 0.3rem;
-}
-
-/* Font */
-.fst-italic {
-  font-style: italic;
-}
-
-.fw-lighter {
-  font-weight: 300;
-}
-.fw-light {
-  font-weight: 400;
-}
-.fw-semibold {
-  font-weight: 600 !important;
-}
-
-.fw-bold {
-  font-weight: bold !important;
-}
-
-.uppercase {
-  text-transform: uppercase;
-}
-
-/* Width */
-
-.w-fit {
-  width: fit-content;
-}
-
-.w-full,
-.w-100 {
-  width: 100%;
-}
-
-.min-w-full {
-  min-width: 100% !important;
-}
-
-/* Height */
-
-.h-1 {
-  height: 1rem;
-}
-
-.vh-100 {
-  height: 100vh;
 }
 
 .commentChain {

@@ -13,39 +13,24 @@ import {
 import {
   auditOrganizationStore,
   configurationsStore,
+  m_getArrRequests,
 } from "../../../../infrastructure/store.js";
 import { BaseForm } from "../../../../sal/components/forms/index.js";
 import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
 import newRequestFormTemplate from "./NewRequestFormTemplate.html";
 import { CONFIGKEY } from "../../../../env.js";
+import { sentenceSimilarity } from "../../../../infrastructure/ai.js";
+import { appContext } from "../../../../infrastructure/application_db_context.js";
 
 export const newRequestFormComponentName = "newRequestForm";
 
-export class NewRequestFormComponent {
-  constructor(params) {
-    this.onComplete = params?.onComplete;
-  }
+export class NewRequestForm extends BaseForm {
+  constructor() {
+    super({
+      entity: ko.observable(new AuditRequest()),
+      view: AuditRequest.Views.New,
+    });
 
-  onComplete;
-
-  newRequest = ko.observable(new AuditRequest());
-
-  params = ko.pureComputed(() => {
-    return {
-      newRequest: this.newRequest,
-      reset: this.reset,
-      onComplete: this.onComplete,
-    };
-  });
-
-  componentName = newRequestFormComponentName;
-}
-
-export default class NewRequestFormModule extends BaseForm {
-  constructor({ newRequest, onComplete }) {
-    super({ entity: newRequest, view: AuditRequest.Views.New });
-
-    this.onComplete = onComplete;
     this.prepopulateRequestFields();
   }
 
@@ -62,6 +47,9 @@ export default class NewRequestFormModule extends BaseForm {
   });
 
   saving = ko.observable(false);
+
+  showSimilarRequests = ko.observable(false);
+  similarRequests = ko.observableArray();
 
   prepopulateRequestFields() {
     const request = ko.unwrap(this.entity);
@@ -92,6 +80,58 @@ export default class NewRequestFormModule extends BaseForm {
     request.ReceiptDate.Value(new Date());
   }
 
+  clickFindSimilarRequests = async () => {
+    this.saving(true);
+    const reqSubject = ko.unwrap(this.entity)?.ReqSubject.toString();
+
+    if (!reqSubject) return;
+
+    const reqs = m_getArrRequests();
+    const requestSubjectOpts = reqs.map((r) => {
+      return { item: r, sentence: r.subject };
+    });
+
+    const closest = await sentenceSimilarity(reqSubject, requestSubjectOpts);
+
+    const similarRequests = closest.map((r) => {
+      return {
+        ...r.item.item,
+        score: r.score.toPrecision(2),
+        apply: this.clickApplySimilarRequest,
+      };
+    });
+
+    this.similarRequests(similarRequests);
+    this.showSimilarRequests(true);
+    this.saving(false);
+  };
+
+  clickApplySimilarRequest = async (req) => {
+    const request = await appContext.AuditRequests.FindById(req.ID);
+
+    const entity = ko.unwrap(this.entity);
+
+    // Append similar requests action items and comments
+    const reqPreText = `<p>[${req.number}]:</p>`;
+
+    if (req.actionItems) {
+      entity.ActionItems.set(
+        (entity.ActionItems.get() ?? "") + reqPreText + req.actionItems
+      );
+    }
+    if (req.comments) {
+      entity.Comments.set(
+        (entity.Comments.get() ?? "") + reqPreText + req.comments
+      );
+    }
+
+    // Set the similar request number
+    entity.RelatedAudit.set(req.number);
+
+    entity.ActionOffice.set(request.ActionOffice.get());
+    entity.Sensitivity.set(request.Sensitivity.get());
+  };
+
   async clickSubmit() {
     this.saving(true);
     await this.submit();
@@ -102,7 +142,7 @@ export default class NewRequestFormModule extends BaseForm {
     const errors = this.validate();
     if (errors.length) return;
 
-    const request = this.entity();
+    const request = ko.unwrap(this.entity);
 
     try {
       await addNewRequest(request);
@@ -116,9 +156,10 @@ export default class NewRequestFormModule extends BaseForm {
     this.entity(new AuditRequest());
     this.prepopulateRequestFields();
   }
+
+  componentName = newRequestFormComponentName;
 }
 
 directRegisterComponent(newRequestFormComponentName, {
   template: newRequestFormTemplate,
-  viewModel: NewRequestFormModule,
 });

@@ -50,6 +50,10 @@
   background-color: color-mix(in srgb, var(--danger-color) 25%, transparent);
 }
 
+.whitespace-nowrap {
+  white-space: nowrap;
+}
+
 /* Display */
 .audit .flex {
   display: flex;
@@ -73,6 +77,152 @@
 
 .items-start {
   align-items: start;
+}
+
+.content-start {
+  align-content: start;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Position */
+.position-fixed {
+  position: fixed;
+}
+
+.bigrounded {
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  border-radius: 2em;
+}
+.medium {
+  font-size: 12px;
+  padding: 0.4em 1.5em 0.42em;
+}
+.small {
+  font-size: 0.75rem;
+  padding: 0.1rem 0.3rem;
+}
+
+/* spacing */
+.gap-2 {
+  gap: 0.3rem;
+}
+
+.m-0 {
+  margin: 0;
+}
+
+.m-2 {
+  margin: 0.25rem;
+}
+
+.p-0 {
+  padding: 0px;
+}
+
+.p-2 {
+  padding: 0.25rem;
+}
+
+.pr-6 {
+  padding: 1.5rem;
+}
+
+/* Font */
+.fst-italic {
+  font-style: italic;
+}
+
+.fw-lighter {
+  font-weight: 300;
+}
+.fw-light {
+  font-weight: 400;
+}
+.fw-semibold {
+  font-weight: 600 !important;
+}
+
+.fw-bold {
+  font-weight: bold !important;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-end {
+  text-align: end;
+}
+
+/* List Style */
+.list-none {
+  list-style-type: none;
+}
+
+/* Width */
+
+.w-fit {
+  width: fit-content;
+}
+
+.w-full,
+.w-100 {
+  width: 100%;
+}
+
+.min-w-full {
+  min-width: 100% !important;
+}
+
+.max-w-full {
+  max-width: 100% !important;
+}
+
+/* Height */
+
+.h-1 {
+  height: 1rem;
+}
+
+.vh-100 {
+  height: 100vh;
+}
+
+/* Display */
+.audit .flex {
+  display: flex;
+}
+
+.vertical {
+  flex-direction: column;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-start {
+  align-items: start;
+}
+
+.overflow-auto {
+  overflow: auto;
 }
 
 .hidden {
@@ -161,4 +311,127 @@
 
 .vh-100 {
   height: 100vh;
+}
+
+/* animations */
+@property --a {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --i {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+
+@keyframes spin-glow {
+  from {
+    --a: 0turn;
+  }
+  to {
+    --a: 1turn;
+  }
+}
+
+.glow {
+  z-index: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.glow::before {
+  content: "";
+  aspect-ratio: 1;
+  border-radius: inherit;
+  width: 100%;
+  height: 100%;
+  border: 4px solid var(--text-primary);
+  padding: 0px;
+  background: inherit;
+
+  --i: 1;
+  --a: 0turn;
+  --_s: (90deg - mod(var(--a), 0.5turn)) * 9999;
+
+  mask: conic-gradient(#000 0 0) content-box,
+    linear-gradient(
+        calc(
+          var(--_a, 45deg) + mod(var(--a), 90deg) * var(--i) +
+            clamp(
+              -90deg * var(--i),
+              (90deg - mod(var(--a), 180deg)) * 9999,
+              0deg
+            )
+        ),
+        #0000 30%,
+        #000 40% 60%,
+        #0000 70%
+      )
+      subtract,
+    conic-gradient(#000 0 0) padding-box;
+
+  animation: spin-glow 5s linear infinite;
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  z-index: -1;
+}
+
+@property --p {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+
+@keyframes shine {
+  0% {
+    --p: 0%;
+  }
+  35% {
+    --p: 80%;
+  }
+  100% {
+    --p: 100%;
+  }
+}
+
+.shine {
+  z-index: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.shine::before {
+  content: "";
+  aspect-ratio: 1;
+  border-radius: inherit;
+  width: calc(100%);
+  height: calc(100%);
+  border: 4px solid #1976ed;
+  padding: 0px;
+  background: inherit;
+
+  --p: 0%;
+
+  mask: conic-gradient(#000 0 0) content-box,
+    linear-gradient(
+        0.2turn,
+        #000,
+        #000 calc(var(--p) - 20%),
+        #0000 calc(var(--p)),
+        #000 calc(var(--p) + 30%),
+        #000
+      )
+      subtract,
+    conic-gradient(#000 0 0) padding-box;
+
+  animation: shine 1.5s ease-out infinite;
+
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  /* translate: -0% -0%; */
+  box-sizing: content-box;
+  z-index: -1;
 }
