@@ -16,7 +16,7 @@ Write-Output "Created and switched to branch release/$releaseVersion"
 
 # get the new version number from gitversion
 Write-Output "Collect the version number from package.json"
-$releaseVersionNum = dotnet-gitversion -showvariable FullSemVer
+$releaseVersionNum = dotnet-gitversion -showvariable SemVer
 $releaseVersion = "v$releaseVersionNum"
 Write-Output "Release: $releaseVersion"
 
