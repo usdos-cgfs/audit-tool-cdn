@@ -304,7 +304,7 @@ export async function closeResponse(request, response, notifyIA = true) {
     taskDefs.closeResponse(response.Title.Value())
   );
 
-  response.markClosed();
+  await response.markClosed();
   await appContext.AuditResponses.UpdateEntity(
     response,
     AuditResponse.Views.IAUpdateClosed

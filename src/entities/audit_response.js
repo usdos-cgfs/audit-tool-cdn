@@ -148,10 +148,10 @@ export class AuditResponse extends ConstrainedEntity {
     );
   }
 
-  markClosed() {
+  async markClosed() {
     this.ResStatus.Value(AuditResponseStates.Closed);
     this.ClosedDate.set(new Date());
-    this.ClosedBy.set(currentUser());
+    this.ClosedBy.set(await currentUser());
   }
 
   static Views = {
