@@ -62,6 +62,9 @@ export class NewRequestForm extends BaseForm {
     const reqType = configurationsStore[CONFIGKEY.DEFAULTREQTYPE];
     request.ReqType.Value(reqType);
 
+    const sensitivity = configurationsStore[CONFIGKEY.SENSITIVITY];
+    request.Sensitivity.set(sensitivity);
+
     const defaultReminders = getRequestDefaultReminders();
     request.Reminders.Value(defaultReminders);
 

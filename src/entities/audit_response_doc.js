@@ -25,6 +25,15 @@ export const AuditResponseDocStates = {
   MarkedForDeletion: "Marked for Deletion",
 };
 
+const taskerResponseDocStates = {
+  Open: AuditResponseDocStates.Open,
+  Submitted: AuditResponseDocStates.Submitted,
+  Approved: AuditResponseDocStates.Approved,
+  Rejected: AuditResponseDocStates.Rejected,
+  Archived: AuditResponseDocStates.Archived,
+  MarkedForDeletion: AuditResponseDocStates.MarkedForDeletion,
+};
+
 export class AuditResponseDoc extends ConstrainedEntity {
   constructor(params) {
     super(params);
@@ -42,6 +51,12 @@ export class AuditResponseDoc extends ConstrainedEntity {
   DocumentStatus = new SelectField({
     displayName: "Document Status",
     options: Object.values(AuditResponseDocStates),
+    optionsFilter: ko.pureComputed(() => {
+      const isTasker = this.ReqNum.Value()?.isTasker();
+
+      return (opt) =>
+        isTasker ? Object.values(taskerResponseDocStates).includes(opt) : true;
+    }),
   });
 
   RejectReason = new TextAreaField({

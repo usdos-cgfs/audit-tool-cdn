@@ -8,4 +8,5 @@ export const CONFIGKEY = {
   DEFAULTRO: "default-ro",
   REQNUMPREFIX: "reqnum-prefix",
   REQNUMSUFFIX: "reqnum-suffix",
+  SENSITIVITY: "default-sensitivity",
 };
