@@ -1,4 +1,4 @@
-﻿import { version } from "../../package.json";
+﻿import { version } from "../env.js";
 import { getUrlParam } from "./router.js";
 
 export function NewUtilities() {

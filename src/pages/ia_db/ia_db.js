@@ -1,4 +1,4 @@
-﻿import { version } from "../../../package.json";
+﻿import { version } from "../../env.js";
 import * as ko from "knockout";
 import iaDbTemplate from "./ia_db.html";
 // import "../../common/utilities.js";
@@ -17,7 +17,7 @@ import { CommentChainModuleLegacy } from "../../components/comment_chain/comment
 import { ActiveViewersModuleLegacy } from "../../components/active_viewers/active_viewers_module.js";
 
 import * as ModalDialog from "../../sal/components/modal/index.js";
-import * as FormManager from "../../sal/infrastructure/form_manager.js";
+import * as FormManager from "../../sal/infrastructure/index.js";
 
 import { NewRequestForm } from "../../components/forms/request/new_form/new_request_form.js";
 import { RequestDetailView } from "../../components/request_detail_view/request_detail_view.js";

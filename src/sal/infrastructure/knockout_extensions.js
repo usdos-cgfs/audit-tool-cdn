@@ -532,30 +532,3 @@ const fromPathTemplateLoader = {
 };
 
 ko.components.loaders.unshift(fromPathTemplateLoader);
-
-const fromPathViewModelLoader = {
-  loadViewModel: function (name, viewModelConfig, callback) {
-    if (viewModelConfig.viaLoader) {
-      // console.log("loading module", name);
-      const module = import(assetsPath() + viewModelConfig.viaLoader).then(
-        (module) => {
-          // console.log("imported module", name);
-          const viewModelConstructor = module.default;
-          // We need a createViewModel function, not a plain constructor.
-          // We can use the default loader to convert to the
-          // required format.
-          ko.components.defaultLoader.loadViewModel(
-            name,
-            viewModelConstructor,
-            callback
-          );
-        }
-      );
-    } else {
-      // Unrecognized config format. Let another loader handle it.
-      callback(null);
-    }
-  },
-};
-
-ko.components.loaders.unshift(fromPathViewModelLoader);
